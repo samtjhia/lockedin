@@ -1,8 +1,21 @@
-export default function Home() {
+import { getLeaderboardData } from '@/app/actions'
+import { LedgerBoard } from '@/components/home/ledger-board'
+
+export const dynamic = 'force-dynamic'
+
+export default async function Home() {
+  const initialData = await getLeaderboardData('daily')
+  
+  const formattedData = (initialData || []).map((entry: any) => ({
+    ...entry,
+    total_seconds: Number(entry.total_seconds)
+  }))
+
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center p-24">
-      <h1 className="text-4xl font-bold mb-4">The Locked In Factory</h1>
-      <p className="text-xl text-zinc-500">Output Ledger - Offline</p>
-    </div>
-  );
+    <main className="min-h-screen bg-black text-zinc-100 selection:bg-zinc-800">
+      <div className="container mx-auto px-4 py-8 md:py-16">
+         <LedgerBoard initialData={formattedData} />
+      </div>
+    </main>
+  )
 }

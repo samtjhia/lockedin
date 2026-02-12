@@ -77,19 +77,10 @@ export async function transitionSession(endedSessionId: string) {
             nextTaskName = 'Short Break'
         }
     } else if (prevSession.mode === 'short-break' || prevSession.mode === 'long-break') {
-        nextMode = 'pomo'
-        // Reuse previous task name if possible, or generic
-        // Let's try to find the last 'pomo' task
-        const { data: lastPomo } = await supabase
-            .from('sessions')
-            .select('task_name')
-            .eq('user_id', user.id)
-            .eq('mode', 'pomo')
-            .order('ended_at', { ascending: false })
-            .limit(1)
-            .single()
-            
-        nextTaskName = lastPomo?.task_name || 'Focus Session'
+        // BUG FIX: Don't auto-start Pomo after break. Just stop.
+        // Unless we want "auto-chaining" which the user said they didn't like ("it thinks it's in pomo mode and then auto starts").
+        // Let's stop after a break.
+        return { success: true, stop: true }
     } else {
         // If it was stopwatch, just stop.
         return { success: true, stop: true }
@@ -112,7 +103,7 @@ export async function punchIn(formData: FormData) {
   
   if (!user) throw new Error('Not authenticated')
 
-  const taskName = formData.get('taskName') as string
+  const taskName = (formData.get('taskName') as string)?.trim()
   const mode = formData.get('mode') as string || 'stopwatch'
   const isAuto = formData.get('isAuto') === 'true'
 
@@ -223,6 +214,12 @@ export async function pauseSession(sessionId: string) {
 
   if (error) return { error: error.message }
   
+  // Update Profile Status
+  await supabase
+    .from('profiles')
+    .update({ current_status: 'paused' })
+    .eq('id', user.id)
+
   revalidatePath('/dashboard')
   return { success: true, session: updatedSession }
 }
@@ -245,6 +242,12 @@ export async function resumeSession(sessionId: string) {
     .single()
 
   if (error) return { error: error.message }
+
+  // Update Profile Status
+  await supabase
+    .from('profiles')
+    .update({ current_status: 'active' })
+    .eq('id', user.id)
 
   revalidatePath('/dashboard')
   return { success: true, session: updatedSession }

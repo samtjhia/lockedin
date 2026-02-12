@@ -16,6 +16,7 @@ export function FocusController({ initialSession }: FocusControllerProps) {
   // Local state to track session immediately before server revalidate
   const [session, setSession] = useState(initialSession)
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
   const [mode, setMode] = useState<string>('stopwatch')
   const [pomoCount, setPomoCount] = useState(0)
 
@@ -88,6 +89,7 @@ export function FocusController({ initialSession }: FocusControllerProps) {
 
   async function handleStart(formData: FormData) {
     setLoading(true)
+    setError(null)
     formData.append('mode', mode)
     
     try {
@@ -95,10 +97,11 @@ export function FocusController({ initialSession }: FocusControllerProps) {
       if (result?.success && result.session) {
         setSession(result.session)
       } else if (result?.error) {
-         console.error(result.error)
+         setError(result.error)
       }
     } catch (e) {
       console.error(e)
+      setError('An unexpected error occurred')
     } finally {
       setLoading(false)
     }
@@ -280,11 +283,19 @@ export function FocusController({ initialSession }: FocusControllerProps) {
             <Input 
                 name="taskName"
                 placeholder={mode === 'short-break' ? "Taking a breather..." : "What are you working on?"}
-                className="h-14 text-lg bg-zinc-950 border-zinc-800 focus:border-zinc-700"
+                className={`h-14 text-lg bg-zinc-950 focus:border-zinc-700 ${error ? 'border-red-500/50 focus-visible:ring-red-500/20' : 'border-zinc-800'}`}
                 required
                 autoComplete="off"
                 defaultValue={mode === 'short-break' ? "Short Break" : ""}
+                onChange={() => error && setError(null)}
             />
+            
+            {error && (
+                <div className="text-red-400 text-sm font-bold flex items-center gap-2 animate-in slide-in-from-left-2">
+                    <div className="h-1.5 w-1.5 rounded-full bg-red-500" />
+                    {error}
+                </div>
+            )}
             
             <div className="text-zinc-500 text-sm px-1">
                 {mode === 'stopwatch' && "Open-ended session. Count up timer for flexible deep work."}
