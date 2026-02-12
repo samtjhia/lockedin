@@ -26,6 +26,7 @@ type LeaderboardEntry = {
 type TaskStat = {
     task_name: string
     total_seconds: number
+    started_at: string | null
 }
 
 function LeaderboardRow({ 
@@ -158,7 +159,7 @@ function LeaderboardRow({
                     <div className="flex items-center justify-between mb-2">
                          <h4 className="text-[10px] uppercase tracking-widest font-bold text-zinc-500 flex items-center gap-2">
                             <Clock className="w-3 h-3" />
-                            Top Activities ({period})
+                            {period === 'weekly' ? 'Top Activities' : 'Daily Schedule'} ({period})
                          </h4>
                     </div>
                     
@@ -168,16 +169,43 @@ function LeaderboardRow({
                             Fetching details...
                         </div>
                     ) : stats && stats.length > 0 ? (
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                            {stats.map((stat, i) => (
-                                <div key={i} className="flex flex-col p-2 rounded bg-zinc-950/30 border border-zinc-800/50">
-                                    <div className="text-xs text-zinc-400 truncate font-medium mb-1" title={stat.task_name}>{stat.task_name}</div>
-                                    <div className="text-sm font-mono font-bold text-zinc-300">
-                                        {formatDuration(stat.total_seconds)}
+                        period === 'daily' ? (
+                            // Daily Schedule View
+                            <div className="space-y-2">
+                                {stats.map((stat, i) => {
+                                    // Fallback if started_at is missing (e.g. migration not run)
+                                    const timeStr = stat.started_at 
+                                        ? new Date(stat.started_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                                        : '--:--'
+                                    
+                                    return (
+                                        <div key={i} className="flex items-center gap-3 text-sm group/row p-2 rounded hover:bg-zinc-950/30 border border-transparent hover:border-zinc-800/50 transition-colors">
+                                            <div className="font-mono text-zinc-500 text-xs w-16 shrink-0">
+                                                {timeStr}
+                                            </div>
+                                            <div className="flex-1 truncate font-medium text-zinc-300">
+                                                {stat.task_name}
+                                            </div>
+                                            <div className="font-mono text-zinc-500 text-xs tabular-nums group-hover/row:text-zinc-300">
+                                                {formatDuration(stat.total_seconds)}
+                                            </div>
+                                        </div>
+                                    )
+                                })}
+                            </div>
+                        ) : (
+                            // Weekly Top 3 Grid
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                                {stats.slice(0, 3).map((stat, i) => (
+                                    <div key={i} className="flex flex-col p-2 rounded bg-zinc-950/30 border border-zinc-800/50">
+                                        <div className="text-xs text-zinc-400 truncate font-medium mb-1" title={stat.task_name}>{stat.task_name}</div>
+                                        <div className="text-sm font-mono font-bold text-zinc-300">
+                                            {formatDuration(stat.total_seconds)}
+                                        </div>
                                     </div>
-                                </div>
-                            ))}
-                        </div>
+                                ))}
+                            </div>
+                        )
                     ) : (
                         <div className="py-2 text-zinc-600 text-sm italic flex items-center gap-2">
                             <div className="w-1.5 h-1.5 rounded-full bg-zinc-700"></div>
