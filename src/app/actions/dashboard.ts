@@ -1,6 +1,7 @@
 'use server'
 
 import { createClient } from '@/utils/supabase/server'
+import { revalidatePath } from 'next/cache'
 
 export async function getHeatmapData() {
   const supabase = await createClient()
@@ -150,5 +151,62 @@ export async function clearCompletedTodos() {
     return { success: false, error: error.message }
   }
   
+  return { success: true }
+}
+
+export async function deleteSession(id: string) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  
+  if (!user) {
+    return { success: false, error: 'Unauthorized' }
+  }
+
+  // Verify existence and ownership first
+  const { data: session, error: findError } = await supabase
+    .from('sessions')
+    .select('id, user_id')
+    .eq('id', id)
+    .single()
+
+  if (findError || !session) {
+    return { success: false, error: 'Session not found (Read check failed)' }
+  }
+
+  if (session.user_id !== user.id) {
+    return { success: false, error: 'Unauthorized: You do not own this session' }
+  }
+
+  // Attempt Delete
+  const { error, count } = await supabase
+    .from('sessions')
+    .delete({ count: 'exact' })
+    .eq('id', id)
+
+  if (error) {
+    console.error('Error deleting session:', error)
+    return { success: false, error: error.message }
+  }
+
+  if (count === 0) {
+    return { success: false, error: 'Delete failed: RLS Policy likely preventing deletion' }
+  }
+
+  revalidatePath('/dashboard')
+  return { success: true }
+}
+
+export async function updateSessionName(id: string, name: string) {
+  const supabase = await createClient()
+  const { error } = await supabase
+    .from('sessions')
+    .update({ task_name: name })
+    .eq('id', id)
+
+  if (error) {
+    console.error('Error updating session:', error)
+    return { success: false, error: error.message }
+  }
+
   return { success: true }
 }
