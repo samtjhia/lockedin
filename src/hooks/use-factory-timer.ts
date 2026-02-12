@@ -3,45 +3,70 @@
 import { useState, useEffect, useRef } from 'react'
 import { differenceInSeconds } from 'date-fns'
 
-export function useFactoryTimer(startTimeISO: string | null) {
+export function useFactoryTimer(
+    status: string = 'active',
+    lastResumedAt: string | null, 
+    accumulatedSeconds: number = 0,
+    mode: string = 'stopwatch'
+) {
   const [seconds, setSeconds] = useState(0)
   const [isRunning, setIsRunning] = useState(false)
+  const [isFinished, setIsFinished] = useState(false) // For Pomo/Break completion
   const intervalRef = useRef<NodeJS.Timeout | null>(null)
 
   useEffect(() => {
-    // If no start time, reset timer
-    if (!startTimeISO) {
-      setSeconds(0)
-      setIsRunning(false)
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current)
-      }
-      return
-    }
+    // Logic: 
+    // If paused, time is just accumulated.
+    // If active, time is accumulated + (now - lastResumedAt)
 
-    // Initialize timer based on elapsed time from server
     const calculateTime = () => {
-      const start = new Date(startTimeISO)
-      const now = new Date()
-      // Ensure we don't show negative time if clocks are slightly off
-      const diff = Math.max(0, differenceInSeconds(now, start))
-      setSeconds(diff)
+      let elapsed = accumulatedSeconds
+
+      if (status === 'active' && lastResumedAt) {
+          const start = new Date(lastResumedAt)
+          const now = new Date()
+          elapsed += Math.max(0, differenceInSeconds(now, start))
+      }
+
+      // Determine display time based on mode
+      let displaySeconds = elapsed
+      let finished = false
+
+      if (mode === 'pomo') {
+        const target = 30 // TEST MODE: 30 seconds
+        const remaining = Math.max(0, target - elapsed)
+        displaySeconds = remaining
+        if (remaining === 0) finished = true
+      } else if (mode === 'short-break') {
+        const target = 10 // TEST MODE: 10 seconds
+        const remaining = Math.max(0, target - elapsed)
+        displaySeconds = remaining
+        if (remaining === 0) finished = true
+      } else if (mode === 'long-break') {
+         const target = 15 * 60 
+         const remaining = Math.max(0, target - elapsed)
+         displaySeconds = remaining
+         if (remaining === 0) finished = true
+      }
+
+      setSeconds(displaySeconds)
+      setIsFinished(finished)
     }
 
-    calculateTime() // Initial calc
-    setIsRunning(true)
-
-    // Tick every second to re-sync with wall clock
-    intervalRef.current = setInterval(() => {
-        calculateTime()
-    }, 1000)
+    calculateTime() // Initial
+    
+    if (status === 'active') {
+        setIsRunning(true)
+        intervalRef.current = setInterval(calculateTime, 1000)
+    } else {
+        setIsRunning(false)
+        if (intervalRef.current) clearInterval(intervalRef.current)
+    }
 
     return () => {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current)
-      }
+      if (intervalRef.current) clearInterval(intervalRef.current)
     }
-  }, [startTimeISO])
+  }, [status, lastResumedAt, accumulatedSeconds, mode])
 
   // Helper to format MM:SS or HH:MM:SS
   const formattedTime = (() => {
@@ -58,6 +83,7 @@ export function useFactoryTimer(startTimeISO: string | null) {
   return {
     seconds,
     formattedTime,
-    isRunning
+    isRunning,
+    isFinished
   }
 }
