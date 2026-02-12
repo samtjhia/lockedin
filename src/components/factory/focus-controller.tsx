@@ -7,18 +7,43 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { StopCircle, Play, Timer, Clock, Pause, Coffee, Bell, BellOff, Volume2, VolumeX } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 
 type FocusControllerProps = {
   initialSession: any 
 }
 
 export function FocusController({ initialSession }: FocusControllerProps) {
+  const router = useRouter()
   // Local state to track session immediately before server revalidate
   const [session, setSession] = useState(initialSession)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [mode, setMode] = useState<string>('stopwatch')
   const [pomoCount, setPomoCount] = useState(0)
+  const [taskName, setTaskName] = useState('')
+
+  useEffect(() => {
+     const handlePlayTask = (e: CustomEvent) => {
+        if (e.detail) {
+            setTaskName(e.detail)
+            // If in break mode, switch to focus mode
+            if (mode === 'short-break' || mode === 'long-break') {
+                setMode('stopwatch')
+            }
+        }
+     }
+     window.addEventListener('play-task', handlePlayTask as EventListener)
+     return () => window.removeEventListener('play-task', handlePlayTask as EventListener)
+  }, [mode])
+
+  // Update task name when mode changes to break
+  useEffect(() => {
+    if (mode === 'short-break') setTaskName('Short Break')
+    else if (mode === 'long-break') setTaskName('Long Break')
+    // Don't clear it automatically when switching back to work, let user decide or keep previous
+  }, [mode])
+
 
   // Settings
   const [soundEnabled, setSoundEnabled] = useState(false)
@@ -110,8 +135,16 @@ export function FocusController({ initialSession }: FocusControllerProps) {
   async function handleStop() {
     if (!session?.id) return
     setLoading(true)
-    await punchOut(session.id)
-    setSession(null) 
+    const res = await punchOut(session.id)
+    if (res?.success) {
+        setSession(null)
+        // Refresh the page data so log and charts update
+        router.refresh()
+        // Adding a small timeout reload for good measure if server components are cached aggressively
+        setTimeout(() => {
+             window.dispatchEvent(new Event('session-completed'))
+        }, 500)
+    }
     setLoading(false)
   }
 
@@ -286,8 +319,11 @@ export function FocusController({ initialSession }: FocusControllerProps) {
                 className={`h-14 text-lg bg-zinc-950 focus:border-zinc-700 ${error ? 'border-red-500/50 focus-visible:ring-red-500/20' : 'border-zinc-800'}`}
                 required
                 autoComplete="off"
-                defaultValue={mode === 'short-break' ? "Short Break" : ""}
-                onChange={() => error && setError(null)}
+                value={taskName}
+                onChange={(e) => {
+                    setTaskName(e.target.value)
+                    if (error) setError(null)
+                }}
             />
             
             {error && (

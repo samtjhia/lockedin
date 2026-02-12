@@ -33,12 +33,12 @@ export function useFactoryTimer(
       let finished = false
 
       if (mode === 'pomo') {
-        const target = 30 // TEST MODE: 30 seconds
+        const target = 25 * 60 // 25 Minutes
         const remaining = Math.max(0, target - elapsed)
         displaySeconds = remaining
         if (remaining === 0) finished = true
       } else if (mode === 'short-break') {
-        const target = 10 // TEST MODE: 10 seconds
+        const target = 5 * 60 // 5 Minutes
         const remaining = Math.max(0, target - elapsed)
         displaySeconds = remaining
         if (remaining === 0) finished = true

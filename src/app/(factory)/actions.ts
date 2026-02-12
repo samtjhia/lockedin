@@ -300,6 +300,8 @@ export async function punchOut(sessionId: string) {
     })
     .eq('id', user.id)
 
+  revalidatePath('/')
   revalidatePath('/dashboard')
+  
   return { success: true }
 }
