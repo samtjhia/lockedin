@@ -13,12 +13,26 @@ type ChartsProps = {
     initialMetrics?: any
 }
 
+const CHART_HEIGHT = 250
+const CHART_MIN_WIDTH = 280
+
 export function Charts({ initialMetrics }: ChartsProps) {
     const [metrics, setMetrics] = useState<any>(initialMetrics ?? null)
+    const [mounted, setMounted] = useState(false)
+    const [canRenderCharts, setCanRenderCharts] = useState(false)
 
     const loadMetrics = () => {
         getDailyMetrics().then(data => setMetrics(data))
     }
+
+    useEffect(() => {
+        setMounted(true)
+        // Only render Recharts when we have a valid container size (avoids -1 dimension errors on mobile)
+        const check = () => setCanRenderCharts(typeof window !== 'undefined' && window.innerWidth >= 400)
+        check()
+        window.addEventListener('resize', check)
+        return () => window.removeEventListener('resize', check)
+    }, [])
 
     useEffect(() => {
         // Only fetch if no initial data provided
@@ -30,7 +44,31 @@ export function Charts({ initialMetrics }: ChartsProps) {
 
     const { theme } = useTheme()
 
-    if (!metrics) return null
+    if (!metrics || !mounted) return null
+
+    // Avoid Recharts on very small viewports to prevent dimension errors
+    if (!canRenderCharts) {
+        return (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Card className="border-border bg-muted/50">
+                    <CardHeader>
+                        <CardTitle className="text-sm font-medium text-muted-foreground">Hourly Focus</CardTitle>
+                    </CardHeader>
+                    <CardContent className="h-[120px] flex items-center justify-center text-muted-foreground text-sm">
+                        Charts need a wider screen
+                    </CardContent>
+                </Card>
+                <Card className="border-border bg-muted/50">
+                    <CardHeader>
+                        <CardTitle className="text-sm font-medium text-muted-foreground">Topic Distribution</CardTitle>
+                    </CardHeader>
+                    <CardContent className="h-[120px] flex items-center justify-center text-muted-foreground text-sm">
+                        Charts need a wider screen
+                    </CardContent>
+                </Card>
+            </div>
+        )
+    }
 
     const axisColor = theme === 'dark' ? '#71717a' : '#a1a1aa'
     const tooltipBg = theme === 'dark' ? '#18181b' : '#ffffff'
@@ -70,32 +108,35 @@ export function Charts({ initialMetrics }: ChartsProps) {
                 <CardHeader>
                     <CardTitle className="text-sm font-medium text-muted-foreground">Hourly Focus (Minutes)</CardTitle>
                 </CardHeader>
-                <CardContent className="h-[250px] min-h-[200px]">
-                    <div className="w-full h-full min-h-[200px]">
-                        <ResponsiveContainer width="100%" height="100%" minHeight={200}>
-                        <BarChart data={hourlyData}>
-                            <XAxis 
-                                dataKey="name" 
-                                tick={{ fill: axisColor, fontSize: 12 }} 
-                                axisLine={false}
-                                tickLine={false}
-                            />
-                            <YAxis 
-                                hide={false}
-                                tick={{ fill: axisColor, fontSize: 12 }} 
-                                axisLine={false}
-                                tickLine={false}
-                            />
-                            <Tooltip 
-                                contentStyle={{ backgroundColor: tooltipBg, borderColor: tooltipBorder, color: tooltipText }}
-                                itemStyle={{ color: tooltipText }}
-                                labelStyle={{ color: tooltipText }}
-                                cursor={{ fill: cursorFill }}
-                                formatter={(value: number | undefined) => [formatDuration((value || 0) * 60), 'Focus Time']}
-                            />
-                            <Bar dataKey="minutes" fill="#34d399" radius={[4, 4, 0, 0]} />
-                        </BarChart>
-                    </ResponsiveContainer>
+                <CardContent>
+                    <div
+                        className="w-full"
+                        style={{ minWidth: CHART_MIN_WIDTH, height: CHART_HEIGHT }}
+                    >
+                        <ResponsiveContainer width="100%" height={CHART_HEIGHT}>
+                            <BarChart data={hourlyData}>
+                                <XAxis 
+                                    dataKey="name" 
+                                    tick={{ fill: axisColor, fontSize: 12 }} 
+                                    axisLine={false}
+                                    tickLine={false}
+                                />
+                                <YAxis 
+                                    hide={false}
+                                    tick={{ fill: axisColor, fontSize: 12 }} 
+                                    axisLine={false}
+                                    tickLine={false}
+                                />
+                                <Tooltip 
+                                    contentStyle={{ backgroundColor: tooltipBg, borderColor: tooltipBorder, color: tooltipText }}
+                                    itemStyle={{ color: tooltipText }}
+                                    labelStyle={{ color: tooltipText }}
+                                    cursor={{ fill: cursorFill }}
+                                    formatter={(value: number | undefined) => [formatDuration((value || 0) * 60), 'Focus Time']}
+                                />
+                                <Bar dataKey="minutes" fill="#34d399" radius={[4, 4, 0, 0]} />
+                            </BarChart>
+                        </ResponsiveContainer>
                     </div>
                 </CardContent>
             </Card>
@@ -105,32 +146,35 @@ export function Charts({ initialMetrics }: ChartsProps) {
                 <CardHeader>
                     <CardTitle className="text-sm font-medium text-muted-foreground">Topic Distribution</CardTitle>
                 </CardHeader>
-                <CardContent className="h-[250px] min-h-[200px]">
-                    <div className="w-full h-full min-h-[200px]">
-                        <ResponsiveContainer width="100%" height="100%" minHeight={200}>
-                        <PieChart>
-                            <Pie
-                                data={topicData}
-                                cx="50%"
-                                cy="50%"
-                                innerRadius={60}
-                                outerRadius={80}
-                                paddingAngle={2} // Reduced padding to prevent small slices from disappearing
-                                minAngle={2}     // Ensure small slices are always visible
-                                dataKey="value"
-                            >
-                                {topicData.map((entry: any, index: number) => (
-                                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} stroke="rgba(0,0,0,0)" />
-                                ))}
-                            </Pie>
-                            <Tooltip 
-                                contentStyle={{ backgroundColor: tooltipBg, borderColor: tooltipBorder, color: tooltipText }} 
-                                itemStyle={{ color: tooltipText }}
-                                formatter={(value: number | undefined) => [formatDuration((value || 0) * 60), 'Duration']}
-                            />
-                            <Legend />
-                        </PieChart>
-                    </ResponsiveContainer>
+                <CardContent>
+                    <div
+                        className="w-full"
+                        style={{ minWidth: CHART_MIN_WIDTH, height: CHART_HEIGHT }}
+                    >
+                        <ResponsiveContainer width="100%" height={CHART_HEIGHT}>
+                            <PieChart>
+                                <Pie
+                                    data={topicData}
+                                    cx="50%"
+                                    cy="50%"
+                                    innerRadius={60}
+                                    outerRadius={80}
+                                    paddingAngle={2}
+                                    minAngle={2}
+                                    dataKey="value"
+                                >
+                                    {topicData.map((entry: any, index: number) => (
+                                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} stroke="rgba(0,0,0,0)" />
+                                    ))}
+                                </Pie>
+                                <Tooltip 
+                                    contentStyle={{ backgroundColor: tooltipBg, borderColor: tooltipBorder, color: tooltipText }} 
+                                    itemStyle={{ color: tooltipText }}
+                                    formatter={(value: number | undefined) => [formatDuration((value || 0) * 60), 'Duration']}
+                                />
+                                <Legend />
+                            </PieChart>
+                        </ResponsiveContainer>
                     </div>
                 </CardContent>
             </Card>

@@ -18,27 +18,38 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setThemeState] = useState<Theme>('dark')
 
   useEffect(() => {
-    // Initialize from localStorage or system preference
-    const stored = typeof window !== 'undefined' ? (localStorage.getItem(STORAGE_KEY) as Theme | null) : null
-    if (stored === 'light' || stored === 'dark') {
-      setThemeInternal(stored)
-      return
+    try {
+      const stored = typeof window !== 'undefined' ? (localStorage.getItem(STORAGE_KEY) as Theme | null) : null
+      if (stored === 'light' || stored === 'dark') {
+        setThemeState(stored)
+        if (typeof document !== 'undefined') {
+          document.documentElement.classList.toggle('dark', stored === 'dark')
+        }
+        return
+      }
+    } catch (_) {
+      // localStorage can throw in private browsing / some mobile browsers
     }
-
-    // Default: dark
-    setThemeInternal('dark')
+    setThemeState('dark')
+    if (typeof document !== 'undefined') {
+      document.documentElement.classList.add('dark')
+    }
   }, [])
 
   const setThemeInternal = (next: Theme) => {
     setThemeState(next)
-    if (typeof window !== 'undefined') {
-      localStorage.setItem(STORAGE_KEY, next)
-      const root = document.documentElement
-      if (next === 'dark') {
-        root.classList.add('dark')
-      } else {
-        root.classList.remove('dark')
+    try {
+      if (typeof window !== 'undefined') {
+        localStorage.setItem(STORAGE_KEY, next)
+        const root = document.documentElement
+        if (next === 'dark') {
+          root.classList.add('dark')
+        } else {
+          root.classList.remove('dark')
+        }
       }
+    } catch (_) {
+      // ignore localStorage errors
     }
   }
 

@@ -18,6 +18,7 @@ import {
   ShiftLogSkeleton, 
   ToolbarSkeleton 
 } from '@/components/dashboard/skeletons'
+import { ChartsErrorBoundary } from '@/components/dashboard/stats/charts-error-boundary'
 
 export default async function Dashboard() {
   const supabase = await createClient()
@@ -57,7 +58,9 @@ export default async function Dashboard() {
             <>
               <FocusController initialSession={currentSession} />
               <div className="grid grid-cols-1 gap-6">
-                <Charts initialMetrics={dashboardData.dailyMetrics} />
+                <ChartsErrorBoundary>
+                  <Charts initialMetrics={dashboardData.dailyMetrics} />
+                </ChartsErrorBoundary>
                 <HeatMap initialData={dashboardData.heatmapData} />
               </div>
             </>
