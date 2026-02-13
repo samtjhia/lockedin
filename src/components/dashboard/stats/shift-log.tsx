@@ -21,26 +21,27 @@ import {
 } from '@/components/ui/alert-dialog'
 import { toast } from 'sonner'
 
-export function ShiftLog() {
-    const [logs, setLogs] = useState<any[]>([])
-    const [loading, setLoading] = useState(true)
+type ShiftLogProps = {
+    initialLogs?: any[]
+}
+
+export function ShiftLog({ initialLogs }: ShiftLogProps) {
+    const [logs, setLogs] = useState<any[]>(initialLogs ?? [])
     const [editingId, setEditingId] = useState<string | null>(null)
     const [editName, setEditName] = useState('')
     const [deletingId, setDeletingId] = useState<string | null>(null)
 
     const loadLogs = () => {
-        getShiftLog().then(data => {
-            setLogs(data || [])
-            setLoading(false)
-        })
+        getShiftLog().then(data => setLogs(data || []))
     }
 
     useEffect(() => {
-        loadLogs()
+        // Only fetch if no initial data
+        if (!initialLogs) loadLogs()
         // Listen for session completion
         window.addEventListener('session-completed', loadLogs)
         return () => window.removeEventListener('session-completed', loadLogs)
-    }, [])
+    }, [initialLogs])
 
     const handleEditStart = (session: any) => {
         setEditingId(session.id)
@@ -76,8 +77,6 @@ export function ShiftLog() {
         }
         setDeletingId(null)
     }
-
-    if (loading) return <div className="h-[200px] w-full animate-pulse bg-zinc-900 rounded-xl" />
 
     return (
         <>

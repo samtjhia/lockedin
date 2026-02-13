@@ -4,30 +4,28 @@ import { useEffect, useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts'
 import { getDailyMetrics } from '@/app/actions/dashboard'
-import { Loader2 } from 'lucide-react'
 import { formatDuration } from '@/lib/utils'
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8']
 
-export function Charts() {
-    const [metrics, setMetrics] = useState<any>(null)
-    const [loading, setLoading] = useState(true)
+type ChartsProps = {
+    initialMetrics?: any
+}
+
+export function Charts({ initialMetrics }: ChartsProps) {
+    const [metrics, setMetrics] = useState<any>(initialMetrics ?? null)
 
     const loadMetrics = () => {
-        getDailyMetrics().then(data => {
-            setMetrics(data)
-            setLoading(false)
-        })
+        getDailyMetrics().then(data => setMetrics(data))
     }
 
     useEffect(() => {
-        loadMetrics()
-        // Listen for session completion
+        // Only fetch if no initial data provided
+        if (!initialMetrics) loadMetrics()
+        // Listen for session completion to refresh
         window.addEventListener('session-completed', loadMetrics)
         return () => window.removeEventListener('session-completed', loadMetrics)
-    }, [])
-
-    if (loading) return <div className="h-[300px] flex items-center justify-center"><Loader2 className="animate-spin text-zinc-500" /></div>
+    }, [initialMetrics])
 
     if (!metrics) return null
 

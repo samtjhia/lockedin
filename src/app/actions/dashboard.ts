@@ -337,3 +337,36 @@ export async function deleteUserLink(id: string) {
   revalidatePath('/dashboard')
   return { success: true }
 }
+
+// Combined dashboard data fetch - runs all queries in parallel
+export async function getDashboardData() {
+  const [
+    heatmapData,
+    dailyMetrics,
+    shiftLog,
+    todos,
+    sounds,
+    quickLinks,
+    youtubeLinks
+  ] = await Promise.all([
+    getHeatmapData(),
+    getDailyMetrics(),
+    getShiftLog(),
+    getTodos(),
+    getSounds(),
+    getUserLinks('quick'),
+    getUserLinks('youtube')
+  ])
+
+  return {
+    heatmapData,
+    dailyMetrics,
+    shiftLog,
+    todos,
+    sounds,
+    quickLinks,
+    youtubeLinks
+  }
+}
+
+export type DashboardData = Awaited<ReturnType<typeof getDashboardData>>

@@ -1,3 +1,4 @@
+import { Suspense } from 'react'
 import { checkCurrentSession } from '../actions'
 import { createClient } from '@/utils/supabase/server'
 import { FocusController } from '@/components/factory/focus-controller'
@@ -8,20 +9,26 @@ import { ShiftLog } from '@/components/dashboard/stats/shift-log'
 import { DashboardToolbar } from '@/components/dashboard/dashboard-toolbar'
 import { YouTubePlayer } from '@/components/dashboard/youtube-player'
 import { YouTubePlayerProvider } from '@/components/dashboard/youtube-player-context'
+import { getDashboardData } from '@/app/actions/dashboard'
+import { 
+  ChartsSkeleton, 
+  HeatMapSkeleton, 
+  TaskListSkeleton, 
+  ShiftLogSkeleton, 
+  ToolbarSkeleton 
+} from '@/components/dashboard/skeletons'
 
 export default async function Dashboard() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return null
 
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('username')
-    .eq('id', user.id)
-    .single()
-
-  // Fetch active session if any
-  const currentSession = await checkCurrentSession()
+  // Fetch ALL data in parallel - single round trip
+  const [profile, currentSession, dashboardData] = await Promise.all([
+    supabase.from('profiles').select('username').eq('id', user.id).single().then(r => r.data),
+    checkCurrentSession(),
+    getDashboardData()
+  ])
 
   return (
     <YouTubePlayerProvider>
@@ -36,14 +43,18 @@ export default async function Dashboard() {
             </p>
           </div>
           {/* Full-width toolbar */}
-          <DashboardToolbar />
+          <DashboardToolbar 
+            initialSounds={dashboardData.sounds}
+            initialQuickLinks={dashboardData.quickLinks}
+            initialYoutubeLinks={dashboardData.youtubeLinks}
+          />
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 pb-8">
           {/* Left Column: Tasks (1 col) */}
           <div className="lg:col-span-1 relative">
               <div className="absolute inset-0">
-                  <TaskList />
+                  <TaskList initialTodos={dashboardData.todos} />
               </div>
           </div>
 
@@ -51,8 +62,8 @@ export default async function Dashboard() {
           <div className="lg:col-span-2 space-y-6 flex flex-col">
               <FocusController initialSession={currentSession} />
               <div className="grid grid-cols-1 gap-6">
-                  <Charts />
-                  <HeatMap />
+                  <Charts initialMetrics={dashboardData.dailyMetrics} />
+                  <HeatMap initialData={dashboardData.heatmapData} />
               </div>
           </div>
 
@@ -62,7 +73,7 @@ export default async function Dashboard() {
                   <YouTubePlayer />
                   <div className="flex-1 relative min-h-0">
                       <div className="absolute inset-0">
-                          <ShiftLog />
+                          <ShiftLog initialLogs={dashboardData.shiftLog} />
                       </div>
                   </div>
               </div>

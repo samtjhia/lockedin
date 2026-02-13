@@ -49,38 +49,43 @@ function getFavicon(url: string): string | null {
     }
 }
 
-export function DashboardToolbar() {
+type DashboardToolbarProps = {
+    initialSounds?: Sound[]
+    initialQuickLinks?: UserLink[]
+    initialYoutubeLinks?: UserLink[]
+}
+
+export function DashboardToolbar({ initialSounds, initialQuickLinks, initialYoutubeLinks }: DashboardToolbarProps) {
     // YouTube context
     const { activeVideoId, playerMode, setPlayerMode, playVideo } = useYouTubePlayer()
 
     // Sound state
-    const [sounds, setSounds] = useState<Sound[]>([])
+    const [sounds, setSounds] = useState<Sound[]>(initialSounds ?? [])
     const [activeSound, setActiveSound] = useState<string | null>(null)
     const [isPlaying, setIsPlaying] = useState(false)
     const [volume, setVolume] = useState([0.2])
     const audioRef = useRef<HTMLAudioElement | null>(null)
 
     // Quick links state
-    const [quickLinks, setQuickLinks] = useState<UserLink[]>([])
+    const [quickLinks, setQuickLinks] = useState<UserLink[]>(initialQuickLinks ?? [])
     const [isAddingQL, setIsAddingQL] = useState(false)
     const [editingQLId, setEditingQLId] = useState<string | null>(null)
     const [qlTitle, setQlTitle] = useState('')
     const [qlUrl, setQlUrl] = useState('')
 
     // YouTube links state
-    const [youtubeLinks, setYoutubeLinks] = useState<UserLink[]>([])
+    const [youtubeLinks, setYoutubeLinks] = useState<UserLink[]>(initialYoutubeLinks ?? [])
     const [isAddingYT, setIsAddingYT] = useState(false)
     const [editingYTId, setEditingYTId] = useState<string | null>(null)
     const [ytTitle, setYtTitle] = useState('')
     const [ytUrl, setYtUrl] = useState('')
 
     useEffect(() => {
-        getSounds().then(data => {
-            if (data && data.length > 0) setSounds(data)
-        })
-        getUserLinks('quick').then(data => setQuickLinks(data))
-        getUserLinks('youtube').then(data => setYoutubeLinks(data))
-    }, [])
+        // Only fetch if no initial data provided
+        if (!initialSounds) getSounds().then(data => { if (data && data.length > 0) setSounds(data) })
+        if (!initialQuickLinks) getUserLinks('quick').then(data => setQuickLinks(data))
+        if (!initialYoutubeLinks) getUserLinks('youtube').then(data => setYoutubeLinks(data))
+    }, [initialSounds, initialQuickLinks, initialYoutubeLinks])
 
     // Sound effects
     useEffect(() => {
@@ -237,7 +242,7 @@ export function DashboardToolbar() {
                                     )}
                                     {link.title}
                                 </Button>
-                                <div className="absolute left-1/2 -translate-x-1/2 bottom-full hidden group-hover:flex items-center gap-0.5 bg-zinc-800 rounded px-1 py-0.5 shadow-lg z-20 pb-2">
+                                <div className="absolute left-1/2 -translate-x-1/2 bottom-[calc(100%-8px)] hidden group-hover:flex items-center gap-0.5 bg-zinc-800 rounded px-1 pt-0.5 pb-3 shadow-lg z-20">
                                     <button
                                         onClick={(e) => { e.stopPropagation(); startEditQL(link) }}
                                         className="h-5 w-5 rounded flex items-center justify-center text-zinc-400 hover:text-zinc-200 hover:bg-zinc-700"
@@ -293,7 +298,7 @@ export function DashboardToolbar() {
                                 >
                                     {link.title}
                                 </Button>
-                                <div className="absolute left-1/2 -translate-x-1/2 bottom-full hidden group-hover:flex items-center gap-0.5 bg-zinc-800 rounded px-1 py-0.5 shadow-lg z-20 pb-2">
+                                <div className="absolute left-1/2 -translate-x-1/2 bottom-[calc(100%-8px)] hidden group-hover:flex items-center gap-0.5 bg-zinc-800 rounded px-1 pt-0.5 pb-3 shadow-lg z-20">
                                     <button onClick={(e) => { e.stopPropagation(); startEditYT(link) }} className="h-5 w-5 rounded flex items-center justify-center text-zinc-400 hover:text-zinc-200 hover:bg-zinc-700">
                                         <Pencil className="h-3 w-3" />
                                     </button>

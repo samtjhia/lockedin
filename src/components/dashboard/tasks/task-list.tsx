@@ -17,15 +17,19 @@ type Todo = {
     created_at: string
 }
 
-export function TaskList() {
-    const [todos, setTodos] = useState<Todo[]>([])
+type TaskListProps = {
+    initialTodos?: Todo[]
+}
+
+export function TaskList({ initialTodos }: TaskListProps) {
+    const [todos, setTodos] = useState<Todo[]>(initialTodos ?? [])
     const [newTask, setNewTask] = useState('')
-    const [loading, setLoading] = useState(true)
     const [adding, setAdding] = useState(false)
 
     useEffect(() => {
-        loadTodos()
-    }, [])
+        // Only fetch if no initial data
+        if (!initialTodos) loadTodos()
+    }, [initialTodos])
 
     const handleClearCompleted = async () => {
         setTodos(prev => prev.filter(t => !t.is_completed))
@@ -44,8 +48,6 @@ export function TaskList() {
             setTodos(data || [])
         } catch (error) {
             toast.error("Failed to load tasks")
-        } finally {
-            setLoading(false)
         }
     }
 
@@ -112,8 +114,6 @@ export function TaskList() {
         window.dispatchEvent(new CustomEvent('play-task', { detail: taskName }))
         toast.info(`Ready to focus: ${taskName}`)
     }
-
-    if (loading) return <div className="h-[300px] w-full animate-pulse bg-zinc-900 rounded-xl" />
 
     const activeTodos = todos.filter(t => !t.is_completed)
     const completedTodos = todos.filter(t => t.is_completed)

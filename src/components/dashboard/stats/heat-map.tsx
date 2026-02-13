@@ -7,33 +7,30 @@ import { getHeatmapData } from '@/app/actions/dashboard'
 import { Tooltip as ReactTooltip } from 'react-tooltip'
 import 'react-tooltip/dist/react-tooltip.css'
 
-export function HeatMap() {
-    const [data, setData] = useState<any[]>([])
-    const [loading, setLoading] = useState(true)
+type HeatMapProps = {
+    initialData?: any[]
+}
+
+export function HeatMap({ initialData }: HeatMapProps) {
+    const [data, setData] = useState<any[]>(() => initialData ? fillDateGaps(initialData) : [])
 
     useEffect(() => {
-        loadData()
+        // Only fetch if no initial data
+        if (!initialData) loadData()
         window.addEventListener('session-completed', loadData)
         return () => window.removeEventListener('session-completed', loadData)
-    }, [])
+    }, [initialData])
 
     async function loadData() {
         try {
-            // @ts-ignore
             const res = await getHeatmapData()
-            console.log('Heatmap RAW:', res)
-            
-            const filledData = fillDateGaps(res)
-            console.log('Heatmap FILLED:', filledData.length)
-            setData(filledData)
+            setData(fillDateGaps(res))
         } catch (e) {
             console.error(e)
-        } finally {
-            setLoading(false)
         }
     }
 
-    if (loading) return <div className="h-[200px] w-full animate-pulse bg-zinc-900 rounded-xl" />
+    if (data.length === 0) return <div className="h-[200px] w-full animate-pulse bg-zinc-900 rounded-xl" />
 
     // Determine date range for the calendar to ensure it shows a full year
     const today = new Date()
