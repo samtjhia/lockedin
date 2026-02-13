@@ -166,13 +166,19 @@ type Stats = {
   }
 }
 
-export function HistoryCalendar({ initialData }: { initialData: CalendarData[] }) {
+type HistoryCalendarProps = {
+  initialData: CalendarData[]
+  initialStats?: Stats | null
+}
+
+export function HistoryCalendar({ initialData, initialStats }: HistoryCalendarProps) {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined)
   const [currentMonth, setCurrentMonth] = useState<Date>(new Date())
   const [dayLogs, setDayLogs] = useState<DayLog[]>([])
-  const [stats, setStats] = useState<Stats | null>(null)
+  const [stats, setStats] = useState<Stats | null>(initialStats ?? null)
   const [loadingLogs, setLoadingLogs] = useState(false)
   const [loadingStats, setLoadingStats] = useState(false)
+  const [initialLoad, setInitialLoad] = useState(true)
 
   // Map dates to levels for quick lookup
   const dataMap = useMemo(() => {
@@ -183,8 +189,15 @@ export function HistoryCalendar({ initialData }: { initialData: CalendarData[] }
     return map
   }, [initialData])
 
-  // Load logs when date changes
+  // Load logs when date or month changes
   useEffect(() => {
+    // Skip first effect if we have initial stats
+    if (initialLoad && initialStats) {
+      setInitialLoad(false)
+      return
+    }
+    setInitialLoad(false)
+
     if (selectedDate) {
       loadDayData(selectedDate)
       return

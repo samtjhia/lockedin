@@ -58,3 +58,19 @@ export async function getHistoryStats(dateStr: string) {
   
   return data
 }
+
+// Combined fetch - gets calendar data and current month stats in parallel
+export async function getHistoryPageData() {
+  const today = new Date()
+  const monthStart = new Date(today.getFullYear(), today.getMonth(), 1)
+  const dateStr = monthStart.toISOString().split('T')[0]
+  
+  const [calendarData, initialStats] = await Promise.all([
+    getHistoryCalendarData(),
+    getHistoryStats(dateStr)
+  ])
+  
+  return { calendarData, initialStats }
+}
+
+export type HistoryPageData = Awaited<ReturnType<typeof getHistoryPageData>>

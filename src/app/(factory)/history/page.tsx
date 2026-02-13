@@ -1,15 +1,16 @@
 import { Suspense } from 'react'
 import { HistoryCalendar } from '@/components/history/history-calendar'
-import { getHistoryCalendarData } from '@/app/actions/history'
+import { getHistoryPageData } from '@/app/actions/history'
 
 export default async function HistoryPage() {
-  const calendarData = await getHistoryCalendarData()
+  // Fetch calendar data AND initial month stats in parallel
+  const { calendarData, initialStats } = await getHistoryPageData()
 
   return (
     <div className="container mx-auto p-4 md:p-8 space-y-8">
       <div className="grid gap-6">
         <Suspense fallback={<div className="text-zinc-500">Loading history...</div>}>
-          <HistoryCalendar initialData={calendarData} />
+          <HistoryCalendar initialData={calendarData} initialStats={initialStats} />
         </Suspense>
       </div>
     </div>
