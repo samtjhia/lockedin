@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { LayoutDashboard, CalendarDays, Trophy, LogOut } from 'lucide-react'
 import { SocialSidebar } from '@/components/social/social-sidebar'
+import { FeedbackModal } from '@/components/feedback/feedback-modal'
 import { Button } from '@/components/ui/button'
 import { signOut } from '@/app/login/actions'
 
@@ -64,7 +65,8 @@ export default async function FactoryLayout({
             </nav>
           </div>
             
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
+            <FeedbackModal />
             <SocialSidebar />
             <form action={signOut}>
               <Button variant="ghost" size="icon" className="text-zinc-500 hover:text-red-400 hover:bg-red-400/10" title="Logout">
