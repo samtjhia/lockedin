@@ -88,7 +88,7 @@ export function ShiftLog() {
                         Session Log
                     </CardTitle>
                 </CardHeader>
-                <CardContent className="flex-1 min-h-[300px] lg:max-h-[600px] overflow-hidden flex flex-col p-4">
+                <CardContent className="flex-1 min-h-0 overflow-hidden flex flex-col p-4">
                     <ScrollArea className="flex-1 w-full h-full [&>[data-radix-scroll-area-viewport]]:flex [&>[data-radix-scroll-area-viewport]]:flex-col">
                         {logs.length === 0 ? (
                             <div className="flex items-center justify-center h-full flex-1">

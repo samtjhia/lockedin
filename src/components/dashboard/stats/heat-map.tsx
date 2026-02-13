@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, cloneElement, useRef } from 'react'
 import { ActivityCalendar, type Activity } from 'react-activity-calendar'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { getHeatmapData } from '@/app/actions/dashboard'
@@ -21,9 +21,10 @@ export function HeatMap() {
         try {
             // @ts-ignore
             const res = await getHeatmapData()
-            // console.log('Heatmap data:', res) // Reduced noise
+            console.log('Heatmap RAW:', res)
             
             const filledData = fillDateGaps(res)
+            console.log('Heatmap FILLED:', filledData.length)
             setData(filledData)
         } catch (e) {
             console.error(e)
@@ -42,27 +43,30 @@ export function HeatMap() {
     return (
         <Card className="border-zinc-800 bg-zinc-950/50">
             <CardHeader>
-                <CardTitle className="text-zinc-400">Activity Log</CardTitle>
+                <CardTitle className="text-zinc-400">Activity Log ({data.reduce((acc, curr) => acc + curr.count, 0)} sessions)</CardTitle>
             </CardHeader>
             <CardContent>
-                <div className="w-full overflow-x-auto pb-2">
-                    <div className="min-w-[600px] w-full flex justify-center">
+                <div className="w-full overflow-x-auto pb-2 scrollbar-none" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+                    <div className="w-full flex justify-center">
                         <ActivityCalendar
                             data={data}
+                            style={{ color: '#71717a' }}
                             theme={{
-                                light: ['#18181b', '#0e4429', '#006d32', '#26a641', '#39d353'],
-                                dark: ['#27272a', '#0e4429', '#006d32', '#26a641', '#39d353'], // GitHub dark green colors
+                                light: ['#ebedf0', '#9be9a8', '#40c463', '#30a14e', '#216e39'],
+                                dark: ['#27272a', '#0e4429', '#006d32', '#26a641', '#39d353'],
                             }}
                             colorScheme="dark"
-                            blockSize={12}
-                            blockMargin={4}
-                            fontSize={12}
+                            blockSize={9}
+                            blockMargin={2}
+                            blockRadius={1}
+                            fontSize={11}
                             maxLevel={4}
-                            renderBlock={(block: any, activity: any) => (
-                                 <div data-tooltip-id="react-tooltip" data-tooltip-content={`${activity.count} sessions on ${activity.date}`}>
-                                    {block}
-                                 </div>
-                            )}
+                            renderBlock={(block: any, activity: any) => 
+                                cloneElement(block, {
+                                    'data-tooltip-id': 'react-tooltip',
+                                    'data-tooltip-content': `${activity.count} sessions on ${activity.date}`,
+                                })
+                            }
                             showWeekdayLabels
                         />
                     </div>
@@ -74,16 +78,26 @@ export function HeatMap() {
 }
 
 function fillDateGaps(data: any[]) {
+    // We want to show a fixed 1-year window ending "Today"
     const today = new Date()
-    const end = new Date(today)
+    
+    // Normalize today to local midnight to avoid time discrepancies
+    today.setHours(0, 0, 0, 0)
+    
+    // Start 365 days ago
     const start = new Date(today)
-    start.setFullYear(today.getFullYear() - 1)
-
+    start.setDate(today.getDate() - 365)
+    
     const map = new Map(data.map(d => [d.date, d]))
     const result = []
 
-    for (let d = start; d <= end; d.setDate(d.getDate() + 1)) {
-        const dateStr = d.toISOString().split('T')[0]
+    // Loop day by day
+    for (let d = new Date(start); d <= today; d.setDate(d.getDate() + 1)) {
+        const year = d.getFullYear()
+        const month = String(d.getMonth() + 1).padStart(2, '0')
+        const day = String(d.getDate()).padStart(2, '0')
+        const dateStr = `${year}-${month}-${day}`
+        
         if (map.has(dateStr)) {
             result.push(map.get(dateStr))
         } else {

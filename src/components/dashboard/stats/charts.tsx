@@ -32,16 +32,15 @@ export function Charts() {
     if (!metrics) return null
 
     const hourlyData = (metrics.hourly || []).map((h: any) => {
-        // Convert UTC hour from database to local hour explicitly
-        const utcDate = new Date();
-        utcDate.setUTCHours(h.hour, 0, 0, 0);
+        // Create a date object for today and set the hour
+        const date = new Date();
+        date.setHours(h.hour, 0, 0, 0);
         
-        // Format as 12-hour time (e.g., "2 PM") for better readability
-        const label = utcDate.toLocaleTimeString([], { hour: 'numeric', hour12: true });
+        // Format as 12-hour time (e.g., "2 PM")
+        const label = date.toLocaleTimeString([], { hour: 'numeric', hour12: true });
         
         return {
             name: label,
-            // Keep original hour for sorting if needed, but array is usually sorted by server
             originalHour: h.hour,
             minutes: Number(h.minutes)
         };

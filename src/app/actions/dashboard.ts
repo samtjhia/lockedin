@@ -30,7 +30,12 @@ export async function getHeatmapData() {
 
 export async function getDailyMetrics(date?: Date) {
   const supabase = await createClient()
-  const targetDate = date ? date.toISOString().split('T')[0] : new Date().toISOString().split('T')[0]
+  
+  // Fix: Ensure we use Toronto time to determine "Today"
+  // If we leave it as new Date().toISOString(), it uses UTC, which might be "Tomorrow" already.
+  const targetDate = date 
+    ? date.toISOString().split('T')[0] 
+    : new Date().toLocaleDateString('en-CA', { timeZone: 'America/Toronto' })
   
   const { data, error } = await supabase.rpc('get_daily_metrics', {
     target_date: targetDate

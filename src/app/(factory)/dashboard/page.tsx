@@ -56,8 +56,10 @@ export default async function Dashboard() {
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 pb-8">
         {/* Left Column: Tasks (1 col) */}
-        <div className="lg:col-span-1 h-full">
-            <TaskList />
+        <div className="lg:col-span-1 relative">
+            <div className="absolute inset-0">
+                <TaskList />
+            </div>
         </div>
 
         {/* Center Column: Focus & Charts (2 cols) */}
@@ -71,8 +73,10 @@ export default async function Dashboard() {
         </div>
 
         {/* Right Column: Log & History (1 col) */}
-        <div className="lg:col-span-1 h-full">
-            <ShiftLog />
+        <div className="lg:col-span-1 relative">
+            <div className="absolute inset-0">
+                <ShiftLog />
+            </div>
         </div>
       </div>
     </div>
