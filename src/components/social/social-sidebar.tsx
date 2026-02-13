@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Input } from '@/components/ui/input'
@@ -54,6 +55,7 @@ type Request = {
 
 export function SocialSidebar() {
     const [isOpen, setIsOpen] = useState(false)
+    const [isMounted, setIsMounted] = useState(false)
     const [friends, setFriends] = useState<Friend[]>([])
     const [requests, setRequests] = useState<Request[]>([])
     const [searchResults, setSearchResults] = useState<Profile[]>([])
@@ -63,6 +65,10 @@ export function SocialSidebar() {
     const supabase = createClient()
 
     // Initial Load & Realtime Setup
+    useEffect(() => {
+        setIsMounted(true)
+    }, [])
+
     useEffect(() => {
         refreshData()
 
@@ -232,42 +238,44 @@ export function SocialSidebar() {
                 )}
             </Button>
 
-            {/* Backdrop */}
-            {isOpen && (
-                <div 
-                    className="fixed inset-0 bg-black/50 z-40 backdrop-blur-sm transition-opacity"
-                    onClick={() => setIsOpen(false)}
-                />
-            )}
+            {isMounted ? createPortal(
+                <>
+                    {/* Backdrop */}
+                    {isOpen && (
+                        <div 
+                            className="fixed inset-0 bg-black/50 z-[60] backdrop-blur-sm transition-opacity"
+                            onClick={() => setIsOpen(false)}
+                        />
+                    )}
 
-            {/* Drawer Panel */}
-            <div className={`fixed inset-y-0 right-0 z-50 w-full sm:w-[400px] bg-zinc-950 border-l border-zinc-800 shadow-2xl transform transition-transform duration-300 ease-in-out ${isOpen ? 'translate-x-0' : 'translate-x-full'}`}>
-                <div className="flex flex-col h-full">
-                    {/* Header */}
-                    <div className="p-4 border-b border-zinc-800 flex items-center justify-between bg-zinc-900/50">
-                        <div className="flex items-center gap-2">
-                            <h2 className="text-lg font-semibold text-zinc-100">Social Hub</h2>
-                            {loading && <Loader2 className="h-4 w-4 animate-spin text-zinc-500" />}
-                        </div>
-                        <Button variant="ghost" size="icon" onClick={() => setIsOpen(false)}>
-                            <X className="h-4 w-4" />
-                        </Button>
-                    </div>
+                    {/* Drawer Panel */}
+                    <div className={`fixed inset-y-0 right-0 z-[70] w-full sm:w-[400px] bg-zinc-950 border-l border-zinc-800 shadow-2xl transform transition-transform duration-300 ease-in-out ${isOpen ? 'translate-x-0' : 'translate-x-full'}`}>
+                        <div className="flex flex-col h-full">
+                            {/* Header */}
+                            <div className="p-4 border-b border-zinc-800 flex items-center justify-between bg-zinc-900/50">
+                                <div className="flex items-center gap-2">
+                                    <h2 className="text-lg font-semibold text-zinc-100">Social Hub</h2>
+                                    {loading && <Loader2 className="h-4 w-4 animate-spin text-zinc-500" />}
+                                </div>
+                                <Button variant="ghost" size="icon" onClick={() => setIsOpen(false)}>
+                                    <X className="h-4 w-4" />
+                                </Button>
+                            </div>
 
-                    {/* Content */}
-                    <div className="flex-1 overflow-hidden">
-                        <Tabs defaultValue="friends" className="w-full h-full flex flex-col">
-                            <TabsList className="w-full justify-start rounded-none border-b border-zinc-800 bg-transparent p-0 h-10">
-                                <TabsTrigger value="friends" className="flex-1 rounded-none border-b-2 border-transparent text-zinc-400 data-[state=active]:text-zinc-100 data-[state=active]:border-yellow-500 data-[state=active]:bg-zinc-900/50 h-10">
-                                    Friends
-                                </TabsTrigger>
-                                <TabsTrigger value="requests" className="flex-1 rounded-none border-b-2 border-transparent text-zinc-400 data-[state=active]:text-zinc-100 data-[state=active]:border-yellow-500 data-[state=active]:bg-zinc-900/50 h-10">
-                                    Requests {requests.length > 0 && `(${requests.length})`}
-                                </TabsTrigger>
-                                <TabsTrigger value="add" className="flex-1 rounded-none border-b-2 border-transparent text-zinc-400 data-[state=active]:text-zinc-100 data-[state=active]:border-yellow-500 data-[state=active]:bg-zinc-900/50 h-10">
-                                    Add
-                                </TabsTrigger>
-                            </TabsList>
+                            {/* Content */}
+                            <div className="flex-1 overflow-hidden">
+                                <Tabs defaultValue="friends" className="w-full h-full flex flex-col">
+                                    <TabsList className="w-full justify-start rounded-none border-b border-zinc-800 bg-transparent p-0 h-10">
+                                        <TabsTrigger value="friends" className="flex-1 rounded-none border-b-2 border-transparent text-zinc-400 data-[state=active]:text-zinc-100 data-[state=active]:border-yellow-500 data-[state=active]:bg-zinc-900/50 h-10">
+                                            Friends
+                                        </TabsTrigger>
+                                        <TabsTrigger value="requests" className="flex-1 rounded-none border-b-2 border-transparent text-zinc-400 data-[state=active]:text-zinc-100 data-[state=active]:border-yellow-500 data-[state=active]:bg-zinc-900/50 h-10">
+                                            Requests {requests.length > 0 && `(${requests.length})`}
+                                        </TabsTrigger>
+                                        <TabsTrigger value="add" className="flex-1 rounded-none border-b-2 border-transparent text-zinc-400 data-[state=active]:text-zinc-100 data-[state=active]:border-yellow-500 data-[state=active]:bg-zinc-900/50 h-10">
+                                            Add
+                                        </TabsTrigger>
+                                    </TabsList>
 
                             {/* FRIENDS LIST */}
                             <TabsContent value="friends" className="flex-1 overflow-y-auto p-4 m-0 space-y-4">
@@ -413,10 +421,13 @@ export function SocialSidebar() {
                                     )}
                                 </div>
                             </TabsContent>
-                        </Tabs>
+                                </Tabs>
+                            </div>
+                        </div>
                     </div>
-                </div>
-            </div>
+                </>,
+                document.body
+            ) : null}
         </>
     )
 }

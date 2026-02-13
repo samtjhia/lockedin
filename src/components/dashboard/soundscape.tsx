@@ -27,7 +27,7 @@ export function Soundscape() {
     const [sounds, setSounds] = useState<Sound[]>([])
     const [activeSound, setActiveSound] = useState<string | null>(null)
     const [isPlaying, setIsPlaying] = useState(false)
-    const [volume, setVolume] = useState([0.5])
+    const [volume, setVolume] = useState([0.2])
     const audioRef = useRef<HTMLAudioElement | null>(null)
 
     useEffect(() => {
@@ -41,9 +41,12 @@ export function Soundscape() {
 
     useEffect(() => {
         if (audioRef.current) {
-            audioRef.current.volume = volume[0]
+            const sound = sounds.find(s => s.id === activeSound)
+            // Apply volume reduction for ocean and white noise
+            const volumeMultiplier = sound && (sound.icon_key === 'ocean' || sound.icon_key === 'white') ? 0.5 : 1
+            audioRef.current.volume = volume[0] * volumeMultiplier
         }
-    }, [volume])
+    }, [volume, activeSound])
 
     useEffect(() => {
         if (activeSound) {
@@ -73,7 +76,7 @@ export function Soundscape() {
 
     return (
         <Card className="border-zinc-800 bg-zinc-950/50">
-            <CardContent className="p-4 flex items-center justify-between gap-4">
+            <CardContent className="p-2 flex items-center gap-3">
                 <div className="flex gap-2">
                     {sounds.length === 0 ? (
                          <div className="text-zinc-600 text-xs">No sounds loaded</div>
@@ -96,7 +99,7 @@ export function Soundscape() {
                     )}
                 </div>
 
-                <div className="flex items-center gap-2 flex-1 max-w-[120px]">
+                <div className="flex items-center gap-2 w-[120px]">
                     <Button
                         variant="ghost"
                         size="icon"

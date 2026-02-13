@@ -167,7 +167,7 @@ type Stats = {
 }
 
 export function HistoryCalendar({ initialData }: { initialData: CalendarData[] }) {
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date()) // Default to today
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined)
   const [currentMonth, setCurrentMonth] = useState<Date>(new Date())
   const [dayLogs, setDayLogs] = useState<DayLog[]>([])
   const [stats, setStats] = useState<Stats | null>(null)
