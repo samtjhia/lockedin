@@ -130,6 +130,30 @@ export async function updateFeedbackStatus(
     return { success: true }
 }
 
+export async function deleteFeedback(
+    feedbackId: string
+): Promise<{ success: boolean; error?: string }> {
+    const supabase = await createClient()
+
+    // Verify admin
+    const isAdmin = await checkIsAdmin()
+    if (!isAdmin) {
+        return { success: false, error: 'Unauthorized' }
+    }
+
+    const { error } = await supabase
+        .from('feedback')
+        .delete()
+        .eq('id', feedbackId)
+
+    if (error) {
+        console.error('Error deleting feedback:', error)
+        return { success: false, error: error.message }
+    }
+
+    return { success: true }
+}
+
 export async function uploadFeedbackScreenshot(formData: FormData): Promise<{ url?: string; error?: string }> {
     const supabase = await createClient()
     
