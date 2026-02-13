@@ -70,8 +70,9 @@ export function Charts({ initialMetrics }: ChartsProps) {
                 <CardHeader>
                     <CardTitle className="text-sm font-medium text-muted-foreground">Hourly Focus (Minutes)</CardTitle>
                 </CardHeader>
-                <CardContent className="h-[250px]">
-                    <ResponsiveContainer width="100%" height="100%">
+                <CardContent className="h-[250px] min-h-[200px]">
+                    <div className="w-full h-full min-h-[200px]">
+                        <ResponsiveContainer width="100%" height="100%" minHeight={200}>
                         <BarChart data={hourlyData}>
                             <XAxis 
                                 dataKey="name" 
@@ -95,6 +96,7 @@ export function Charts({ initialMetrics }: ChartsProps) {
                             <Bar dataKey="minutes" fill="#34d399" radius={[4, 4, 0, 0]} />
                         </BarChart>
                     </ResponsiveContainer>
+                    </div>
                 </CardContent>
             </Card>
 
@@ -103,8 +105,9 @@ export function Charts({ initialMetrics }: ChartsProps) {
                 <CardHeader>
                     <CardTitle className="text-sm font-medium text-muted-foreground">Topic Distribution</CardTitle>
                 </CardHeader>
-                <CardContent className="h-[250px]">
-                    <ResponsiveContainer width="100%" height="100%">
+                <CardContent className="h-[250px] min-h-[200px]">
+                    <div className="w-full h-full min-h-[200px]">
+                        <ResponsiveContainer width="100%" height="100%" minHeight={200}>
                         <PieChart>
                             <Pie
                                 data={topicData}
@@ -128,6 +131,7 @@ export function Charts({ initialMetrics }: ChartsProps) {
                             <Legend />
                         </PieChart>
                     </ResponsiveContainer>
+                    </div>
                 </CardContent>
             </Card>
         </div>
