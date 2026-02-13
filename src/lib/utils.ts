@@ -16,8 +16,17 @@ export function formatDuration(seconds: number) {
   return `${s}s`
 }
 
-export function calculateGrade(seconds: number, period: 'daily' | 'weekly' = 'daily') {
+export function calculateGrade(seconds: number, period: 'daily' | 'weekly' | 'monthly' = 'daily') {
   const hours = seconds / 3600
+  
+  if (period === 'monthly') {
+    if (hours >= 100) return 'S'
+    if (hours >= 80) return 'A'
+    if (hours >= 60) return 'B'
+    if (hours >= 40) return 'C'
+    if (hours >= 20) return 'D'
+    return 'F'
+  }
   
   if (period === 'weekly') {
     if (hours >= 30) return 'S'
