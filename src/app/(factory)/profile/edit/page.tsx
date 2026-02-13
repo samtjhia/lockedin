@@ -15,7 +15,7 @@ async function getCurrentProfile() {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("id, username, avatar_url, bio")
+    .select("id, username, avatar_url, bio, goals")
     .eq("id", user.id)
     .single()
 
@@ -27,15 +27,16 @@ export default async function EditProfilePage() {
 
   return (
     <div className="max-w-xl mx-auto p-4 md:p-8">
-      <Card className="bg-zinc-950/60 border-zinc-800">
+      <Card className="bg-muted/60 border-border">
         <CardHeader>
-          <CardTitle className="text-lg text-zinc-100">Edit profile</CardTitle>
+          <CardTitle className="text-lg text-foreground">Edit profile</CardTitle>
         </CardHeader>
         <CardContent>
           <EditProfileForm
             username={profile?.username ?? ""}
             avatarUrl={profile?.avatar_url ?? null}
             bio={profile?.bio ?? ""}
+            goals={profile?.goals ?? ""}
             initials={
               profile?.username?.substring(0, 2).toUpperCase() ??
               user.email?.substring(0, 2).toUpperCase() ??

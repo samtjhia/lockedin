@@ -26,20 +26,20 @@ export function YouTubePlayer() {
     if (!videoId) return null
 
     return (
-        <Card className="border-zinc-800 bg-zinc-950/50">
+        <Card className="border-border bg-muted/50">
             <CardContent className="p-3">
                 <div className="flex items-center justify-between mb-2">
-                    <span className="text-xs text-zinc-400 truncate flex-1">{activeVideoTitle}</span>
+                    <span className="text-xs text-muted-foreground truncate flex-1">{activeVideoTitle}</span>
                     <Button
                         variant="ghost"
                         size="icon"
-                        className="h-5 w-5 text-zinc-500 hover:text-zinc-300"
+                        className="h-5 w-5 text-muted-foreground hover:text-foreground/70"
                         onClick={stopVideo}
                     >
                         <X className="h-3 w-3" />
                     </Button>
                 </div>
-                <div className="relative aspect-video w-full rounded-lg overflow-hidden bg-zinc-900">
+                <div className="relative aspect-video w-full rounded-lg overflow-hidden bg-card">
                     <iframe
                         src={`https://www.youtube.com/embed/${videoId}?autoplay=1`}
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"

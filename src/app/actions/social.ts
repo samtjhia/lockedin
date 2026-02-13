@@ -154,3 +154,26 @@ export async function getPendingRequests() {
     sender: item.sender
   }))
 }
+
+export async function getUnseenPokes() {
+  const supabase = await createClient()
+
+  const { data, error } = await supabase.rpc('get_unseen_pokes')
+
+  if (error) {
+    console.error('Get unseen pokes error:', error)
+    return []
+  }
+
+  return data ?? []
+}
+
+export async function markPokesSeen() {
+  const supabase = await createClient()
+
+  const { error } = await supabase.rpc('mark_pokes_seen')
+
+  if (error) {
+    console.error('Mark pokes seen error:', error)
+  }
+}

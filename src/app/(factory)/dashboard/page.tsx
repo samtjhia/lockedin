@@ -35,11 +35,11 @@ export default async function Dashboard() {
     <YouTubePlayerProvider>
       <div className="p-4 md:p-8 space-y-4 sm:space-y-6 max-w-[1600px] mx-auto min-h-screen">
         {/* Header */}
-        <div className="border-b border-zinc-800 pb-4">
+        <div className="border-b border-border pb-4">
           <div className="flex flex-col gap-1 mb-4">
-            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">Dashboard</h1>
-            <p className="text-zinc-400 text-sm sm:text-base">
-              Welcome back, <span className="text-zinc-200 font-medium">{profile?.username}</span>. 
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">Dashboard</h1>
+            <p className="text-muted-foreground text-sm sm:text-base">
+              Welcome back, <span className="text-foreground font-medium">{profile?.username}</span>. 
               Ready to lock in?
             </p>
           </div>

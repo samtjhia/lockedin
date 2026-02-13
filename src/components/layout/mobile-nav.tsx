@@ -14,7 +14,7 @@ export function MobileNav() {
       <Button
         variant="ghost"
         size="icon"
-        className="h-8 w-8 text-zinc-400 hover:text-zinc-100"
+        className="h-8 w-8 text-muted-foreground hover:text-foreground"
         onClick={() => setOpen(!open)}
         aria-label="Toggle navigation menu"
       >
@@ -23,14 +23,14 @@ export function MobileNav() {
 
       {/* Dropdown menu */}
       <div className={cn(
-        "absolute left-0 right-0 top-full border-b border-zinc-800 bg-black/95 backdrop-blur-md transition-all duration-200 overflow-hidden z-50",
+        "absolute left-0 right-0 top-full border-b border-border bg-background/95 backdrop-blur-md transition-all duration-200 overflow-hidden z-50",
         open ? "max-h-48 opacity-100" : "max-h-0 opacity-0 pointer-events-none"
       )}>
         <nav className="flex flex-col p-3 gap-1">
           <Link
             href="/dashboard"
             onClick={() => setOpen(false)}
-            className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-zinc-400 hover:text-zinc-100 hover:bg-zinc-900 rounded-md transition-all"
+            className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-card rounded-md transition-all"
           >
             <LayoutDashboard className="w-4 h-4" />
             Dashboard
@@ -38,7 +38,7 @@ export function MobileNav() {
           <Link
             href="/history"
             onClick={() => setOpen(false)}
-            className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-zinc-400 hover:text-zinc-100 hover:bg-zinc-900 rounded-md transition-all"
+            className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-card rounded-md transition-all"
           >
             <CalendarDays className="w-4 h-4" />
             History
@@ -46,7 +46,7 @@ export function MobileNav() {
           <Link
             href="/"
             onClick={() => setOpen(false)}
-            className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-zinc-400 hover:text-zinc-100 hover:bg-zinc-900 rounded-md transition-all"
+            className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-card rounded-md transition-all"
           >
             <Trophy className="w-4 h-4" />
             Leaderboard

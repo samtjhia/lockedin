@@ -80,9 +80,9 @@ export function ShiftLog({ initialLogs }: ShiftLogProps) {
 
     return (
         <>
-            <Card className="border-zinc-800 bg-zinc-950/50 h-full flex flex-col">
+            <Card className="border-border bg-muted/50 h-full flex flex-col">
                 <CardHeader className="flex-shrink-0">
-                    <CardTitle className="text-zinc-400 flex items-center gap-2">
+                    <CardTitle className="text-muted-foreground flex items-center gap-2">
                         <Clock className="w-4 h-4" />
                         Session Log
                     </CardTitle>
@@ -91,7 +91,7 @@ export function ShiftLog({ initialLogs }: ShiftLogProps) {
                     <ScrollArea className="flex-1 w-full h-full [&>[data-radix-scroll-area-viewport]]:flex [&>[data-radix-scroll-area-viewport]]:flex-col">
                         {logs.length === 0 ? (
                             <div className="flex items-center justify-center h-full flex-1">
-                                <p className="text-zinc-500 text-center py-4 text-sm">No completed sessions yet today.</p>
+                                <p className="text-muted-foreground text-center py-4 text-sm">No completed sessions yet today.</p>
                             </div>
                         ) : (
                             <div className="flex flex-col flex-1 gap-4 pr-3">
@@ -106,7 +106,7 @@ export function ShiftLog({ initialLogs }: ShiftLogProps) {
                                                     <Input 
                                                         value={editName}
                                                         onChange={(e) => setEditName(e.target.value)}
-                                                        className="h-7 text-xs bg-zinc-900 border-zinc-700 text-zinc-100"
+                                                        className="h-7 text-xs bg-card border-border text-foreground"
                                                         autoFocus
                                                         onKeyDown={(e) => {
                                                             if (e.key === 'Enter') handleEditSave(session.id)
@@ -116,20 +116,20 @@ export function ShiftLog({ initialLogs }: ShiftLogProps) {
                                                     <Button size="icon" variant="ghost" className="h-6 w-6 text-green-500 hover:text-green-400" onClick={() => handleEditSave(session.id)}>
                                                         <Check className="w-3 h-3" />
                                                     </Button>
-                                                    <Button size="icon" variant="ghost" className="h-6 w-6 text-zinc-500 hover:text-red-400" onClick={handleEditCancel}>
+                                                    <Button size="icon" variant="ghost" className="h-6 w-6 text-muted-foreground hover:text-red-400" onClick={handleEditCancel}>
                                                         <X className="w-3 h-3" />
                                                     </Button>
                                                 </div>
                                             ) : (
                                                 <div className="flex items-center justify-between group/item">
                                                     <div className='space-y-1'>
-                                                        <p className="text-sm font-medium text-zinc-200 leading-none">
+                                                        <p className="text-sm font-medium text-foreground leading-none">
                                                             {session.task_name || 'Untitled Task'}
                                                         </p>
-                                                        <div className="flex items-center text-xs text-zinc-500 gap-1.5 flex-wrap">
+                                                        <div className="flex items-center text-xs text-muted-foreground gap-1.5 flex-wrap">
                                                             <span className="whitespace-nowrap">{formatDuration(session.duration_seconds)} focus</span>
                                                             <span>•</span>
-                                                            <span className="whitespace-nowrap">{formatDistanceToNow(new Date(session.ended_at), { addSuffix: true })}</span>
+                                                            <span className="whitespace-nowrap" suppressHydrationWarning>{formatDistanceToNow(new Date(session.ended_at), { addSuffix: true })}</span>
                                                         </div>
                                                     </div>
                                                     
@@ -137,7 +137,7 @@ export function ShiftLog({ initialLogs }: ShiftLogProps) {
                                                         <Button 
                                                             size="icon" 
                                                             variant="ghost" 
-                                                            className="h-6 w-6 text-zinc-500 hover:text-zinc-300" 
+                                                            className="h-6 w-6 text-muted-foreground hover:text-foreground/70" 
                                                             onClick={() => handleEditStart(session)}
                                                             title="Rename"
                                                         >
@@ -146,7 +146,7 @@ export function ShiftLog({ initialLogs }: ShiftLogProps) {
                                                         <Button 
                                                             size="icon" 
                                                             variant="ghost" 
-                                                            className="h-6 w-6 text-zinc-500 hover:text-red-400" 
+                                                            className="h-6 w-6 text-muted-foreground hover:text-red-400" 
                                                             onClick={() => setDeletingId(session.id)}
                                                             title="Delete"
                                                         >
@@ -165,15 +165,15 @@ export function ShiftLog({ initialLogs }: ShiftLogProps) {
             </Card>
 
             <AlertDialog open={!!deletingId} onOpenChange={(open) => !open && setDeletingId(null)}>
-                <AlertDialogContent className="bg-zinc-900 border-zinc-800">
+                <AlertDialogContent className="bg-card border-border">
                     <AlertDialogHeader>
-                        <AlertDialogTitle className="text-zinc-100">Delete Session?</AlertDialogTitle>
-                        <AlertDialogDescription className="text-zinc-400">
+                        <AlertDialogTitle className="text-foreground">Delete Session?</AlertDialogTitle>
+                        <AlertDialogDescription className="text-muted-foreground">
                             This will remove this session from your logs and analytics. This action cannot be undone.
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
-                        <AlertDialogCancel className="bg-transparent border-zinc-700 text-zinc-300 hover:bg-zinc-800 hover:text-zinc-100">Cancel</AlertDialogCancel>
+                        <AlertDialogCancel className="bg-transparent border-border text-foreground/70 hover:bg-muted hover:text-foreground">Cancel</AlertDialogCancel>
                         <AlertDialogAction onClick={handleDelete} className="bg-red-900 text-red-100 hover:bg-red-800">Delete</AlertDialogAction>
                     </AlertDialogFooter>
                 </AlertDialogContent>

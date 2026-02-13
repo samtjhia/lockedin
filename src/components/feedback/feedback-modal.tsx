@@ -166,19 +166,19 @@ export function FeedbackModal() {
     const getStatusBadge = (status: FeedbackStatus) => {
         switch (status) {
             case 'pending':
-                return <Badge variant="outline" className="border-zinc-700 text-zinc-300 gap-1"><Clock className="w-3 h-3 text-zinc-400" />Pending</Badge>
+                return <Badge variant="outline" className="border-border text-foreground/70 gap-1"><Clock className="w-3 h-3 text-muted-foreground" />Pending</Badge>
             case 'in-progress':
-                return <Badge variant="outline" className="border-zinc-700 text-zinc-300 gap-1"><Loader2 className="w-3 h-3 text-zinc-400" />In Progress</Badge>
+                return <Badge variant="outline" className="border-border text-foreground/70 gap-1"><Loader2 className="w-3 h-3 text-muted-foreground" />In Progress</Badge>
             case 'resolved':
                 return <Badge variant="outline" className="border-emerald-500/60 text-emerald-300 gap-1 bg-emerald-500/5"><CheckCircle className="w-3 h-3" />Resolved</Badge>
             case 'closed':
-                return <Badge variant="outline" className="border-zinc-700 text-zinc-400 gap-1"><XCircle className="w-3 h-3 text-zinc-500" />Closed</Badge>
+                return <Badge variant="outline" className="border-border text-muted-foreground gap-1"><XCircle className="w-3 h-3 text-muted-foreground" />Closed</Badge>
         }
     }
 
     const getTypeBadge = (type: FeedbackType) => {
         return (
-            <Badge className="bg-zinc-900/70 text-zinc-200 border-zinc-700 gap-1">
+            <Badge className="bg-card/70 text-foreground border-border gap-1">
                 {type === 'bug' ? <Bug className="w-3 h-3 text-red-400" /> : <Lightbulb className="w-3 h-3 text-amber-400" />}
                 <span className="capitalize">{type === 'bug' ? 'Bug' : 'Feature'}</span>
             </Badge>
@@ -190,7 +190,7 @@ export function FeedbackModal() {
             <Button
                 variant="ghost"
                 size="icon"
-                className="text-zinc-500 hover:text-zinc-100 hover:bg-zinc-800"
+                className="text-muted-foreground hover:text-foreground hover:bg-muted"
                 onClick={() => setOpen(true)}
                 title="Send Feedback"
             >
@@ -199,21 +199,21 @@ export function FeedbackModal() {
 
             {isMounted && open && createPortal(
                 <div
-                    className="fixed inset-0 z-[40] flex items-center justify-center bg-black/60 backdrop-blur-md p-4"
+                    className="fixed inset-0 z-[40] flex items-center justify-center bg-background/60 backdrop-blur-md p-4"
                     onClick={() => setOpen(false)}
                 >
                     {/* Modal Container */}
                     <div
-                        className="relative bg-zinc-950 border border-zinc-800 rounded-xl shadow-2xl w-full max-w-lg max-h-[90vh] flex flex-col overflow-hidden animate-in zoom-in-95 fade-in duration-200"
+                        className="relative bg-background border border-border rounded-xl shadow-2xl w-full max-w-lg max-h-[90vh] flex flex-col overflow-hidden animate-in zoom-in-95 fade-in duration-200"
                         onClick={e => e.stopPropagation()}
                     >
                         {/* Header */}
-                        <div className="flex items-center justify-between px-5 py-4 border-b border-zinc-800 shrink-0">
-                            <h2 className="text-lg font-semibold text-zinc-100">Feedback</h2>
+                        <div className="flex items-center justify-between px-5 py-4 border-b border-border shrink-0">
+                            <h2 className="text-lg font-semibold text-foreground">Feedback</h2>
                             <Button
                                 variant="ghost"
                                 size="icon"
-                                className="h-8 w-8 text-zinc-500 hover:text-zinc-100"
+                                className="h-8 w-8 text-muted-foreground hover:text-foreground"
                                 onClick={() => setOpen(false)}
                             >
                                 <X className="h-4 w-4" />
@@ -223,17 +223,17 @@ export function FeedbackModal() {
                         {/* Content - Added overflow-y-auto to handle long forms */}
                         <div className="overflow-y-auto custom-scrollbar">
                             <Tabs value={activeTab} onValueChange={setActiveTab} className="flex flex-col">
-                                <TabsList className="mx-5 mt-4 h-10 rounded-lg border border-zinc-800 bg-zinc-900/70 p-1">
+                                <TabsList className="mx-5 mt-4 h-10 rounded-lg border border-border bg-card/70 p-1">
                                     <TabsTrigger
                                         value="submit"
-                                        className="flex-1 rounded-md text-xs sm:text-sm data-[state=active]:bg-zinc-800 data-[state=active]:text-zinc-100 data-[state=inactive]:text-zinc-500"
+                                        className="flex-1 rounded-md text-xs sm:text-sm data-[state=active]:bg-muted data-[state=active]:text-foreground data-[state=inactive]:text-muted-foreground"
                                     >
                                         Submit
                                     </TabsTrigger>
                                     {isAdmin && (
                                         <TabsTrigger
                                             value="admin"
-                                            className="relative flex-1 rounded-md text-xs sm:text-sm data-[state=active]:bg-zinc-800 data-[state=active]:text-zinc-100 data-[state=inactive]:text-zinc-500"
+                                            className="relative flex-1 rounded-md text-xs sm:text-sm data-[state=active]:bg-muted data-[state=active]:text-foreground data-[state=inactive]:text-muted-foreground"
                                         >
                                             Admin
                                             {allFeedback.filter(f => f.status === 'pending').length > 0 && (
@@ -251,21 +251,21 @@ export function FeedbackModal() {
                                             <div className="w-12 h-12 rounded-full bg-green-500/20 flex items-center justify-center">
                                                 <Check className="w-6 h-6 text-green-400" />
                                             </div>
-                                            <p className="text-zinc-300 font-medium">Thank you for your feedback!</p>
-                                            <p className="text-zinc-500 text-sm">We'll review it soon.</p>
+                                            <p className="text-foreground/70 font-medium">Thank you for your feedback!</p>
+                                            <p className="text-muted-foreground text-sm">We'll review it soon.</p>
                                         </div>
                                     ) : (
                                         <form onSubmit={handleSubmit} className="space-y-4">
                                             {/* Type Selection */}
                                             <div className="space-y-2">
-                                                <Label className="text-zinc-400">Type</Label>
+                                                <Label className="text-muted-foreground">Type</Label>
                                                 <div className="flex gap-2">
                                                     <button
                                                         type="button"
                                                         onClick={() => setType('bug')}
                                                         className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border text-sm transition-all ${type === 'bug'
-                                                                ? 'bg-zinc-800 border-zinc-600 text-zinc-100'
-                                                                : 'bg-zinc-900/60 border-zinc-800 text-zinc-400 hover:border-zinc-700'
+                                                                ? 'bg-muted border-zinc-600 text-foreground'
+                                                                : 'bg-card/60 border-border text-muted-foreground hover:border-border'
                                                             }`}
                                                     >
                                                         <Bug className="w-4 h-4 text-red-400" />
@@ -275,8 +275,8 @@ export function FeedbackModal() {
                                                         type="button"
                                                         onClick={() => setType('feature')}
                                                         className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border text-sm transition-all ${type === 'feature'
-                                                                ? 'bg-zinc-800 border-zinc-600 text-zinc-100'
-                                                                : 'bg-zinc-900/60 border-zinc-800 text-zinc-400 hover:border-zinc-700'
+                                                                ? 'bg-muted border-zinc-600 text-foreground'
+                                                                : 'bg-card/60 border-border text-muted-foreground hover:border-border'
                                                             }`}
                                                     >
                                                         <Lightbulb className="w-4 h-4 text-amber-400" />
@@ -287,20 +287,20 @@ export function FeedbackModal() {
 
                                             {/* Title */}
                                             <div className="space-y-2">
-                                                <Label htmlFor="title" className="text-zinc-400">Title</Label>
+                                                <Label htmlFor="title" className="text-muted-foreground">Title</Label>
                                                 <Input
                                                     id="title"
                                                     value={title}
                                                     onChange={(e) => setTitle(e.target.value)}
                                                     placeholder={type === 'bug' ? 'Brief description of the bug' : 'What feature would you like?'}
-                                                    className="bg-zinc-900/50 border-zinc-800 focus:border-zinc-600"
+                                                    className="bg-card/50 border-border focus:border-zinc-600"
                                                     required
                                                 />
                                             </div>
 
                                             {/* Description */}
                                             <div className="space-y-2">
-                                                <Label htmlFor="description" className="text-zinc-400">Description</Label>
+                                                <Label htmlFor="description" className="text-muted-foreground">Description</Label>
                                                 <textarea
                                                     id="description"
                                                     value={description}
@@ -308,16 +308,16 @@ export function FeedbackModal() {
                                                     placeholder={type === 'bug'
                                                         ? 'Steps to reproduce, what happened, what you expected...'
                                                         : 'Describe the feature in detail, why it would be useful...'}
-                                                    className="w-full h-28 px-3 py-2 rounded-md bg-zinc-900/50 border border-zinc-800 focus:border-zinc-600 focus:outline-none focus:ring-1 focus:ring-zinc-600 text-zinc-100 placeholder:text-zinc-600 resize-none text-sm"
+                                                    className="w-full h-28 px-3 py-2 rounded-md bg-card/50 border border-border focus:border-zinc-600 focus:outline-none focus:ring-1 focus:ring-zinc-600 text-foreground placeholder:text-muted-foreground resize-none text-sm"
                                                     required
                                                 />
                                             </div>
 
                                             {/* Screenshot */}
                                             <div className="space-y-2">
-                                                <Label className="text-zinc-400">Screenshot (optional)</Label>
+                                                <Label className="text-muted-foreground">Screenshot (optional)</Label>
                                                 {screenshotPreview ? (
-                                                    <div className="relative rounded-lg overflow-hidden border border-zinc-800">
+                                                    <div className="relative rounded-lg overflow-hidden border border-border">
                                                         <img
                                                             src={screenshotPreview}
                                                             alt="Screenshot preview"
@@ -326,7 +326,7 @@ export function FeedbackModal() {
                                                         <button
                                                             type="button"
                                                             onClick={removeScreenshot}
-                                                            className="absolute top-2 right-2 p-1.5 bg-black/60 rounded-md hover:bg-black/80 transition-colors"
+                                                            className="absolute top-2 right-2 p-1.5 bg-background/60 rounded-md hover:bg-background/80 transition-colors"
                                                         >
                                                             <Trash2 className="w-4 h-4 text-red-400" />
                                                         </button>
@@ -335,7 +335,7 @@ export function FeedbackModal() {
                                                     <button
                                                         type="button"
                                                         onClick={() => fileInputRef.current?.click()}
-                                                        className="w-full flex items-center justify-center gap-2 px-4 py-6 rounded-lg border border-dashed border-zinc-800 bg-zinc-900/30 text-zinc-500 hover:border-zinc-700 hover:text-zinc-400 transition-colors"
+                                                        className="w-full flex items-center justify-center gap-2 px-4 py-6 rounded-lg border border-dashed border-border bg-card/30 text-muted-foreground hover:border-border hover:text-muted-foreground transition-colors"
                                                     >
                                                         <Upload className="w-5 h-5" />
                                                         <span>Click to upload screenshot</span>
@@ -375,24 +375,24 @@ export function FeedbackModal() {
                                             <div className="p-5 space-y-3">
                                                 {loadingFeedback ? (
                                                     <div className="flex items-center justify-center py-12">
-                                                        <Loader2 className="w-6 h-6 animate-spin text-zinc-500" />
+                                                        <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
                                                     </div>
                                                 ) : allFeedback.length === 0 ? (
-                                                    <div className="text-center py-12 text-zinc-500">
+                                                    <div className="text-center py-12 text-muted-foreground">
                                                         No feedback submitted yet
                                                     </div>
                                                 ) : (
                                                     allFeedback.map((item) => (
-                                                        <Card key={item.id} className="p-4 bg-zinc-900/50 border-zinc-800">
+                                                        <Card key={item.id} className="p-4 bg-card/50 border-border">
                                                             <div className="flex items-start justify-between gap-3">
                                                                 <div className="flex-1 min-w-0">
                                                                     <div className="flex items-center gap-2 flex-wrap mb-2">
                                                                         {getTypeBadge(item.type)}
                                                                         {getStatusBadge(item.status)}
                                                                     </div>
-                                                                    <h4 className="font-medium text-zinc-200 truncate">{item.title}</h4>
-                                                                    <p className="text-sm text-zinc-500 mt-1 line-clamp-2">{item.description}</p>
-                                                                    <div className="flex items-center gap-2 mt-2 text-xs text-zinc-600">
+                                                                    <h4 className="font-medium text-foreground truncate">{item.title}</h4>
+                                                                    <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{item.description}</p>
+                                                                    <div className="flex items-center gap-2 mt-2 text-xs text-muted-foreground">
                                                                         <span>by {item.username || 'Unknown'}</span>
                                                                         <span>•</span>
                                                                         <span>{new Date(item.created_at).toLocaleDateString()}</span>
@@ -413,7 +413,7 @@ export function FeedbackModal() {
                                                                     <select
                                                                         value={item.status}
                                                                         onChange={(e) => handleStatusChange(item.id, e.target.value as FeedbackStatus)}
-                                                                        className="px-2 py-1 text-xs bg-zinc-800 border border-zinc-700 rounded text-zinc-300 focus:outline-none focus:ring-1 focus:ring-zinc-600"
+                                                                        className="px-2 py-1 text-xs bg-muted border border-border rounded text-foreground/70 focus:outline-none focus:ring-1 focus:ring-zinc-600"
                                                                     >
                                                                         <option value="pending">Pending</option>
                                                                         <option value="in-progress">In Progress</option>
@@ -425,27 +425,27 @@ export function FeedbackModal() {
                                                                             <Button
                                                                                 variant="ghost"
                                                                                 size="icon"
-                                                                                className="h-7 w-7 text-zinc-500 hover:text-red-400 hover:bg-red-500/10"
+                                                                                className="h-7 w-7 text-muted-foreground hover:text-red-400 hover:bg-red-500/10"
                                                                                 title="Delete report"
                                                                             >
                                                                                 <Trash2 className="h-3 w-3" />
                                                                             </Button>
                                                                         </AlertDialogTrigger>
-                                                                        <AlertDialogContent className="bg-zinc-900 border-zinc-800 text-zinc-200">
+                                                                        <AlertDialogContent className="bg-card border-border text-foreground">
                                                                             <AlertDialogHeader>
-                                                                                <AlertDialogTitle className="text-zinc-100">
+                                                                                <AlertDialogTitle className="text-foreground">
                                                                                     Delete feedback?
                                                                                 </AlertDialogTitle>
-                                                                                <AlertDialogDescription className="text-zinc-400">
+                                                                                <AlertDialogDescription className="text-muted-foreground">
                                                                                     This will permanently remove this feedback report. This action cannot be undone.
                                                                                 </AlertDialogDescription>
                                                                             </AlertDialogHeader>
                                                                             <AlertDialogFooter>
-                                                                                <AlertDialogCancel className="bg-transparent border-zinc-700 text-zinc-300 hover:bg-zinc-800 hover:text-white">
+                                                                                <AlertDialogCancel className="bg-transparent border-border text-foreground/70 hover:bg-muted hover:text-foreground">
                                                                                     Cancel
                                                                                 </AlertDialogCancel>
                                                                                 <AlertDialogAction
-                                                                                    className="bg-red-600 text-white hover:bg-red-700 border-none"
+                                                                                    className="bg-red-600 text-foreground hover:bg-red-700 border-none"
                                                                                     onClick={() => handleDelete(item.id)}
                                                                                 >
                                                                                     Delete

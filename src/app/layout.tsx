@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import { Toaster } from "sonner";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme/theme-provider";
+import { ThemeToaster } from "@/components/theme/theme-toaster";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -25,14 +25,21 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning className="overflow-x-hidden">
+    <html lang="en" suppressHydrationWarning className="overflow-x-hidden dark">
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var t=localStorage.getItem('lockedin-theme');if(t==='light'){document.documentElement.classList.remove('dark')}}catch(e){}})()`,
+          }}
+        />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased overflow-x-hidden w-full relative`}
         suppressHydrationWarning
       >
         <ThemeProvider>
           {children}
-          <Toaster theme="dark" position="bottom-right" />
+          <ThemeToaster />
         </ThemeProvider>
       </body>
     </html>

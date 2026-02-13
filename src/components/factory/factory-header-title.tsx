@@ -25,8 +25,8 @@ export function FactoryHeaderTitle({ username }: FactoryHeaderTitleProps) {
 
   return (
     <div className="hidden lg:flex flex-col min-w-0">
-      <div className="text-sm font-semibold text-zinc-100 truncate">{content.title}</div>
-      <div className="text-xs text-zinc-500 truncate">
+      <div className="text-sm font-semibold text-foreground truncate">{content.title}</div>
+      <div className="text-xs text-muted-foreground truncate">
         {pathname === '/dashboard' && username ? `Welcome back, ${username}. ` : ''}
         {content.subtitle}
       </div>

@@ -83,12 +83,12 @@ export function MiniHeatmap({ data, weeks = 52, className }: MiniHeatmapProps) {
 
   const getLevelColor = (level: number) => {
     switch (level) {
-      case 0: return 'bg-zinc-800/50'
-      case 1: return 'bg-green-900/60'
-      case 2: return 'bg-green-700/70'
-      case 3: return 'bg-green-500/80'
-      case 4: return 'bg-green-400'
-      default: return 'bg-zinc-800/50'
+      case 0: return 'bg-muted'
+      case 1: return 'bg-green-300/60 dark:bg-green-900/60'
+      case 2: return 'bg-green-400/70 dark:bg-green-700/70'
+      case 3: return 'bg-green-500/80 dark:bg-green-500/80'
+      case 4: return 'bg-green-500 dark:bg-green-400'
+      default: return 'bg-muted'
     }
   }
 
@@ -110,7 +110,7 @@ export function MiniHeatmap({ data, weeks = 52, className }: MiniHeatmapProps) {
           </div>
         ))}
       </div>
-      <div className="text-[10px] text-zinc-500 font-mono">
+      <div className="text-[10px] text-muted-foreground font-mono">
         {formatTotalTime(totalMinutes)}
       </div>
     </div>

@@ -73,7 +73,7 @@ export function ProfileMenu() {
         <Button
           variant="ghost"
           size="icon"
-          className="relative h-9 w-9 rounded-full border border-zinc-800 bg-zinc-950/40 hover:bg-zinc-900/80 hover:border-zinc-700"
+          className="relative h-9 w-9 rounded-full border border-border bg-muted/40 hover:bg-card/80 hover:border-border"
         >
           <Avatar className="h-8 w-8">
             <AvatarImage src={profile?.avatar_url || undefined} />
@@ -83,7 +83,7 @@ export function ProfileMenu() {
       </DropdownMenuTrigger>
       <DropdownMenuContent
         align="end"
-        className="w-56 bg-zinc-950 border-zinc-800 text-zinc-100 shadow-xl"
+        className="w-56 bg-background border-border text-foreground shadow-xl"
       >
         <DropdownMenuLabel className="flex items-center gap-2">
           <Avatar className="h-8 w-8">
@@ -94,7 +94,7 @@ export function ProfileMenu() {
             <span className="text-sm font-medium">
               {profile?.username ?? 'Locked In User'}
             </span>
-            <span className="text-xs text-zinc-500">View and manage your account</span>
+            <span className="text-xs text-muted-foreground">View and manage your account</span>
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
@@ -117,7 +117,7 @@ export function ProfileMenu() {
             )}
             <span>Theme</span>
           </div>
-          <span className="text-xs text-zinc-400 capitalize">{theme}</span>
+          <span className="text-xs text-muted-foreground capitalize">{theme}</span>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem

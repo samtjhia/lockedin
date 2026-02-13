@@ -15,9 +15,10 @@ export async function POST(request: Request) {
   const formData = await request.formData()
   const username = (formData.get("username") as string | null)?.trim() || null
   const bio = (formData.get("bio") as string | null)?.trim() || null
+  const goals = (formData.get("goals") as string | null)?.trim() || null
   const avatarFile = formData.get("avatar") as File | null
 
-  const updateData: Record<string, any> = { username, bio }
+  const updateData: Record<string, any> = { username, bio, goals }
 
   // Handle avatar upload if a file was provided
   if (avatarFile && avatarFile.size > 0) {

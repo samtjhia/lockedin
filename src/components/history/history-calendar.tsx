@@ -6,7 +6,7 @@ import { format, isFuture, isSameDay, startOfMonth } from 'date-fns'
 import { Card, CardContent } from '@/components/ui/card'
 import { getDayLogs, getHistoryStats } from '@/app/actions/history'
 import { formatDuration, calculateGrade } from '@/lib/utils'
-import { ChevronLeft, ChevronRight, Loader2, Calendar as CalendarIcon, Clock, CheckCircle2, TrendingUp, Trophy, Zap, Hourglass, BarChart3, Flame } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Loader2, Calendar as CalendarIcon, Clock, CheckCircle2, TrendingUp, Trophy, Zap, Hourglass, BarChart3, Flame, HelpCircle } from 'lucide-react'
 import 'react-day-picker/dist/style.css'
 
 // Custom CSS to override DayPicker styles for dark theme
@@ -18,7 +18,7 @@ const rdpStyles = `
   }
   .rdp-day_selected {
     background-color: #22c55e !important;
-    color: #000000 !important;
+    color: var(--background) !important;
     font-weight: 700 !important;
     border-radius: 6px !important;
   }
@@ -77,9 +77,9 @@ const rdpStyles = `
     appearance: none;
     -webkit-appearance: none;
     -moz-appearance: none;
-    background-color: #27272a; /* zinc-800 */
-    border: 1px solid #3f3f46; /* zinc-700 */
-    color: #f4f4f5; /* zinc-100 */
+    background-color: var(--muted); /* zinc-800 */
+    border: 1px solid var(--border); /* zinc-700 */
+    color: var(--foreground); /* zinc-100 */
     padding: 8px 16px;
     border-radius: 6px;
     font-size: 0.95rem;
@@ -91,8 +91,8 @@ const rdpStyles = `
   }
   
   select.rdp-dropdown:hover {
-    border-color: #52525b; /* zinc-600 */
-    background-color: #3f3f46; /* zinc-700 */
+    border-color: var(--border); /* zinc-600 */
+    background-color: var(--border); /* zinc-700 */
   }
 
   select.rdp-dropdown:focus {
@@ -102,8 +102,8 @@ const rdpStyles = `
 
   /* Style options for better visibility */
   select.rdp-dropdown option {
-    background-color: #18181b;
-    color: #fff;
+    background-color: var(--background);
+    color: var(--foreground);
     padding: 10px;
   }
 
@@ -124,7 +124,7 @@ const rdpStyles = `
     text-align: center;
     font-size: 0.75rem;
     font-weight: 500;
-    color: #ffffff !important;
+    color: var(--foreground) !important;
     text-transform: uppercase;
     padding-bottom: 10px;
     padding-top: 2px;
@@ -278,7 +278,7 @@ export function HistoryCalendar({ initialData, initialStats }: HistoryCalendarPr
         
         {/* Left Col: Calendar */}
         <div className="w-full lg:w-auto">
-          <Card className="border-zinc-800 bg-zinc-950/50 inline-block w-full lg:w-auto">
+          <Card className="border-border bg-muted/50 inline-block w-full lg:w-auto">
             <CardContent className="p-3 sm:p-6 flex justify-center">
               <DayPicker
                 mode="single"
@@ -309,54 +309,54 @@ export function HistoryCalendar({ initialData, initialStats }: HistoryCalendarPr
                     day_today: "text-green-500 font-bold",
                     caption_label: "hidden", // Hide default label as we use dropdowns
                     caption_dropdowns: "flex gap-4 items-center justify-center p-2 mb-4",
-                    dropdown: "bg-zinc-800 border border-zinc-700 text-zinc-100 rounded-md p-2 text-sm focus:border-green-500 focus:ring-green-500 shadow-sm transition-all",
-                    head_cell: "text-white font-medium pb-4 text-xs uppercase tracking-widest opacity-100",
-                    weekday: "text-white font-medium pb-4 text-xs uppercase tracking-widest opacity-100",
+                    dropdown: "bg-muted border border-border text-foreground rounded-md p-2 text-sm focus:border-green-500 focus:ring-green-500 shadow-sm transition-all",
+                    head_cell: "text-foreground font-medium pb-4 text-xs uppercase tracking-widest opacity-100",
+                    weekday: "text-foreground font-medium pb-4 text-xs uppercase tracking-widest opacity-100",
                     table: "w-full border-collapse",
                     row: "h-9",
                     cell: "p-0 text-center",
-                    day: "h-9 w-9 p-0 font-medium aria-selected:opacity-100 hover:bg-zinc-800 rounded-md transition-all text-sm text-zinc-200",
+                    day: "h-9 w-9 p-0 font-medium aria-selected:opacity-100 hover:bg-muted rounded-md transition-all text-sm text-foreground",
                 }}
               />
             </CardContent>
           </Card>
 
           {/* Legend */}
-          <div className="mt-4 sm:mt-6 bg-zinc-900/30 p-3 sm:p-4 rounded-lg border border-zinc-800/50 lg:max-w-[350px]">
-            <h3 className="text-sm font-medium text-zinc-400 mb-3">Activity Levels</h3>
-            <div className="flex items-center justify-between text-xs text-zinc-600">
+          <div className="mt-4 sm:mt-6 bg-card/30 p-3 sm:p-4 rounded-lg border border-border/50 lg:max-w-[350px]">
+            <h3 className="text-sm font-medium text-muted-foreground mb-3">Activity Levels</h3>
+            <div className="flex items-center justify-between text-xs text-muted-foreground">
                 <span>Less</span>
                 <div className="flex gap-2">
-                    <div className="flex items-center justify-center w-8 h-8 rounded-md bg-transparent border border-zinc-800" title="0 sessions">
-                        <span className="text-zinc-500">22</span>
+                    <div className="flex items-center justify-center w-8 h-8 rounded-md bg-transparent border border-border" title="0 sessions">
+                        <span className="text-muted-foreground">22</span>
                     </div>
-                     <div className="flex flex-col items-center justify-center w-8 h-8 rounded-md bg-transparent border border-zinc-700" title="Level 1">
-                        <span className="text-zinc-300">23</span>
+                     <div className="flex flex-col items-center justify-center w-8 h-8 rounded-md bg-transparent border border-border" title="Level 1">
+                        <span className="text-foreground/70">23</span>
                         <div className="w-1 h-1 rounded-full bg-green-800 opacity-50 mt-0.5"></div>
                     </div>
-                     <div className="flex flex-col items-center justify-center w-8 h-8 rounded-md bg-transparent border border-zinc-700" title="Level 4">
-                        <span className="text-zinc-300">24</span>
+                     <div className="flex flex-col items-center justify-center w-8 h-8 rounded-md bg-transparent border border-border" title="Level 4">
+                        <span className="text-foreground/70">24</span>
                         <div className="w-1 h-1 rounded-full bg-green-400 mt-0.5"></div>
                     </div>
                 </div>
                 <span>More</span>
             </div>
-             <p className="text-[10px] text-zinc-500 mt-3 text-center">
+             <p className="text-[10px] text-muted-foreground mt-3 text-center">
                 Dots indicate completed sessions per day.
             </p>
           </div>
         </div>
 
         {/* Right Col: Details Panel */}
-        <div className="flex-1 w-full min-h-[400px] h-[500px] sm:h-[600px] lg:h-[650px] bg-zinc-950/30 rounded-xl border border-zinc-800/50 flex flex-col">
+        <div className="flex-1 w-full min-h-[400px] h-[500px] sm:h-[600px] lg:h-[650px] bg-muted/30 rounded-xl border border-border/50 flex flex-col">
             {/* Header */}
-            <div className="p-3 sm:p-4 border-b border-zinc-800 flex items-center justify-between bg-zinc-900/20 rounded-t-xl shrink-0">
+            <div className="p-3 sm:p-4 border-b border-border flex items-center justify-between bg-card/20 rounded-t-xl shrink-0">
                 <div className="flex items-center gap-3 sm:gap-4 min-w-0">
-                    <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-xl bg-zinc-900 flex items-center justify-center border border-zinc-800 shadow-inner shrink-0">
+                    <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-xl bg-card flex items-center justify-center border border-border shadow-inner shrink-0">
                         <CalendarIcon className="h-5 w-5 sm:h-6 sm:w-6 text-green-500" />
                     </div>
                     <div className="min-w-0">
-                        <h2 className="text-lg sm:text-2xl font-bold text-zinc-100 mb-0.5 sm:mb-1 truncate">
+                        <h2 className="text-lg sm:text-2xl font-bold text-foreground mb-0.5 sm:mb-1 truncate">
                      {selectedDate ? format(selectedDate, 'EEE, MMM do') : format(currentMonth, 'MMMM yyyy')}
                         </h2>
                         <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
@@ -366,7 +366,7 @@ export function HistoryCalendar({ initialData, initialStats }: HistoryCalendarPr
                           calculateGrade(stats.daily.total_seconds) === 'S' ? 'bg-indigo-500/10 border-indigo-500/50 text-indigo-400' :
                           calculateGrade(stats.daily.total_seconds) === 'A' ? 'bg-green-500/10 border-green-500/50 text-green-400' :
                           calculateGrade(stats.daily.total_seconds) === 'B' ? 'bg-blue-500/10 border-blue-500/50 text-blue-400' :
-                          'bg-zinc-800 text-zinc-400 border-zinc-700'
+                          'bg-muted text-muted-foreground border-border'
                         }`}>
                           GRADE: {calculateGrade(stats.daily.total_seconds)}
                         </div>
@@ -375,13 +375,42 @@ export function HistoryCalendar({ initialData, initialStats }: HistoryCalendarPr
                           calculateGrade(stats.monthly.total_seconds, 'monthly') === 'S' ? 'bg-indigo-500/10 border-indigo-500/50 text-indigo-400' :
                           calculateGrade(stats.monthly.total_seconds, 'monthly') === 'A' ? 'bg-green-500/10 border-green-500/50 text-green-400' :
                           calculateGrade(stats.monthly.total_seconds, 'monthly') === 'B' ? 'bg-blue-500/10 border-blue-500/50 text-blue-400' :
-                          'bg-zinc-800 text-zinc-400 border-zinc-700'
+                          'bg-muted text-muted-foreground border-border'
                         }`}>
                           MONTH GRADE: {calculateGrade(stats.monthly.total_seconds, 'monthly')}
                         </div>
                       )
                     )}
-                            <p className="text-xs text-zinc-400">
+                    {/* Grade info tooltip */}
+                    <div className="relative group/grade">
+                      <HelpCircle className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+                      <div className="absolute left-0 top-full mt-2 z-50 w-56 rounded-lg border border-border bg-popover p-3 text-popover-foreground shadow-xl opacity-0 scale-95 pointer-events-none group-hover/grade:opacity-100 group-hover/grade:scale-100 group-hover/grade:pointer-events-auto transition-all duration-150 origin-top-left">
+                        <p className="text-[11px] font-bold mb-2 text-foreground">Grading Scale</p>
+                        <div className="space-y-1.5 text-[10px]">
+                          <p className="font-semibold text-muted-foreground mb-1">{selectedDate ? 'Daily' : 'Monthly'}</p>
+                          {selectedDate ? (
+                            <>
+                              <div className="flex justify-between"><span className="text-indigo-400 font-bold">S</span><span className="text-muted-foreground">6+ hours</span></div>
+                              <div className="flex justify-between"><span className="text-green-400 font-bold">A</span><span className="text-muted-foreground">4+ hours</span></div>
+                              <div className="flex justify-between"><span className="text-blue-400 font-bold">B</span><span className="text-muted-foreground">3+ hours</span></div>
+                              <div className="flex justify-between"><span className="text-muted-foreground font-bold">C</span><span className="text-muted-foreground">2+ hours</span></div>
+                              <div className="flex justify-between"><span className="text-muted-foreground font-bold">D</span><span className="text-muted-foreground">1+ hour</span></div>
+                              <div className="flex justify-between"><span className="text-muted-foreground font-bold">F</span><span className="text-muted-foreground">&lt; 1 hour</span></div>
+                            </>
+                          ) : (
+                            <>
+                              <div className="flex justify-between"><span className="text-indigo-400 font-bold">S</span><span className="text-muted-foreground">100+ hours</span></div>
+                              <div className="flex justify-between"><span className="text-green-400 font-bold">A</span><span className="text-muted-foreground">80+ hours</span></div>
+                              <div className="flex justify-between"><span className="text-blue-400 font-bold">B</span><span className="text-muted-foreground">60+ hours</span></div>
+                              <div className="flex justify-between"><span className="text-muted-foreground font-bold">C</span><span className="text-muted-foreground">40+ hours</span></div>
+                              <div className="flex justify-between"><span className="text-muted-foreground font-bold">D</span><span className="text-muted-foreground">20+ hours</span></div>
+                              <div className="flex justify-between"><span className="text-muted-foreground font-bold">F</span><span className="text-muted-foreground">&lt; 20 hours</span></div>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                            <p className="text-xs text-muted-foreground">
                       {selectedDate 
                         ? (loadingLogs ? 'Loading...' : `${dayLogs.length} sessions`) 
                         : (loadingStats ? 'Loading...' : 'Month overview')}
@@ -395,38 +424,38 @@ export function HistoryCalendar({ initialData, initialStats }: HistoryCalendarPr
             {stats && selectedDate && (
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 px-3 sm:px-4 pt-3 sm:pt-4 animate-in slide-in-from-top-2 shrink-0">
                      {/* Daily Grade */}
-                     <div className="bg-zinc-900/40 p-2.5 sm:p-3 rounded-xl border border-zinc-800/50 flex flex-col gap-1">
-                        <div className="text-[10px] uppercase font-bold text-zinc-400 flex items-center gap-1.5">
+                     <div className="bg-card/40 p-2.5 sm:p-3 rounded-xl border border-border/50 flex flex-col gap-1">
+                        <div className="text-[10px] uppercase font-bold text-muted-foreground flex items-center gap-1.5">
                             <CalendarIcon className="h-3 w-3 sm:h-3.5 sm:w-3.5" /> Day
                         </div>
-                        <div className="text-xl sm:text-2xl font-black text-zinc-200">
+                        <div className="text-xl sm:text-2xl font-black text-foreground">
                              {isFuture(selectedDate) || stats.daily.total_seconds === 0 ? '--' : calculateGrade(stats.daily.total_seconds)}
                         </div>
                     </div>
                      {/* Weekly Grade */}
-                    <div className="bg-zinc-900/40 p-2.5 sm:p-3 rounded-xl border border-zinc-800/50 flex flex-col gap-1">
-                        <div className="text-[10px] uppercase font-bold text-zinc-400 flex items-center gap-1.5">
+                    <div className="bg-card/40 p-2.5 sm:p-3 rounded-xl border border-border/50 flex flex-col gap-1">
+                        <div className="text-[10px] uppercase font-bold text-muted-foreground flex items-center gap-1.5">
                             <TrendingUp className="h-3 w-3 sm:h-3.5 sm:w-3.5" /> Week
                         </div>
-                        <div className="text-xl sm:text-2xl font-black text-zinc-200">
+                        <div className="text-xl sm:text-2xl font-black text-foreground">
                             {isFuture(selectedDate) || stats.weekly.total_seconds === 0 ? '--' : calculateGrade(stats.weekly.total_seconds, 'weekly')}
                         </div>
                     </div>
                      {/* Monthly Grade */}
-                    <div className="bg-zinc-900/40 p-2.5 sm:p-3 rounded-xl border border-zinc-800/50 flex flex-col gap-1">
-                        <div className="text-[10px] uppercase font-bold text-zinc-400 flex items-center gap-1.5">
+                    <div className="bg-card/40 p-2.5 sm:p-3 rounded-xl border border-border/50 flex flex-col gap-1">
+                        <div className="text-[10px] uppercase font-bold text-muted-foreground flex items-center gap-1.5">
                             <BarChart3 className="h-3 w-3 sm:h-3.5 sm:w-3.5" /> Month
                         </div>
-                        <div className="text-xl sm:text-2xl font-black text-zinc-200">
+                        <div className="text-xl sm:text-2xl font-black text-foreground">
                             {isFuture(selectedDate) || stats.monthly.total_seconds === 0 ? '--' : calculateGrade(stats.monthly.total_seconds, 'monthly')}
                         </div>
                     </div>
                      {/* Peak Hour */}
-                    <div className="bg-zinc-900/40 p-2.5 sm:p-3 rounded-xl border border-zinc-800/50 flex flex-col gap-1">
-                        <div className="text-[10px] uppercase font-bold text-zinc-400 flex items-center gap-1.5">
+                    <div className="bg-card/40 p-2.5 sm:p-3 rounded-xl border border-border/50 flex flex-col gap-1">
+                        <div className="text-[10px] uppercase font-bold text-muted-foreground flex items-center gap-1.5">
                             <Zap className="h-3 w-3 sm:h-3.5 sm:w-3.5" /> Peak
                         </div>
-                        <div className="text-base sm:text-lg font-bold text-zinc-200 mt-0.5">
+                        <div className="text-base sm:text-lg font-bold text-foreground mt-0.5">
                             {stats.daily.peak_hour !== null ? (() => {
                                 const h = stats.daily.peak_hour;
                                 const ampm = h >= 12 ? 'pm' : 'am';
@@ -440,19 +469,19 @@ export function HistoryCalendar({ initialData, initialStats }: HistoryCalendarPr
 
                 {stats && !selectedDate && (
                   <div className="grid grid-cols-2 gap-2 sm:gap-3 px-3 sm:px-4 pt-3 sm:pt-4 animate-in slide-in-from-top-2 shrink-0">
-                    <div className="bg-zinc-900/40 p-2.5 sm:p-3 rounded-xl border border-zinc-800/50 flex flex-col gap-1">
-                      <div className="text-[10px] uppercase font-bold text-zinc-400 flex items-center gap-1.5">
+                    <div className="bg-card/40 p-2.5 sm:p-3 rounded-xl border border-border/50 flex flex-col gap-1">
+                      <div className="text-[10px] uppercase font-bold text-muted-foreground flex items-center gap-1.5">
                         <BarChart3 className="h-3 w-3 sm:h-3.5 sm:w-3.5" /> Month
                       </div>
-                      <div className="text-xl sm:text-2xl font-black text-zinc-200">
+                      <div className="text-xl sm:text-2xl font-black text-foreground">
                         {calculateGrade(stats.monthly.total_seconds, 'monthly')}
                       </div>
                     </div>
-                    <div className="bg-zinc-900/40 p-2.5 sm:p-3 rounded-xl border border-zinc-800/50 flex flex-col gap-1">
-                      <div className="text-[10px] uppercase font-bold text-zinc-400 flex items-center gap-1.5">
+                    <div className="bg-card/40 p-2.5 sm:p-3 rounded-xl border border-border/50 flex flex-col gap-1">
+                      <div className="text-[10px] uppercase font-bold text-muted-foreground flex items-center gap-1.5">
                         <Zap className="h-3 w-3 sm:h-3.5 sm:w-3.5" /> Peak
                       </div>
-                      <div className="text-base sm:text-lg font-bold text-zinc-200 mt-0.5">
+                      <div className="text-base sm:text-lg font-bold text-foreground mt-0.5">
                         {stats.monthly.peak_hour !== null ? (() => {
                           const h = stats.monthly.peak_hour
                           const ampm = h >= 12 ? 'pm' : 'am'
@@ -467,14 +496,14 @@ export function HistoryCalendar({ initialData, initialStats }: HistoryCalendarPr
             {/* Top Topics */}
                 {stats && selectedDate && stats.daily.top_topics.length > 0 && (
                  <div className="px-3 sm:px-4 pt-3 sm:pt-4 shrink-0">
-                    <h4 className="text-xs font-bold text-zinc-400 uppercase mb-2 flex items-center gap-1.5">
+                    <h4 className="text-xs font-bold text-muted-foreground uppercase mb-2 flex items-center gap-1.5">
                         <Flame className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> Top Focus
                     </h4>
                     <div className="flex flex-wrap gap-1.5 sm:gap-2">
                         {stats.daily.top_topics.map((t, i) => (
-                            <div key={i} className="bg-zinc-900/60 px-2 sm:px-2.5 py-1 rounded text-[11px] sm:text-xs border border-zinc-800 flex items-center gap-1.5 sm:gap-2">
-                                <span className="text-zinc-300 font-medium capitalize max-w-[80px] sm:max-w-[100px] truncate">{t.name}</span>
-                                <span className="text-zinc-400 border-l border-zinc-700 pl-1.5 sm:pl-2 whitespace-nowrap">{formatDuration(t.duration)}</span>
+                            <div key={i} className="bg-card/60 px-2 sm:px-2.5 py-1 rounded text-[11px] sm:text-xs border border-border flex items-center gap-1.5 sm:gap-2">
+                                <span className="text-foreground/70 font-medium capitalize max-w-[80px] sm:max-w-[100px] truncate">{t.name}</span>
+                                <span className="text-muted-foreground border-l border-border pl-1.5 sm:pl-2 whitespace-nowrap">{formatDuration(t.duration)}</span>
                             </div>
                         ))}
                     </div>
@@ -483,7 +512,7 @@ export function HistoryCalendar({ initialData, initialStats }: HistoryCalendarPr
 
                 {stats && !selectedDate && stats.monthly.top_topics.length > 0 && (
                   <div className="px-3 sm:px-4 pt-3 sm:pt-4 shrink-0">
-                    <h4 className="text-xs font-bold text-zinc-400 uppercase mb-2 sm:mb-3 flex items-center gap-1.5">
+                    <h4 className="text-xs font-bold text-muted-foreground uppercase mb-2 sm:mb-3 flex items-center gap-1.5">
                       <Flame className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> Top Focus (Month)
                     </h4>
                     <div className="space-y-1.5 sm:space-y-2">
@@ -491,16 +520,16 @@ export function HistoryCalendar({ initialData, initialStats }: HistoryCalendarPr
                         const maxDuration = Math.max(...stats.monthly.top_topics.map(t => t.duration), 1)
                         return stats.monthly.top_topics.map((t, i) => (
                           <div key={i} className="flex items-center gap-2 sm:gap-3">
-                            <div className="w-20 sm:w-24 text-[11px] sm:text-xs text-zinc-300 font-medium capitalize truncate shrink-0">{t.name}</div>
+                            <div className="w-20 sm:w-24 text-[11px] sm:text-xs text-foreground/70 font-medium capitalize truncate shrink-0">{t.name}</div>
                             <div className="flex-1 min-w-0">
-                              <div className="h-1.5 sm:h-2 rounded-full bg-zinc-900/60 border border-zinc-800/60 overflow-hidden">
+                              <div className="h-1.5 sm:h-2 rounded-full bg-card/60 border border-border/60 overflow-hidden">
                                 <div
                                   className="h-full bg-green-500/70"
                                   style={{ width: `${Math.round((t.duration / maxDuration) * 100)}%` }}
                                 />
                               </div>
                             </div>
-                            <div className="w-14 sm:w-16 text-right text-[10px] text-zinc-400 shrink-0 whitespace-nowrap">
+                            <div className="w-14 sm:w-16 text-right text-[10px] text-muted-foreground shrink-0 whitespace-nowrap">
                               {formatDuration(t.duration)}
                             </div>
                           </div>
@@ -513,7 +542,7 @@ export function HistoryCalendar({ initialData, initialStats }: HistoryCalendarPr
             {/* Logs Header */}
             {selectedDate && (
               <div className="px-3 sm:px-4 pt-3 sm:pt-4 pb-1.5 sm:pb-2 shrink-0">
-                <h4 className="text-xs font-bold text-zinc-400 uppercase flex items-center gap-1.5">
+                <h4 className="text-xs font-bold text-muted-foreground uppercase flex items-center gap-1.5">
                   <BarChart3 className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> Session Log
                 </h4>
               </div>
@@ -522,35 +551,35 @@ export function HistoryCalendar({ initialData, initialStats }: HistoryCalendarPr
             {/* Scrollable List */}
             <div className="flex-1 overflow-y-auto px-3 sm:px-4 pb-3 sm:pb-4 space-y-1.5 sm:space-y-2 min-h-0">
                 {!selectedDate ? (
-                 <div className="h-full flex flex-col items-center justify-center text-zinc-500 space-y-3">
+                 <div className="h-full flex flex-col items-center justify-center text-muted-foreground space-y-3">
                         <CalendarIcon className="h-8 w-8 sm:h-10 sm:w-10 opacity-20" />
                   <p className="text-xs sm:text-sm">Select a date to view sessions.</p>
                      </div>
                 ) : loadingLogs ? (
-                    <div className="h-full flex flex-col items-center justify-center gap-2 text-zinc-400">
+                    <div className="h-full flex flex-col items-center justify-center gap-2 text-muted-foreground">
                         <Loader2 className="h-5 w-5 animate-spin text-green-500" />
                         <p className="text-xs font-mono">Loading logs...</p>
                     </div>
                 ) : dayLogs.length > 0 ? (
                     dayLogs.map((log) => (
-                        <div key={log.id} className="group flex items-center gap-2 sm:gap-3 p-2.5 sm:p-3 rounded-lg bg-zinc-900/40 border border-zinc-800/50 hover:bg-zinc-900/60 hover:border-zinc-700/50 transition-all">
+                        <div key={log.id} className="group flex items-center gap-2 sm:gap-3 p-2.5 sm:p-3 rounded-lg bg-card/40 border border-border/50 hover:bg-card/60 hover:border-border/50 transition-all">
                             <div className="shrink-0">
                                 <CheckCircle2 className="h-4 w-4 text-green-500/50 group-hover:text-green-400 transition-colors" />
                             </div>
                             <div className="flex-1 min-w-0">
-                                <div className="text-xs sm:text-sm font-medium text-zinc-200 truncate group-hover:text-white transition-colors" title={log.task_name}>
+                                <div className="text-xs sm:text-sm font-medium text-foreground truncate group-hover:text-foreground transition-colors" title={log.task_name}>
                                     {log.task_name}
                                 </div>
-                                <div className="flex items-center gap-1.5 sm:gap-2 text-[11px] sm:text-xs text-zinc-400 font-mono mt-0.5 flex-wrap">
+                                <div className="flex items-center gap-1.5 sm:gap-2 text-[11px] sm:text-xs text-muted-foreground font-mono mt-0.5 flex-wrap">
                                     <span className="flex items-center gap-1 whitespace-nowrap">
                                         {format(new Date(log.started_at), 'h:mm a')}
                                     </span>
-                                    <span className="w-0.5 h-0.5 rounded-full bg-zinc-700" />
-                                    <span className="text-zinc-300 whitespace-nowrap">
+                                    <span className="w-0.5 h-0.5 rounded-full bg-border" />
+                                    <span className="text-foreground/70 whitespace-nowrap">
                                         {formatDuration(log.duration_seconds)}
                                     </span>
                                      {log.mode !== 'focus' && (
-                                        <span className="bg-zinc-800/50 px-1.5 rounded text-[10px] uppercase text-zinc-400 border border-zinc-700 whitespace-nowrap">
+                                        <span className="bg-muted/50 px-1.5 rounded text-[10px] uppercase text-muted-foreground border border-border whitespace-nowrap">
                                             {log.mode}
                                         </span>
                                     )}
@@ -559,11 +588,11 @@ export function HistoryCalendar({ initialData, initialStats }: HistoryCalendarPr
                         </div>
                     ))
                 ) : (
-                    <div className="h-full flex flex-col items-center justify-center text-zinc-400">
-                        <div className="w-10 h-10 rounded-full bg-zinc-900/50 flex items-center justify-center mb-3">
+                    <div className="h-full flex flex-col items-center justify-center text-muted-foreground">
+                        <div className="w-10 h-10 rounded-full bg-card/50 flex items-center justify-center mb-3">
                             <Clock className="h-5 w-5 opacity-20" />
                         </div>
-                        <p className="font-medium text-sm text-zinc-300">No sessions</p>
+                        <p className="font-medium text-sm text-foreground/70">No sessions</p>
                     </div>
                 )}
             </div>

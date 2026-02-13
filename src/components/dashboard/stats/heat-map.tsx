@@ -5,6 +5,7 @@ import { ActivityCalendar, type Activity } from 'react-activity-calendar'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { getHeatmapData } from '@/app/actions/dashboard'
 import { Tooltip as ReactTooltip } from 'react-tooltip'
+import { useTheme } from '@/components/theme/theme-provider'
 import 'react-tooltip/dist/react-tooltip.css'
 
 type HeatMapProps = {
@@ -26,6 +27,7 @@ function formatTotalTime(mins: number): string {
 }
 
 export function HeatMap({ initialData }: HeatMapProps) {
+    const { theme } = useTheme()
     const [data, setData] = useState<any[]>(() => initialData ? fillDateGaps(initialData) : [])
 
     useEffect(() => {
@@ -44,7 +46,7 @@ export function HeatMap({ initialData }: HeatMapProps) {
         }
     }
 
-    if (data.length === 0) return <div className="h-[200px] w-full animate-pulse bg-zinc-900 rounded-xl" />
+    if (data.length === 0) return <div className="h-[200px] w-full animate-pulse bg-card rounded-xl" />
 
     // Determine date range for the calendar to ensure it shows a full year
     const today = new Date()
@@ -54,21 +56,21 @@ export function HeatMap({ initialData }: HeatMapProps) {
     const totalMinutes = data.reduce((acc, curr) => acc + curr.count, 0)
 
     return (
-        <Card className="border-zinc-800 bg-zinc-950/50">
+        <Card className="border-border bg-muted/50">
             <CardHeader>
-                <CardTitle className="text-zinc-400">Activity Log ({formatTotalTime(totalMinutes)})</CardTitle>
+                <CardTitle className="text-muted-foreground">Activity Log ({formatTotalTime(totalMinutes)})</CardTitle>
             </CardHeader>
             <CardContent>
                 <div className="w-full overflow-x-auto pb-2 scrollbar-none" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
                     <div className="w-full flex justify-center">
                         <ActivityCalendar
                             data={data}
-                            style={{ color: '#71717a' }}
+                            style={{ color: theme === 'dark' ? '#71717a' : '#a1a1aa' }}
                             theme={{
-                                light: ['#ebedf0', '#9be9a8', '#40c463', '#30a14e', '#216e39'],
+                                light: ['#e4e4e7', '#bbf7d0', '#4ade80', '#22c55e', '#15803d'],
                                 dark: ['#27272a', '#0e4429', '#006d32', '#26a641', '#39d353'],
                             }}
-                            colorScheme="dark"
+                            colorScheme={theme}
                             blockSize={9}
                             blockMargin={2}
                             blockRadius={1}

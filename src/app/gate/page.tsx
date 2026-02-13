@@ -5,11 +5,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 
 export default function GatePage() {
   return (
-    <div className="flex items-center justify-center min-h-screen bg-black text-zinc-50 p-4">
-      <Card className="w-full max-w-sm border-zinc-800 bg-zinc-900 text-zinc-50">
+    <div className="flex items-center justify-center min-h-screen bg-background text-foreground p-4">
+      <Card className="w-full max-w-sm border-border bg-card text-foreground">
         <CardHeader>
           <CardTitle className="text-xl text-center text-red-500 font-mono tracking-widest">RESTRICTED AREA</CardTitle>
-          <CardDescription className="text-center text-zinc-400">
+          <CardDescription className="text-center text-muted-foreground">
             Enter the factory security code to proceed.
           </CardDescription>
         </CardHeader>
@@ -20,7 +20,7 @@ export default function GatePage() {
                 name="username" 
                 type="text" 
                 placeholder="CHOOSE CALLSIGN (USERNAME)"
-                className="bg-black border-zinc-700 text-center font-mono text-sm tracking-widest focus:ring-red-900 placeholder:text-zinc-600" 
+                className="bg-background border-border text-center font-mono text-sm tracking-widest focus:ring-red-900 placeholder:text-muted-foreground" 
                 required
                 minLength={3}
                 maxLength={20}
@@ -29,7 +29,7 @@ export default function GatePage() {
                 name="code" 
                 type="password" 
                 placeholder="ENTER SECURITY CODE"
-                className="bg-black border-zinc-700 text-center font-mono text-lg tracking-widest focus:ring-red-900" 
+                className="bg-background border-border text-center font-mono text-lg tracking-widest focus:ring-red-900" 
                 required
               />
             </div>

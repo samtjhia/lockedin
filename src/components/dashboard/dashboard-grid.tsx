@@ -54,7 +54,7 @@ export function DashboardGrid({ taskList, centerContent, youtubePlayer, shiftLog
         {/* Desktop (xl+): normal grid cell with absolute fill trick */}
         <div className={cn(
           // Base / Mobile+Tablet: fixed off-screen panel
-          "fixed inset-y-0 left-0 z-50 w-[320px] max-w-[85vw] bg-black border-r border-zinc-800 transition-transform duration-300 ease-out",
+          "fixed inset-y-0 left-0 z-50 w-[320px] max-w-[85vw] bg-background border-r border-border transition-transform duration-300 ease-out",
           mobilePanel === 'tasks' ? 'translate-x-0' : '-translate-x-full',
           // Desktop override: static grid cell
           "xl:static xl:inset-auto xl:z-auto xl:w-auto xl:max-w-none xl:bg-transparent xl:border-r-0 xl:translate-x-0 xl:transition-none xl:col-span-1 xl:relative"
@@ -62,7 +62,7 @@ export function DashboardGrid({ taskList, centerContent, youtubePlayer, shiftLog
           {/* Mobile close button */}
           <button
             onClick={() => setMobilePanel('none')}
-            className="absolute top-3 right-3 z-10 p-1.5 rounded-md text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800 xl:hidden"
+            className="absolute top-3 right-3 z-10 p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted xl:hidden"
             aria-label="Close tasks panel"
           >
             <X className="h-5 w-5" />
@@ -83,7 +83,7 @@ export function DashboardGrid({ taskList, centerContent, youtubePlayer, shiftLog
         {/* Desktop (xl+): normal grid cell with absolute fill trick */}
         <div className={cn(
           // Base / Mobile+Tablet: fixed off-screen panel
-          "fixed inset-y-0 right-0 z-50 w-[320px] max-w-[85vw] bg-black border-l border-zinc-800 transition-transform duration-300 ease-out",
+          "fixed inset-y-0 right-0 z-50 w-[320px] max-w-[85vw] bg-background border-l border-border transition-transform duration-300 ease-out",
           mobilePanel === 'log' ? 'translate-x-0' : 'translate-x-full',
           // Desktop override: static grid cell
           "xl:static xl:inset-auto xl:z-auto xl:w-auto xl:max-w-none xl:bg-transparent xl:border-l-0 xl:translate-x-0 xl:transition-none xl:col-span-1 xl:relative"
@@ -91,7 +91,7 @@ export function DashboardGrid({ taskList, centerContent, youtubePlayer, shiftLog
           {/* Mobile close button */}
           <button
             onClick={() => setMobilePanel('none')}
-            className="absolute top-3 left-3 z-10 p-1.5 rounded-md text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800 xl:hidden"
+            className="absolute top-3 left-3 z-10 p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted xl:hidden"
             aria-label="Close session log panel"
           >
             <X className="h-5 w-5" />
@@ -125,8 +125,8 @@ export function DashboardGrid({ taskList, centerContent, youtubePlayer, shiftLog
           size="sm"
           onClick={() => setMobilePanel(p => p === 'tasks' ? 'none' : 'tasks')}
           className={cn(
-            "border-zinc-700 bg-black/90 backdrop-blur-md shadow-lg text-zinc-300 hover:text-white hover:bg-zinc-800",
-            mobilePanel === 'tasks' && "bg-zinc-800 border-zinc-500 text-white"
+            "border-border bg-background/90 backdrop-blur-md shadow-lg text-foreground/70 hover:text-foreground hover:bg-muted",
+            mobilePanel === 'tasks' && "bg-muted border-zinc-500 text-foreground"
           )}
         >
           <ListTodo className="h-4 w-4 mr-1.5" />
@@ -137,8 +137,8 @@ export function DashboardGrid({ taskList, centerContent, youtubePlayer, shiftLog
           size="sm"
           onClick={() => setMobilePanel(p => p === 'log' ? 'none' : 'log')}
           className={cn(
-            "border-zinc-700 bg-black/90 backdrop-blur-md shadow-lg text-zinc-300 hover:text-white hover:bg-zinc-800",
-            mobilePanel === 'log' && "bg-zinc-800 border-zinc-500 text-white"
+            "border-border bg-background/90 backdrop-blur-md shadow-lg text-foreground/70 hover:text-foreground hover:bg-muted",
+            mobilePanel === 'log' && "bg-muted border-zinc-500 text-foreground"
           )}
         >
           <Clock className="h-4 w-4 mr-1.5" />

@@ -13,7 +13,7 @@ export default async function LoginPage(props: {
   const message = searchParams.message
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100 dark:bg-zinc-950 p-4">
+    <div className="flex items-center justify-center min-h-screen bg-gray-100 dark:bg-background p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl font-bold">Locked In Factory</CardTitle>

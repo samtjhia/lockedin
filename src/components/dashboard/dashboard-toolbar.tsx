@@ -216,17 +216,17 @@ export function DashboardToolbar({ initialSounds, initialQuickLinks, initialYout
 
     return (
         <>
-            <Card className="border-zinc-800 bg-zinc-950/50">
+            <Card className="border-border bg-muted/50">
                 <CardContent className="p-0 sm:p-2 sm:flex sm:flex-row sm:items-center sm:gap-2 sm:flex-wrap">
                     {/* Quick Links Section */}
                     <div className="flex items-center gap-1 flex-wrap px-3 py-2 sm:p-0">
-                        <Link2 className="h-4 w-4 text-zinc-400 flex-shrink-0" />
+                        <Link2 className="h-4 w-4 text-muted-foreground flex-shrink-0" />
                         {quickLinks.map(link => (
                             <div key={link.id} className="group relative">
                                 <Button
                                     variant="ghost"
                                     size="sm"
-                                    className="h-7 px-2 text-xs text-zinc-400 hover:text-zinc-200 gap-1"
+                                    className="h-7 px-2 text-xs text-muted-foreground hover:text-foreground gap-1"
                                     onClick={() => window.open(link.url, '_blank')}
                                     title={link.url}
                                 >
@@ -242,16 +242,16 @@ export function DashboardToolbar({ initialSounds, initialQuickLinks, initialYout
                                     )}
                                     {link.title}
                                 </Button>
-                                <div className="absolute left-1/2 -translate-x-1/2 bottom-[calc(100%-8px)] hidden group-hover:flex items-center gap-0.5 bg-zinc-800 rounded px-1 pt-0.5 pb-3 shadow-lg z-20">
+                                <div className="absolute left-1/2 -translate-x-1/2 bottom-[calc(100%-8px)] hidden group-hover:flex items-center gap-0.5 bg-muted rounded px-1 pt-0.5 pb-3 shadow-lg z-20">
                                     <button
                                         onClick={(e) => { e.stopPropagation(); startEditQL(link) }}
-                                        className="h-5 w-5 rounded flex items-center justify-center text-zinc-400 hover:text-zinc-200 hover:bg-zinc-700"
+                                        className="h-5 w-5 rounded flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-border"
                                     >
                                         <Pencil className="h-3 w-3" />
                                     </button>
                                     <button
                                         onClick={(e) => { e.stopPropagation(); handleDeleteQL(link.id) }}
-                                        className="h-5 w-5 rounded flex items-center justify-center text-zinc-400 hover:text-red-400 hover:bg-zinc-700"
+                                        className="h-5 w-5 rounded flex items-center justify-center text-muted-foreground hover:text-red-400 hover:bg-border"
                                     >
                                         <X className="h-3 w-3" />
                                     </button>
@@ -260,28 +260,28 @@ export function DashboardToolbar({ initialSounds, initialQuickLinks, initialYout
                         ))}
                         {(isAddingQL || editingQLId) && (
                             <div className="flex items-center gap-1">
-                                <Input placeholder="Title" value={qlTitle} onChange={(e) => setQlTitle(e.target.value)} className="h-7 w-16 text-xs text-zinc-100 placeholder:text-zinc-500 bg-zinc-800 border-zinc-600 focus:border-zinc-500" />
-                                <Input placeholder="URL" value={qlUrl} onChange={(e) => setQlUrl(e.target.value)} className="h-7 w-24 text-xs text-zinc-100 placeholder:text-zinc-500 bg-zinc-800 border-zinc-600 focus:border-zinc-500" onKeyDown={(e) => { if (e.key === 'Enter') editingQLId ? handleUpdateQL() : handleAddQL() }} />
-                                <Button variant="ghost" size="icon" className="h-6 w-6 text-zinc-300 hover:text-zinc-100" onClick={editingQLId ? handleUpdateQL : handleAddQL}><Plus className="h-4 w-4" /></Button>
-                                <Button variant="ghost" size="icon" className="h-6 w-6 text-zinc-500 hover:text-zinc-300" onClick={() => { setIsAddingQL(false); setEditingQLId(null); setQlTitle(''); setQlUrl('') }}><X className="h-4 w-4" /></Button>
+                                <Input placeholder="Title" value={qlTitle} onChange={(e) => setQlTitle(e.target.value)} className="h-7 w-16 text-xs text-foreground placeholder:text-muted-foreground bg-muted border-zinc-600 focus:border-zinc-500" />
+                                <Input placeholder="URL" value={qlUrl} onChange={(e) => setQlUrl(e.target.value)} className="h-7 w-24 text-xs text-foreground placeholder:text-muted-foreground bg-muted border-zinc-600 focus:border-zinc-500" onKeyDown={(e) => { if (e.key === 'Enter') editingQLId ? handleUpdateQL() : handleAddQL() }} />
+                                <Button variant="ghost" size="icon" className="h-6 w-6 text-foreground/70 hover:text-foreground" onClick={editingQLId ? handleUpdateQL : handleAddQL}><Plus className="h-4 w-4" /></Button>
+                                <Button variant="ghost" size="icon" className="h-6 w-6 text-muted-foreground hover:text-foreground/70" onClick={() => { setIsAddingQL(false); setEditingQLId(null); setQlTitle(''); setQlUrl('') }}><X className="h-4 w-4" /></Button>
                             </div>
                         )}
                         {!isAddingQL && !editingQLId && (
-                            <Button variant="ghost" size="icon" className="h-6 w-6 text-zinc-500 hover:text-zinc-300" onClick={() => setIsAddingQL(true)} title="Add quick link">
+                            <Button variant="ghost" size="icon" className="h-6 w-6 text-muted-foreground hover:text-foreground/70" onClick={() => setIsAddingQL(true)} title="Add quick link">
                                 <Plus className="h-3 w-3" />
                             </Button>
                         )}
                     </div>
 
-                    <div className="hidden sm:block h-5 w-px bg-zinc-700" />
+                    <div className="hidden sm:block h-5 w-px bg-border" />
 
                     {/* YouTube Section */}
-                    <div className="flex items-center gap-1 flex-wrap border-t border-zinc-800 sm:border-t-0 px-3 py-2 sm:p-0">
-                        <Youtube className="h-4 w-4 text-zinc-400 flex-shrink-0" />
+                    <div className="flex items-center gap-1 flex-wrap border-t border-border sm:border-t-0 px-3 py-2 sm:p-0">
+                        <Youtube className="h-4 w-4 text-muted-foreground flex-shrink-0" />
                         <Button
                             variant="ghost"
                             size="sm"
-                            className="h-6 text-xs text-zinc-500 hover:text-zinc-300 px-1"
+                            className="h-6 text-xs text-muted-foreground hover:text-foreground/70 px-1"
                             onClick={() => setPlayerMode(playerMode === 'embed' ? 'external' : 'embed')}
                             title={playerMode === 'embed' ? 'Inline player' : 'Opens in new tab'}
                         >
@@ -292,17 +292,17 @@ export function DashboardToolbar({ initialSounds, initialQuickLinks, initialYout
                                 <Button
                                     variant={activeVideoId === link.id ? "secondary" : "ghost"}
                                     size="sm"
-                                    className={`h-7 px-2 text-xs ${activeVideoId === link.id ? 'text-zinc-100 bg-zinc-700' : 'text-zinc-400 hover:text-zinc-200'}`}
+                                    className={`h-7 px-2 text-xs ${activeVideoId === link.id ? 'text-foreground bg-border' : 'text-muted-foreground hover:text-foreground'}`}
                                     onClick={() => handlePlayYT(link)}
                                     title={link.url}
                                 >
                                     {link.title}
                                 </Button>
-                                <div className="absolute left-1/2 -translate-x-1/2 bottom-[calc(100%-8px)] hidden group-hover:flex items-center gap-0.5 bg-zinc-800 rounded px-1 pt-0.5 pb-3 shadow-lg z-20">
-                                    <button onClick={(e) => { e.stopPropagation(); startEditYT(link) }} className="h-5 w-5 rounded flex items-center justify-center text-zinc-400 hover:text-zinc-200 hover:bg-zinc-700">
+                                <div className="absolute left-1/2 -translate-x-1/2 bottom-[calc(100%-8px)] hidden group-hover:flex items-center gap-0.5 bg-muted rounded px-1 pt-0.5 pb-3 shadow-lg z-20">
+                                    <button onClick={(e) => { e.stopPropagation(); startEditYT(link) }} className="h-5 w-5 rounded flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-border">
                                         <Pencil className="h-3 w-3" />
                                     </button>
-                                    <button onClick={(e) => { e.stopPropagation(); handleDeleteYT(link.id) }} className="h-5 w-5 rounded flex items-center justify-center text-zinc-400 hover:text-red-400 hover:bg-zinc-700">
+                                    <button onClick={(e) => { e.stopPropagation(); handleDeleteYT(link.id) }} className="h-5 w-5 rounded flex items-center justify-center text-muted-foreground hover:text-red-400 hover:bg-border">
                                         <X className="h-3 w-3" />
                                     </button>
                                 </div>
@@ -310,25 +310,25 @@ export function DashboardToolbar({ initialSounds, initialQuickLinks, initialYout
                         ))}
                         {(isAddingYT || editingYTId) && (
                             <div className="flex items-center gap-1">
-                                <Input placeholder="Title" value={ytTitle} onChange={(e) => setYtTitle(e.target.value)} className="h-7 w-16 text-xs text-zinc-100 placeholder:text-zinc-500 bg-zinc-800 border-zinc-600 focus:border-zinc-500" />
-                                <Input placeholder="YT URL" value={ytUrl} onChange={(e) => setYtUrl(e.target.value)} className="h-7 w-28 text-xs text-zinc-100 placeholder:text-zinc-500 bg-zinc-800 border-zinc-600 focus:border-zinc-500" onKeyDown={(e) => { if (e.key === 'Enter') editingYTId ? handleUpdateYT() : handleAddYT() }} />
-                                <Button variant="ghost" size="icon" className="h-6 w-6 text-zinc-300 hover:text-zinc-100" onClick={editingYTId ? handleUpdateYT : handleAddYT}><Plus className="h-4 w-4" /></Button>
-                                <Button variant="ghost" size="icon" className="h-6 w-6 text-zinc-500 hover:text-zinc-300" onClick={() => { setIsAddingYT(false); setEditingYTId(null); setYtTitle(''); setYtUrl('') }}><X className="h-4 w-4" /></Button>
+                                <Input placeholder="Title" value={ytTitle} onChange={(e) => setYtTitle(e.target.value)} className="h-7 w-16 text-xs text-foreground placeholder:text-muted-foreground bg-muted border-zinc-600 focus:border-zinc-500" />
+                                <Input placeholder="YT URL" value={ytUrl} onChange={(e) => setYtUrl(e.target.value)} className="h-7 w-28 text-xs text-foreground placeholder:text-muted-foreground bg-muted border-zinc-600 focus:border-zinc-500" onKeyDown={(e) => { if (e.key === 'Enter') editingYTId ? handleUpdateYT() : handleAddYT() }} />
+                                <Button variant="ghost" size="icon" className="h-6 w-6 text-foreground/70 hover:text-foreground" onClick={editingYTId ? handleUpdateYT : handleAddYT}><Plus className="h-4 w-4" /></Button>
+                                <Button variant="ghost" size="icon" className="h-6 w-6 text-muted-foreground hover:text-foreground/70" onClick={() => { setIsAddingYT(false); setEditingYTId(null); setYtTitle(''); setYtUrl('') }}><X className="h-4 w-4" /></Button>
                             </div>
                         )}
                         {!isAddingYT && !editingYTId && (
-                            <Button variant="ghost" size="icon" className="h-6 w-6 text-zinc-500 hover:text-zinc-300" onClick={() => setIsAddingYT(true)} title="Add YouTube link">
+                            <Button variant="ghost" size="icon" className="h-6 w-6 text-muted-foreground hover:text-foreground/70" onClick={() => setIsAddingYT(true)} title="Add YouTube link">
                                 <Plus className="h-3 w-3" />
                             </Button>
                         )}
                     </div>
 
-                    <div className="hidden sm:block h-5 w-px bg-zinc-700" />
+                    <div className="hidden sm:block h-5 w-px bg-border" />
 
                     {/* Sound Section */}
-                    <div className="flex items-center gap-1 flex-wrap border-t border-zinc-800 sm:border-t-0 px-3 py-2 sm:p-0">
+                    <div className="flex items-center gap-1 flex-wrap border-t border-border sm:border-t-0 px-3 py-2 sm:p-0">
                         {sounds.length === 0 ? (
-                            <div className="text-zinc-600 text-xs">No sounds</div>
+                            <div className="text-muted-foreground text-xs">No sounds</div>
                         ) : (
                             sounds.map(sound => {
                                 const Icon = ICON_MAP[sound.icon_key] || Volume2
@@ -338,7 +338,7 @@ export function DashboardToolbar({ initialSounds, initialQuickLinks, initialYout
                                         variant={activeSound === sound.id ? "secondary" : "ghost"}
                                         size="icon"
                                         onClick={() => togglePlay(sound.id)}
-                                        className={`h-7 w-7 ${activeSound === sound.id && isPlaying ? "text-green-400 bg-green-400/10" : "text-zinc-500 hover:text-zinc-300"}`}
+                                        className={`h-7 w-7 ${activeSound === sound.id && isPlaying ? "text-green-400 bg-green-400/10" : "text-muted-foreground hover:text-foreground/70"}`}
                                         title={sound.label}
                                     >
                                         <Icon className="h-4 w-4" />
@@ -347,7 +347,7 @@ export function DashboardToolbar({ initialSounds, initialQuickLinks, initialYout
                             })
                         )}
                         <div className="flex items-center gap-1 w-[100px] sm:w-[140px]">
-                            <Button variant="ghost" size="icon" className="h-6 w-6 text-zinc-500" onClick={() => setVolume(v => v[0] === 0 ? [0.5] : [0])}>
+                            <Button variant="ghost" size="icon" className="h-6 w-6 text-muted-foreground" onClick={() => setVolume(v => v[0] === 0 ? [0.5] : [0])}>
                                 {volume[0] === 0 ? <VolumeX className="h-3 w-3" /> : <Volume2 className="h-3 w-3" />}
                             </Button>
                             <Slider value={volume} min={0} max={1} step={0.01} onValueChange={setVolume} className="w-full" />

@@ -34,14 +34,14 @@ export default async function FactoryLayout({
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-black text-zinc-50">
-        <header className="border-b border-zinc-800 px-3 sm:px-6 py-3 sticky top-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-between gap-2 sm:gap-6">
+    <div className="flex min-h-screen flex-col bg-background text-foreground">
+        <header className="border-b border-border px-3 sm:px-6 py-3 sticky top-0 bg-background/80 backdrop-blur-md z-50 flex items-center justify-between gap-2 sm:gap-6">
           <div className="flex items-center gap-2 sm:gap-6 min-w-0">
             {/* Mobile nav menu */}
             <MobileNav />
 
             <Link href="/dashboard" className="flex items-center min-w-0">
-              <h1 className="font-mono font-bold tracking-tight text-zinc-100 text-sm sm:text-base truncate hover:text-white transition-colors">
+              <h1 className="font-mono font-bold tracking-tight text-foreground text-sm sm:text-base truncate hover:text-foreground transition-colors">
                 <span className="hidden sm:inline">LOCKED IN FACTORY</span>
                 <span className="sm:hidden">LIF</span>
               </h1>
@@ -50,21 +50,21 @@ export default async function FactoryLayout({
             <nav className="hidden md:flex items-center gap-1">
               <Link 
                 href="/dashboard" 
-                className="px-3 py-1.5 text-sm font-medium text-zinc-400 hover:text-zinc-100 hover:bg-zinc-900 rounded-md transition-all flex items-center gap-2"
+                className="px-3 py-1.5 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-card rounded-md transition-all flex items-center gap-2"
               >
                 <LayoutDashboard className="w-4 h-4" />
                 Dashboard
               </Link>
               <Link 
                 href="/history" 
-                className="px-3 py-1.5 text-sm font-medium text-zinc-400 hover:text-zinc-100 hover:bg-zinc-900 rounded-md transition-all flex items-center gap-2"
+                className="px-3 py-1.5 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-card rounded-md transition-all flex items-center gap-2"
               >
                 <CalendarDays className="w-4 h-4" />
                 History
               </Link>
               <Link 
                 href="/" 
-                className="px-3 py-1.5 text-sm font-medium text-zinc-400 hover:text-zinc-100 hover:bg-zinc-900 rounded-md transition-all flex items-center gap-2"
+                className="px-3 py-1.5 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-card rounded-md transition-all flex items-center gap-2"
               >
                 <Trophy className="w-4 h-4" />
                 Leaderboard

@@ -136,9 +136,13 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-zinc-800 rounded-full hover:bg-zinc-700;
+  background-color: var(--muted);
+  border-radius: 9999px;
   border: 2px solid transparent;
   background-clip: content-box;
+}
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--border);
 }
 
 ::-webkit-scrollbar-corner {

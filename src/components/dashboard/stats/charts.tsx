@@ -57,9 +57,9 @@ export function Charts({ initialMetrics }: ChartsProps) {
     return (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* HOURLY FOCUS */}
-            <Card className="border-zinc-800 bg-zinc-950/50">
+            <Card className="border-border bg-muted/50">
                 <CardHeader>
-                    <CardTitle className="text-sm font-medium text-zinc-400">Hourly Focus (Minutes)</CardTitle>
+                    <CardTitle className="text-sm font-medium text-muted-foreground">Hourly Focus (Minutes)</CardTitle>
                 </CardHeader>
                 <CardContent className="h-[250px]">
                     <ResponsiveContainer width="100%" height="100%">
@@ -90,9 +90,9 @@ export function Charts({ initialMetrics }: ChartsProps) {
             </Card>
 
             {/* TOPIC DISTRIBUTION */}
-            <Card className="border-zinc-800 bg-zinc-950/50">
+            <Card className="border-border bg-muted/50">
                 <CardHeader>
-                    <CardTitle className="text-sm font-medium text-zinc-400">Topic Distribution</CardTitle>
+                    <CardTitle className="text-sm font-medium text-muted-foreground">Topic Distribution</CardTitle>
                 </CardHeader>
                 <CardContent className="h-[250px]">
                     <ResponsiveContainer width="100%" height="100%">

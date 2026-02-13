@@ -75,9 +75,9 @@ function LeaderboardRow({
       // Rank Styling Helper
     const getRankStyle = (index: number) => {
       if (index === 0) return "text-yellow-400 drop-shadow-[0_0_10px_rgba(250,204,21,0.5)]" 
-      if (index === 1) return "text-zinc-300 drop-shadow-[0_0_10px_rgba(212,212,216,0.3)]" 
+      if (index === 1) return "text-foreground/70 drop-shadow-[0_0_10px_rgba(212,212,216,0.3)]" 
       if (index === 2) return "text-amber-700 drop-shadow-[0_0_10px_rgba(180,83,9,0.3)]" 
-      return "text-zinc-600"
+      return "text-muted-foreground"
     }
 
     return (
@@ -85,10 +85,10 @@ function LeaderboardRow({
             "flex flex-col rounded-xl border transition-all duration-200", 
             isActive 
               ? "bg-green-950/5 border-green-500/20 shadow-[0_0_20px_-10px_rgba(34,197,94,0.1)]" 
-              : "bg-zinc-900/20 border-zinc-800/50",
+              : "bg-card/20 border-border/50",
             expanded 
-                ? "bg-zinc-900/80 border-zinc-700 shadow-xl ring-1 ring-white/5" 
-                : "hover:bg-zinc-900/40 hover:border-zinc-700/50"
+                ? "bg-card/80 border-border shadow-xl ring-1 ring-white/5" 
+                : "hover:bg-card/40 hover:border-border/50"
         )}>
             <div 
                 onClick={toggleExpand}
@@ -104,16 +104,16 @@ function LeaderboardRow({
 
                 {/* User Info */}
                 <div className="flex items-center gap-2 sm:gap-3 md:gap-4 flex-1 min-w-0">
-                        <Avatar className="h-8 w-8 sm:h-10 sm:w-10 border border-zinc-800 shrink-0">
+                        <Avatar className="h-8 w-8 sm:h-10 sm:w-10 border border-border shrink-0">
                         <AvatarImage src={userEntry.avatar_url || ''} />
-                        <AvatarFallback className="bg-zinc-950 text-zinc-500 font-bold text-xs sm:text-sm">
+                        <AvatarFallback className="bg-background text-muted-foreground font-bold text-xs sm:text-sm">
                             {userEntry.username?.[0]?.toUpperCase() || '?'}
                         </AvatarFallback>
                         </Avatar>
                         
                         <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
-                            <span className="font-bold text-zinc-200 text-sm sm:text-base truncate">
+                            <span className="font-bold text-foreground text-sm sm:text-base truncate">
                                 {userEntry.username || 'Anonymous'}
                             </span>
                             {isActive && (
@@ -131,12 +131,12 @@ function LeaderboardRow({
                                 </Badge>
                             )}
                         </div>
-                        <div className="text-[10px] sm:text-xs text-zinc-500 font-mono mt-0.5 flex items-center gap-1.5 sm:gap-2">
+                        <div className="text-[10px] sm:text-xs text-muted-foreground font-mono mt-0.5 flex items-center gap-1.5 sm:gap-2">
                              {/* Task name truncation */}
                              <span className="max-w-[100px] sm:max-w-[150px] md:max-w-[200px] truncate" title={userEntry.current_task || 'Idle'}>
                                 {userEntry.current_task || 'Idle'}
                              </span>
-                            {expanded ? <ChevronUp className="h-3 w-3 text-zinc-600" /> : <ChevronDown className="h-3 w-3 text-zinc-700" />}
+                            {expanded ? <ChevronUp className="h-3 w-3 text-muted-foreground" /> : <ChevronDown className="h-3 w-3 text-muted-foreground" />}
                         </div>
                         </div>
 
@@ -174,7 +174,7 @@ function LeaderboardRow({
 
                         {/* Time */}
                         <div className="text-right">
-                            <div className="text-xs sm:text-base md:text-lg font-bold text-zinc-200 font-mono tracking-tight tabular-nums">
+                            <div className="text-xs sm:text-base md:text-lg font-bold text-foreground font-mono tracking-tight tabular-nums">
                                 {formatDuration(userEntry.total_seconds)}
                             </div>
                         </div>
@@ -187,15 +187,15 @@ function LeaderboardRow({
                     <div className="h-px w-full bg-gradient-to-r from-transparent via-zinc-800 to-transparent mb-3 sm:mb-4" />
                     
                     <div className="flex items-center justify-between mb-2">
-                         <h4 className="text-[10px] uppercase tracking-widest font-bold text-zinc-500 flex items-center gap-2">
+                         <h4 className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground flex items-center gap-2">
                             <Clock className="w-3 h-3" />
                             {period === 'weekly' ? 'Top Activities' : 'Daily Schedule'} ({period})
                          </h4>
                     </div>
                     
                     {loadingStats ? (
-                        <div className="py-2 flex items-center gap-2 text-zinc-600 text-xs sm:text-sm font-mono">
-                            <span className="h-3 w-3 animate-spin rounded-full border-2 border-zinc-700 border-t-zinc-500"></span>
+                        <div className="py-2 flex items-center gap-2 text-muted-foreground text-xs sm:text-sm font-mono">
+                            <span className="h-3 w-3 animate-spin rounded-full border-2 border-border border-t-zinc-500"></span>
                             Fetching details...
                         </div>
                     ) : stats && stats.length > 0 ? (
@@ -209,14 +209,14 @@ function LeaderboardRow({
                                         : '--:--'
                                     
                                     return (
-                                        <div key={i} className="flex items-center gap-2 sm:gap-3 text-xs sm:text-sm group/row p-1.5 sm:p-2 rounded hover:bg-zinc-950/30 border border-transparent hover:border-zinc-800/50 transition-colors">
-                                            <div className="font-mono text-zinc-500 text-[10px] sm:text-xs w-12 sm:w-16 shrink-0">
+                                        <div key={i} className="flex items-center gap-2 sm:gap-3 text-xs sm:text-sm group/row p-1.5 sm:p-2 rounded hover:bg-muted/30 border border-transparent hover:border-border/50 transition-colors">
+                                            <div className="font-mono text-muted-foreground text-[10px] sm:text-xs w-12 sm:w-16 shrink-0">
                                                 {timeStr}
                                             </div>
-                                            <div className="flex-1 truncate font-medium text-zinc-300">
+                                            <div className="flex-1 truncate font-medium text-foreground/70">
                                                 {stat.task_name}
                                             </div>
-                                            <div className="font-mono text-zinc-500 text-[10px] sm:text-xs tabular-nums group-hover/row:text-zinc-300">
+                                            <div className="font-mono text-muted-foreground text-[10px] sm:text-xs tabular-nums group-hover/row:text-foreground/70">
                                                 {formatDuration(stat.total_seconds)}
                                             </div>
                                         </div>
@@ -227,9 +227,9 @@ function LeaderboardRow({
                             // Weekly Top 3 Grid
                             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3">
                                 {stats.slice(0, 3).map((stat, i) => (
-                                    <div key={i} className="flex flex-col p-2 rounded bg-zinc-950/30 border border-zinc-800/50">
-                                        <div className="text-xs text-zinc-400 truncate font-medium mb-1" title={stat.task_name}>{stat.task_name}</div>
-                                        <div className="text-xs sm:text-sm font-mono font-bold text-zinc-300">
+                                    <div key={i} className="flex flex-col p-2 rounded bg-muted/30 border border-border/50">
+                                        <div className="text-xs text-muted-foreground truncate font-medium mb-1" title={stat.task_name}>{stat.task_name}</div>
+                                        <div className="text-xs sm:text-sm font-mono font-bold text-foreground/70">
                                             {formatDuration(stat.total_seconds)}
                                         </div>
                                     </div>
@@ -237,8 +237,8 @@ function LeaderboardRow({
                             </div>
                         )
                     ) : (
-                        <div className="py-2 text-zinc-600 text-xs sm:text-sm italic flex items-center gap-2">
-                            <div className="w-1.5 h-1.5 rounded-full bg-zinc-700"></div>
+                        <div className="py-2 text-muted-foreground text-xs sm:text-sm italic flex items-center gap-2">
+                            <div className="w-1.5 h-1.5 rounded-full bg-border"></div>
                             No specific tasks recorded
                         </div>
                     )}
@@ -339,12 +339,12 @@ export function LedgerBoard({ initialData, initialHeatmaps }: LedgerBoardProps) 
   return (
     <div className="w-full max-w-4xl mx-auto space-y-4 sm:space-y-6 md:space-y-8">
       {/* Header Stats */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 pb-6 border-b border-zinc-800">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 pb-6 border-b border-border">
         <div>
-            <h1 className="text-2xl sm:text-3xl md:text-4xl font-black tracking-tighter text-white mb-2 font-mono">
-                LEADERBOARD
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground mb-2">
+                Leaderboard
             </h1>
-            <div className="flex items-center gap-2 text-zinc-400 font-mono text-xs sm:text-sm">
+            <div className="flex items-center gap-2 text-muted-foreground font-mono text-xs sm:text-sm">
                 <span className="relative flex h-2 w-2">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
@@ -355,8 +355,8 @@ export function LedgerBoard({ initialData, initialHeatmaps }: LedgerBoardProps) 
 
         <div className="flex flex-col items-start md:items-end gap-2 w-full md:w-auto">
             <div className="md:text-right">
-                <div className="text-xs sm:text-sm text-zinc-500 font-mono uppercase tracking-widest">Community Time ({period})</div>
-                <div className="text-2xl sm:text-3xl font-bold text-white font-mono">
+                <div className="text-xs sm:text-sm text-muted-foreground font-mono uppercase tracking-widest">Community Time ({period})</div>
+                <div className="text-2xl sm:text-3xl font-bold text-foreground font-mono">
                     {formatDuration(totalSecondSum)}
                 </div>
             </div>
@@ -366,27 +366,27 @@ export function LedgerBoard({ initialData, initialHeatmaps }: LedgerBoardProps) 
       {/* Controls */}
       <div className="flex items-center justify-between gap-3">
          <Tabs value={period} onValueChange={(v) => setPeriod(v as any)} className="w-auto">
-            <TabsList className="bg-zinc-900 border border-zinc-800">
-                <TabsTrigger value="daily" className="data-[state=active]:bg-zinc-800 data-[state=active]:text-white text-zinc-500 text-xs sm:text-sm px-3 sm:px-4">
+            <TabsList className="bg-card border border-border">
+                <TabsTrigger value="daily" className="data-[state=active]:bg-muted data-[state=active]:text-foreground text-muted-foreground text-xs sm:text-sm px-3 sm:px-4">
                     Today
                 </TabsTrigger>
-                <TabsTrigger value="weekly" className="data-[state=active]:bg-zinc-800 data-[state=active]:text-white text-zinc-500 text-xs sm:text-sm px-3 sm:px-4">
+                <TabsTrigger value="weekly" className="data-[state=active]:bg-muted data-[state=active]:text-foreground text-muted-foreground text-xs sm:text-sm px-3 sm:px-4">
                     This Week
                 </TabsTrigger>
             </TabsList>
          </Tabs>
 
          <Link href={user ? "/dashboard" : "/login"}>
-             <Button variant="outline" className="border-zinc-700 bg-transparent hover:bg-zinc-900 hover:text-white transition-colors text-xs sm:text-sm">
+             <Button variant="outline" className="border-border bg-transparent hover:bg-card hover:text-foreground transition-colors text-xs sm:text-sm">
                 {user ? (
                     <>
-                        <LayoutDashboard className="mr-1.5 sm:mr-2 h-4 w-4 text-zinc-400" />
+                        <LayoutDashboard className="mr-1.5 sm:mr-2 h-4 w-4 text-muted-foreground" />
                         <span className="hidden sm:inline">Open Dashboard</span>
                         <span className="sm:hidden">Dashboard</span>
                     </>
                 ) : (
                     <>
-                        <LogIn className="mr-1.5 sm:mr-2 h-4 w-4 text-zinc-400" />
+                        <LogIn className="mr-1.5 sm:mr-2 h-4 w-4 text-muted-foreground" />
                         Log In
                     </>
                 )}
@@ -397,7 +397,7 @@ export function LedgerBoard({ initialData, initialHeatmaps }: LedgerBoardProps) 
       {/* Leaderboard Table */}
       <div className={`space-y-1 transition-opacity duration-300 ${loading ? 'opacity-50' : 'opacity-100'}`}>
          {data.length === 0 ? (
-             <div className="text-center py-12 sm:py-20 text-zinc-600 font-mono text-xs sm:text-sm border border-dashed border-zinc-800 rounded-lg">
+             <div className="text-center py-12 sm:py-20 text-muted-foreground font-mono text-xs sm:text-sm border border-dashed border-border rounded-lg">
                 NO DATA RECORDED FOR THIS PERIOD
              </div>
          ) : (

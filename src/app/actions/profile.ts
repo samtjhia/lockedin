@@ -1,7 +1,6 @@
 'use server'
 
 import { createClient } from '@/utils/supabase/server'
-import { getFriends } from '@/app/actions/social'
 import { calculateGrade } from '@/lib/utils'
 
 export type ProfileSummary = {
@@ -9,6 +8,7 @@ export type ProfileSummary = {
   username: string | null
   avatar_url: string | null
   bio: string | null
+  goals: string | null
   is_verified: boolean
   current_status: string | null
   current_task: string | null
@@ -63,24 +63,14 @@ export async function getUserProfileData(slug: string): Promise<UserProfileData 
   let profile: any | null = null
   let error: any = null
 
-  const selectFields = 'id, username, avatar_url, is_verified, current_status, current_task'
+  const selectFields = 'id, username, avatar_url, is_verified, current_status, current_task, bio, goals'
 
-  // Try with bio column first; if it doesn't exist yet, retry without it
   async function queryProfile(column: string, value: string) {
-    let res = await supabase
+    const res = await supabase
       .from('profiles')
-      .select(`${selectFields}, bio`)
+      .select(selectFields)
       .eq(column, value)
       .maybeSingle()
-
-    // If the query failed (e.g. bio column doesn't exist), retry without bio
-    if (res.error) {
-      res = await supabase
-        .from('profiles')
-        .select(selectFields)
-        .eq(column, value)
-        .maybeSingle()
-    }
 
     return res
   }
@@ -108,7 +98,7 @@ export async function getUserProfileData(slug: string): Promise<UserProfileData 
   const oneYearAgo = new Date(today)
   oneYearAgo.setFullYear(today.getFullYear() - 1)
 
-  const [historyStatsRes, heatmapRes, dailyTasksRes, weeklyTasksRes, friends] = await Promise.all([
+  const [historyStatsRes, heatmapRes, dailyTasksRes, weeklyTasksRes, targetFriendsRes, myFriendsRes] = await Promise.all([
     supabase.rpc('get_user_history_stats', {
       target_user_id: targetUserId,
       target_date: todayStr,
@@ -125,7 +115,8 @@ export async function getUserProfileData(slug: string): Promise<UserProfileData 
       target_user_id: targetUserId,
       period: 'weekly',
     }),
-    getFriends(),
+    supabase.rpc('get_user_friends', { target_user_id: targetUserId }),
+    supabase.rpc('get_friends'),
   ])
 
   if (historyStatsRes.error) {
@@ -171,15 +162,17 @@ export async function getUserProfileData(slug: string): Promise<UserProfileData 
       total_seconds: Number(row.total_seconds),
     })) ?? []
 
-  const friendsArray = (friends || []) as any[]
-  const isFriend = !!friendsArray.find((f: any) => f.user_id === targetUserId)
+  // Target user's friends (for display on their profile)
+  const targetFriendsArray = (targetFriendsRes.data || []) as any[]
+  const friendsPreview = targetFriendsArray.map((f: any) => ({
+    id: f.user_id as string,
+    username: f.username as string,
+    avatar_url: f.avatar_url as string | null,
+  }))
 
-  const friendsPreview =
-    friendsArray.map((f: any) => ({
-      id: f.user_id as string,
-      username: f.username as string,
-      avatar_url: f.avatar_url as string | null,
-    })) ?? []
+  // Current user's friends (to check if target is a friend)
+  const myFriendsArray = (myFriendsRes.data || []) as any[]
+  const isFriend = !!myFriendsArray.find((f: any) => f.user_id === targetUserId)
 
   return {
     profile: profile as ProfileSummary,

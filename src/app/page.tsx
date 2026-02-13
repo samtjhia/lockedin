@@ -16,7 +16,7 @@ export default async function Home() {
   const initialHeatmaps = await getLeaderboardHeatmaps(userIds)
 
   return (
-    <main className="min-h-screen bg-black text-zinc-100 selection:bg-zinc-800">
+    <main className="min-h-screen bg-background text-foreground selection:bg-muted">
       <div className="container mx-auto px-4 py-8 md:py-16">
          <LedgerBoard initialData={formattedData} initialHeatmaps={initialHeatmaps} />
       </div>
