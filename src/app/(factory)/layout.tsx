@@ -40,12 +40,12 @@ export default async function FactoryLayout({
             {/* Mobile nav menu */}
             <MobileNav />
 
-            <div className="flex items-center min-w-0">
-              <h1 className="font-mono font-bold tracking-tight text-zinc-100 text-sm sm:text-base truncate">
+            <Link href="/dashboard" className="flex items-center min-w-0">
+              <h1 className="font-mono font-bold tracking-tight text-zinc-100 text-sm sm:text-base truncate hover:text-white transition-colors">
                 <span className="hidden sm:inline">LOCKED IN FACTORY</span>
                 <span className="sm:hidden">LIF</span>
               </h1>
-            </div>
+            </Link>
                 
             <nav className="hidden md:flex items-center gap-1">
               <Link 

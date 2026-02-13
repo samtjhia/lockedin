@@ -76,8 +76,27 @@ export const DropdownMenuContent = React.forwardRef<HTMLDivElement, ContentProps
   ({ className, align = "start", style, ...props }, ref) => {
     const { open, setOpen } = useDropdownMenu()
     const contentRef = React.useRef<HTMLDivElement | null>(null)
+    const [mounted, setMounted] = React.useState(false)
+    const [visible, setVisible] = React.useState(false)
 
     React.useImperativeHandle(ref, () => contentRef.current as HTMLDivElement)
+
+    // Handle mount/unmount with animation
+    React.useEffect(() => {
+      if (open) {
+        setMounted(true)
+        // Request animation frame to ensure the element is in the DOM before triggering the transition
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            setVisible(true)
+          })
+        })
+      } else {
+        setVisible(false)
+        const timer = setTimeout(() => setMounted(false), 150) // match transition duration
+        return () => clearTimeout(timer)
+      }
+    }, [open])
 
     React.useEffect(() => {
       if (!open) return
@@ -92,14 +111,18 @@ export const DropdownMenuContent = React.forwardRef<HTMLDivElement, ContentProps
       return () => document.removeEventListener("mousedown", handleClickOutside)
     }, [open, setOpen])
 
-    if (!open) return null
+    if (!mounted) return null
 
     return (
       <div
         ref={contentRef}
         className={cn(
           "absolute z-50 mt-2 min-w-[10rem] rounded-md border bg-background text-foreground shadow-md",
+          "transition-all duration-150 ease-out origin-top-right",
           align === "end" ? "right-0" : "left-0",
+          visible
+            ? "opacity-100 scale-100 translate-y-0"
+            : "opacity-0 scale-95 -translate-y-1",
           className
         )}
         style={style}
