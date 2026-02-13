@@ -11,6 +11,20 @@ type HeatMapProps = {
     initialData?: any[]
 }
 
+function formatMinutes(mins: number): string {
+    if (mins < 60) return `${mins}m`
+    const hours = Math.floor(mins / 60)
+    const remaining = mins % 60
+    return remaining > 0 ? `${hours}h ${remaining}m` : `${hours}h`
+}
+
+function formatTotalTime(mins: number): string {
+    const hours = Math.floor(mins / 60)
+    const remaining = mins % 60
+    if (hours === 0) return `${mins} minutes`
+    return `${hours}h ${remaining}m`
+}
+
 export function HeatMap({ initialData }: HeatMapProps) {
     const [data, setData] = useState<any[]>(() => initialData ? fillDateGaps(initialData) : [])
 
@@ -36,11 +50,13 @@ export function HeatMap({ initialData }: HeatMapProps) {
     const today = new Date()
     const oneYearAgo = new Date()
     oneYearAgo.setFullYear(today.getFullYear() - 1)
+    
+    const totalMinutes = data.reduce((acc, curr) => acc + curr.count, 0)
 
     return (
         <Card className="border-zinc-800 bg-zinc-950/50">
             <CardHeader>
-                <CardTitle className="text-zinc-400">Activity Log ({data.reduce((acc, curr) => acc + curr.count, 0)} sessions)</CardTitle>
+                <CardTitle className="text-zinc-400">Activity Log ({formatTotalTime(totalMinutes)})</CardTitle>
             </CardHeader>
             <CardContent>
                 <div className="w-full overflow-x-auto pb-2 scrollbar-none" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
@@ -61,7 +77,7 @@ export function HeatMap({ initialData }: HeatMapProps) {
                             renderBlock={(block: any, activity: any) => 
                                 cloneElement(block, {
                                     'data-tooltip-id': 'react-tooltip',
-                                    'data-tooltip-content': `${activity.count} sessions on ${activity.date}`,
+                                    'data-tooltip-content': `${formatMinutes(activity.count)} on ${activity.date}`,
                                 })
                             }
                             showWeekdayLabels

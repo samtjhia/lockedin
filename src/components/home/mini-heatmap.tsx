@@ -18,7 +18,7 @@ type MiniHeatmapProps = {
 export function MiniHeatmap({ data, weeks = 52, className }: MiniHeatmapProps) {
   // Organize data into a proper grid: 7 rows (days of week), N columns (weeks)
   // Most recent day should be at the bottom-right
-  const { grid, totalSessions } = useMemo(() => {
+  const { grid, totalMinutes } = useMemo(() => {
     const map = new Map(data.map(d => [d.date, d]))
     
     const today = new Date()
@@ -63,10 +63,23 @@ export function MiniHeatmap({ data, weeks = 52, className }: MiniHeatmapProps) {
       }
     }
     
-    const totalSessions = data.reduce((acc, d) => acc + Number(d.count), 0)
+    const totalMinutes = data.reduce((acc, d) => acc + Number(d.count), 0)
     
-    return { grid, totalSessions }
+    return { grid, totalMinutes }
   }, [data, weeks])
+
+  const formatMinutes = (mins: number) => {
+    if (mins < 60) return `${mins}m`
+    const hours = Math.floor(mins / 60)
+    const remaining = mins % 60
+    return remaining > 0 ? `${hours}h ${remaining}m` : `${hours}h`
+  }
+
+  const formatTotalTime = (mins: number) => {
+    const hours = Math.floor(mins / 60)
+    if (hours === 0) return `${mins} min`
+    return `${hours}h ${mins % 60}m total`
+  }
 
   const getLevelColor = (level: number) => {
     switch (level) {
@@ -91,14 +104,14 @@ export function MiniHeatmap({ data, weeks = 52, className }: MiniHeatmapProps) {
                   "w-[6px] h-[6px] rounded-[1px]",
                   d ? getLevelColor(d.level) : 'bg-transparent'
                 )}
-                title={d ? `${d.date}: ${d.count} sessions` : undefined}
+                title={d ? `${d.date}: ${formatMinutes(d.count)}` : undefined}
               />
             ))}
           </div>
         ))}
       </div>
       <div className="text-[10px] text-zinc-500 font-mono">
-        {totalSessions} sessions
+        {formatTotalTime(totalMinutes)}
       </div>
     </div>
   )
