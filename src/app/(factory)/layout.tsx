@@ -1,11 +1,11 @@
 import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import { LayoutDashboard, CalendarDays, Trophy, LogOut } from 'lucide-react'
+import { LayoutDashboard, CalendarDays, Trophy } from 'lucide-react'
 import { SocialSidebar } from '@/components/social/social-sidebar'
 import { FeedbackModal } from '@/components/feedback/feedback-modal'
 import { Button } from '@/components/ui/button'
-import { signOut } from '@/app/login/actions'
+import { ProfileMenu } from '@/components/profile/profile-menu'
 
 export default async function FactoryLayout({
   children,
@@ -68,11 +68,7 @@ export default async function FactoryLayout({
           <div className="flex items-center gap-2">
             <FeedbackModal />
             <SocialSidebar />
-            <form action={signOut}>
-              <Button variant="ghost" size="icon" className="text-zinc-500 hover:text-red-400 hover:bg-red-400/10" title="Logout">
-                <LogOut className="h-5 w-5" />
-              </Button>
-            </form>
+            <ProfileMenu />
           </div>
         </header>
         <main className="flex-1">

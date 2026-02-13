@@ -289,7 +289,14 @@ export function SocialSidebar() {
                                     </div>
                                 ) : (
                                     friends.map(friend => (
-                                        <div key={friend.user_id} className="flex items-center justify-between group p-2 hover:bg-zinc-900/50 rounded-lg transition-colors">
+                                        <div
+                                            key={friend.user_id}
+                                            className="flex items-center justify-between group p-2 hover:bg-zinc-900/50 rounded-lg transition-colors cursor-pointer"
+                                            onClick={() => {
+                                                setIsOpen(false)
+                                                window.location.href = `/profile/${encodeURIComponent(friend.username)}`
+                                            }}
+                                        >
                                             <div className="flex items-center gap-3">
                                                 <div className="relative">
                                                     <Avatar className="h-10 w-10 border border-zinc-700">
