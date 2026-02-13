@@ -17,7 +17,7 @@ type LeaderboardEntry = {
   user_id: string
   username: string
   avatar_url: string | null
-  current_status: 'active' | 'paused' | 'offline'
+  current_status: 'active' | 'paused' | 'online' | 'offline'
   current_task: string | null
   total_seconds: number
   is_verified: boolean

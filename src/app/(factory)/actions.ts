@@ -291,11 +291,11 @@ export async function punchOut(sessionId: string) {
 
   if (error) return { error: 'Failed to close session' }
 
-  // 3. Update Profile Status
+  // 3. Update Profile Status (online = still in app, just no timer)
   await supabase
     .from('profiles')
     .update({ 
-      current_status: 'offline',
+      current_status: 'online',
       current_task: null 
     })
     .eq('id', user.id)

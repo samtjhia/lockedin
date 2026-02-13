@@ -88,7 +88,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
                       : 'Locked in'
                     : profile.current_status === 'paused'
                     ? 'On a short break'
-                    : isSelf
+                    : profile.current_status === 'online'
                     ? 'Online'
                     : 'Offline'}
                 </p>

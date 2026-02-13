@@ -33,6 +33,13 @@ export default async function FactoryLayout({
     redirect('/gate')
   }
 
+  // Mark user as online when they're in the app (only if currently offline — don't override active/paused)
+  await supabase
+    .from('profiles')
+    .update({ current_status: 'online', updated_at: new Date().toISOString() })
+    .eq('id', user.id)
+    .eq('current_status', 'offline')
+
   return (
     <div className="flex min-h-screen flex-col bg-background text-foreground">
         <header className="border-b border-border px-3 sm:px-6 py-3 sticky top-0 bg-background/80 backdrop-blur-md z-50 flex items-center justify-between gap-2 sm:gap-6">

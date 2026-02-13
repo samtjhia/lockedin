@@ -46,7 +46,7 @@ type Friend = {
     user_id: string
     username: string
     avatar_url?: string
-    current_status: 'active' | 'paused' | 'offline'
+    current_status: 'active' | 'paused' | 'online' | 'offline'
     current_task?: string
     last_active_at?: string
 }
@@ -96,21 +96,28 @@ export function SocialSidebar() {
             const { data: { user } } = await supabase.auth.getUser()
             if (!user) return
 
-            // 1. Listen for Pokes
+            // 1. Listen for Pokes — show in-app toast (bottom-right, same as other notifs) with longer duration
             channel.on('postgres_changes', { 
                 event: 'INSERT', 
                 schema: 'public', 
                 table: 'pokes',
                 filter: `receiver_id=eq.${user.id}`
-            }, (payload) => {
-                toast("👉 Get back to work!", {
-                    description: "You've been poked by a friend.",
+            }, async (payload: { new?: { sender_id?: string } }) => {
+                const senderId = payload.new?.sender_id
+                let senderName: string | null = null
+                if (senderId) {
+                    const { data: profile } = await supabase.from('profiles').select('username').eq('id', senderId).single()
+                    senderName = profile?.username ?? null
+                }
+                const message = senderName ? `${senderName} poked you` : "You've been poked by a friend"
+                toast("👉 " + message, {
+                    description: "Get back to work!",
+                    duration: 8000,
                     action: {
-                        label: "Sorry!",
-                        onClick: () => console.log("Acknowledged")
+                        label: "View",
+                        onClick: () => window.location.href = senderId ? `/profile/${encodeURIComponent(senderId)}` : '/dashboard'
                     }
                 })
-                // Refresh to pick up the new poke notification
                 refreshData()
             })
 
@@ -321,14 +328,16 @@ export function SocialSidebar() {
                                                     </Avatar>
                                                     <div className={`absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-background ${
                                                         friend.current_status === 'active' ? 'bg-green-500' :
-                                                        friend.current_status === 'paused' ? 'bg-yellow-500' : 'bg-zinc-500'
+                                                        friend.current_status === 'paused' ? 'bg-yellow-500' :
+                                                        friend.current_status === 'online' ? 'bg-sky-500' : 'bg-muted-foreground/50'
                                                     }`} />
                                                 </div>
                                                 <div>
                                                     <p className="font-medium text-sm text-foreground">{friend.username}</p>
                                                     <p className="text-xs text-muted-foreground">
                                                         {friend.current_status === 'active' ? (friend.current_task || 'Focusing') : 
-                                                         friend.current_status === 'paused' ? 'Paused' : 'Offline'}
+                                                         friend.current_status === 'paused' ? 'Paused' : 
+                                                         friend.current_status === 'online' ? 'Online' : 'Offline'}
                                                     </p>
                                                 </div>
                                             </div>
