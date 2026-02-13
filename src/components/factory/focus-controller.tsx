@@ -73,7 +73,7 @@ export function FocusController({ initialSession }: FocusControllerProps) {
   // Init stats & Permission
   useEffect(() => {
      getPomoStats().then(s => setPomoCount(s.count))
-     if (Notification.permission === 'granted') {
+     if (typeof window !== 'undefined' && 'Notification' in window && Notification.permission === 'granted') {
         setNotifEnabled(true)
      }
   }, [])
@@ -111,9 +111,11 @@ export function FocusController({ initialSession }: FocusControllerProps) {
             }
          }
 
-         // Desktop Notification
-         if (notifEnabled && document.hidden) {
-            new Notification('Session Complete', { body: 'Time to switch context!' })
+         // Desktop Notification (not available on Safari iOS / some mobile browsers)
+         if (notifEnabled && document.hidden && typeof window !== 'undefined' && 'Notification' in window) {
+            try {
+              new Notification('Session Complete', { body: 'Time to switch context!' })
+            } catch (_) {}
          }
 
          const res = await transitionSession(session.id)
