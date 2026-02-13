@@ -230,3 +230,110 @@ export async function updateSessionName(id: string, name: string) {
 
   return { success: true }
 }
+
+// Quick Links Actions
+export type UserLink = {
+  id: string
+  user_id: string
+  title: string
+  url: string
+  link_type: 'quick' | 'youtube'
+  position: number
+  created_at: string
+}
+
+export async function getUserLinks(type?: 'quick' | 'youtube') {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return []
+
+  let query = supabase
+    .from('user_links')
+    .select('*')
+    .eq('user_id', user.id)
+    .order('position')
+
+  if (type) {
+    query = query.eq('link_type', type)
+  }
+
+  const { data, error } = await query
+
+  if (error) {
+    console.error('Error fetching user links:', error)
+    return []
+  }
+
+  return data as UserLink[]
+}
+
+export async function addUserLink(title: string, url: string, linkType: 'quick' | 'youtube') {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { success: false, error: 'Not authenticated' }
+
+  // Get the max position to add at end
+  const { data: existing } = await supabase
+    .from('user_links')
+    .select('position')
+    .eq('user_id', user.id)
+    .eq('link_type', linkType)
+    .order('position', { ascending: false })
+    .limit(1)
+
+  const nextPosition = existing && existing.length > 0 ? existing[0].position + 1 : 0
+
+  const { data, error } = await supabase
+    .from('user_links')
+    .insert({
+      user_id: user.id,
+      title,
+      url,
+      link_type: linkType,
+      position: nextPosition
+    })
+    .select()
+    .single()
+
+  if (error) {
+    console.error('Error adding user link:', error)
+    return { success: false, error: error.message }
+  }
+
+  revalidatePath('/dashboard')
+  return { success: true, data }
+}
+
+export async function updateUserLink(id: string, title: string, url: string) {
+  const supabase = await createClient()
+  
+  const { error } = await supabase
+    .from('user_links')
+    .update({ title, url })
+    .eq('id', id)
+
+  if (error) {
+    console.error('Error updating user link:', error)
+    return { success: false, error: error.message }
+  }
+
+  revalidatePath('/dashboard')
+  return { success: true }
+}
+
+export async function deleteUserLink(id: string) {
+  const supabase = await createClient()
+  
+  const { error } = await supabase
+    .from('user_links')
+    .delete()
+    .eq('id', id)
+
+  if (error) {
+    console.error('Error deleting user link:', error)
+    return { success: false, error: error.message }
+  }
+
+  revalidatePath('/dashboard')
+  return { success: true }
+}
