@@ -360,6 +360,7 @@ export function SocialSidebar() {
                                                             size="icon" 
                                                             className="h-8 w-8 text-muted-foreground hover:text-red-500 hover:bg-red-500/10"
                                                             title="Remove Friend"
+                                                            onClick={(e) => e.stopPropagation()}
                                                         >
                                                             <Trash2 className="h-4 w-4" />
                                                         </Button>
