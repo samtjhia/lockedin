@@ -9,11 +9,11 @@ export async function verifySecretCode(formData: FormData) {
   const factorySecret = process.env.FACTORY_SECRET_CODE
 
   if (!code || code !== factorySecret) {
-    return redirect('/gate?error=Invalid Factory Code')
+    return redirect('/gate?error=Invalid security code')
   }
 
   if (!username || username.trim().length < 3) {
-    return redirect('/gate?error=Invalid Username')
+    return redirect('/gate?error=Username must be at least 3 characters')
   }
 
   const supabase = await createClient()
@@ -32,7 +32,7 @@ export async function verifySecretCode(formData: FormData) {
     .single()
 
   if (existingUser) {
-    return redirect('/gate?error=Username Taken')
+    return redirect('/gate?error=Username is already taken')
   }
 
   // Update user profile to verified and set username
@@ -46,7 +46,7 @@ export async function verifySecretCode(formData: FormData) {
 
   if (error) {
     console.error('Verification error:', error)
-    return redirect('/gate?error=Verification Failed')
+    return redirect('/gate?error=Something went wrong. Please try again.')
   }
 
   redirect('/dashboard')

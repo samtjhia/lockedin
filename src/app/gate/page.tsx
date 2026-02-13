@@ -1,40 +1,62 @@
 import { verifySecretCode } from './actions'
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 
-export default function GatePage() {
+export default async function GatePage(props: {
+  searchParams: Promise<{ error?: string }>
+}) {
+  const searchParams = await props.searchParams
+  const error = searchParams.error
+
   return (
     <div className="flex items-center justify-center min-h-screen bg-background text-foreground p-4">
-      <Card className="w-full max-w-sm border-border bg-card text-foreground">
-        <CardHeader>
-          <CardTitle className="text-xl text-center text-red-500 font-mono tracking-widest">RESTRICTED AREA</CardTitle>
-          <CardDescription className="text-center text-muted-foreground">
-            Enter the factory security code to proceed.
+      <Card className="w-full max-w-sm border-border bg-card">
+        <CardHeader className="space-y-1.5">
+          <CardTitle className="text-xl font-semibold text-foreground">
+            Sign in
+          </CardTitle>
+          <CardDescription className="text-muted-foreground text-sm">
+            Enter your username and security code to continue.
           </CardDescription>
         </CardHeader>
         <CardContent>
+          {error && (
+            <div className="mb-4 p-3 text-sm text-destructive bg-destructive/10 border border-border rounded-md">
+              {error}
+            </div>
+          )}
           <form action={verifySecretCode} className="space-y-4">
             <div className="space-y-2">
-              <Input 
-                name="username" 
-                type="text" 
-                placeholder="CHOOSE CALLSIGN (USERNAME)"
-                className="bg-background border-border text-center font-mono text-sm tracking-widest focus:ring-red-900 placeholder:text-muted-foreground" 
+              <label htmlFor="username" className="text-sm font-medium text-foreground">
+                Username
+              </label>
+              <Input
+                id="username"
+                name="username"
+                type="text"
+                placeholder="Choose a username"
+                className="bg-background border-border text-foreground placeholder:text-muted-foreground focus-visible:ring-ring"
                 required
                 minLength={3}
                 maxLength={20}
               />
-              <Input 
-                name="code" 
-                type="password" 
-                placeholder="ENTER SECURITY CODE"
-                className="bg-background border-border text-center font-mono text-lg tracking-widest focus:ring-red-900" 
+            </div>
+            <div className="space-y-2">
+              <label htmlFor="code" className="text-sm font-medium text-foreground">
+                Security code
+              </label>
+              <Input
+                id="code"
+                name="code"
+                type="password"
+                placeholder="Enter security code"
+                className="bg-background border-border text-foreground placeholder:text-muted-foreground focus-visible:ring-ring"
                 required
               />
             </div>
-            <Button type="submit" variant="destructive" className="w-full font-bold tracking-wider">
-              VERIFY & ENTER
+            <Button type="submit" className="w-full">
+              Continue
             </Button>
           </form>
         </CardContent>
