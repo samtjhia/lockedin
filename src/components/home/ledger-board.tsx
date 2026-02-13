@@ -44,6 +44,12 @@ function LeaderboardRow({
     const [stats, setStats] = useState<TaskStat[] | null>(null)
     const [loadingStats, setLoadingStats] = useState(false)
 
+    // Reset stats and collapse when period changes (e.g. Daily <-> Weekly switch)
+    useEffect(() => {
+        setStats(null)
+        setExpanded(false)
+    }, [period])
+
     const grade = calculateGrade(userEntry.total_seconds, period)
     const isTop3 = index < 3
 
