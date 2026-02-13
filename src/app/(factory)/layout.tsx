@@ -32,8 +32,8 @@ export default async function FactoryLayout({
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-zinc-950 text-zinc-50">
-        <header className="border-b border-zinc-800 px-6 py-3 sticky top-0 bg-zinc-950/80 backdrop-blur-md z-50 flex items-center justify-between gap-6">
+    <div className="flex min-h-screen flex-col bg-black text-zinc-50">
+        <header className="border-b border-zinc-800 px-6 py-3 sticky top-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-between gap-6">
           <div className="flex items-center gap-6 min-w-0">
             <div className="flex items-center">
               <h1 className="font-mono font-bold tracking-tight text-zinc-100">LOCKED IN FACTORY</h1>

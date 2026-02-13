@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { createClient } from '@/utils/supabase/client'
-import { getLeaderboardData, getUserTopTasks } from '@/app/actions'
+import { getLeaderboardData, getUserTopTasks, getLeaderboardHeatmaps } from '@/app/actions'
 import { calculateGrade, formatDuration, cn } from '@/lib/utils'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
@@ -11,6 +11,7 @@ import { Zap, LayoutDashboard, LogIn, Crown, Medal, ChevronDown, ChevronUp, Cloc
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { User } from '@supabase/supabase-js'
+import { MiniHeatmap } from './mini-heatmap'
 
 type LeaderboardEntry = {
   user_id: string
@@ -20,6 +21,12 @@ type LeaderboardEntry = {
   current_task: string | null
   total_seconds: number
   is_verified: boolean
+}
+
+type HeatmapData = {
+  date: string
+  count: number
+  level: number
 }
 
 
@@ -33,12 +40,14 @@ function LeaderboardRow({
     userEntry, 
     index, 
     period,
-    isActive 
+    isActive,
+    heatmapData
 }: { 
     userEntry: LeaderboardEntry, 
     index: number, 
     period: 'daily' | 'weekly',
-    isActive: boolean
+    isActive: boolean,
+    heatmapData?: HeatmapData[]
 }) {
     const [expanded, setExpanded] = useState(false)
     const [stats, setStats] = useState<TaskStat[] | null>(null)
@@ -102,7 +111,7 @@ function LeaderboardRow({
                         </AvatarFallback>
                         </Avatar>
                         
-                        <div>
+                        <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2">
                             <span className="font-bold text-zinc-200">
                                 {userEntry.username || 'Anonymous'}
@@ -130,29 +139,44 @@ function LeaderboardRow({
                             {expanded ? <ChevronUp className="h-3 w-3 text-zinc-600" /> : <ChevronDown className="h-3 w-3 text-zinc-700" />}
                         </div>
                         </div>
+
                 </div>
 
-                {/* Stats */}
-                <div className="flex items-center gap-6 md:gap-10">
-                        <div className="text-right">
-                        <div className="text-lg font-bold text-zinc-300 font-mono tracking-tight tabular-nums">
-                            {formatDuration(userEntry.total_seconds)}
+                {/* Mini Heatmap - responsive: 26 weeks on lg, 52 on xl */}
+                {heatmapData && (
+                    <>
+                        <div className="hidden lg:flex xl:hidden items-center">
+                            <MiniHeatmap data={heatmapData} weeks={26} />
                         </div>
+                        <div className="hidden xl:flex items-center">
+                            <MiniHeatmap data={heatmapData} weeks={52} />
                         </div>
+                    </>
+                )}
 
+                {/* Stats: Time + Grade */}
+                <div className="flex items-center gap-3 md:gap-4">
                         {/* Grade */}
-                        <div className="flex flex-col items-center gap-1">
-                        <div className="text-[10px] uppercase font-bold text-zinc-600">Grade</div>
-                        <div className={`
-                            flex items-center justify-center w-10 h-10 rounded-md border font-black text-xl shadow-inner
-                            ${grade === 'S' ? 'bg-indigo-500/10 border-indigo-500/50 text-indigo-400 shadow-indigo-500/20' : ''}
-                            ${grade === 'A' ? 'bg-green-500/10 border-green-500/50 text-green-400 shadow-green-500/20' : ''}
-                            ${grade === 'B' ? 'bg-blue-500/10 border-blue-500/50 text-blue-400 shadow-blue-500/20' : ''}
-                            ${grade === 'C' ? 'bg-zinc-800/50 border-zinc-700 text-zinc-400' : ''}
-                            ${grade === 'D' || grade === 'F' ? 'bg-zinc-900/50 border-zinc-800 text-zinc-700' : ''}
-                        `}>
+                        <div 
+                            title="Grade"
+                            className={`
+                                flex items-center justify-center w-9 h-9 md:w-10 md:h-10 rounded-lg font-black text-lg md:text-xl cursor-default
+                                ${grade === 'S' ? 'bg-gradient-to-br from-indigo-500/30 to-purple-500/20 text-indigo-300 ring-1 ring-indigo-400/50' : ''}
+                                ${grade === 'A' ? 'bg-gradient-to-br from-green-500/30 to-emerald-500/20 text-green-300 ring-1 ring-green-400/50' : ''}
+                                ${grade === 'B' ? 'bg-gradient-to-br from-blue-500/30 to-cyan-500/20 text-blue-300 ring-1 ring-blue-400/50' : ''}
+                                ${grade === 'C' ? 'bg-gradient-to-br from-yellow-500/20 to-amber-500/10 text-yellow-400 ring-1 ring-yellow-500/40' : ''}
+                                ${grade === 'D' ? 'bg-gradient-to-br from-orange-500/20 to-red-500/10 text-orange-400 ring-1 ring-orange-500/40' : ''}
+                                ${grade === 'F' ? 'bg-gradient-to-br from-red-500/20 to-red-900/10 text-red-400 ring-1 ring-red-500/40' : ''}
+                            `}
+                        >
                             {grade}
                         </div>
+
+                        {/* Time */}
+                        <div className="text-right min-w-[60px]">
+                            <div className="text-base md:text-lg font-bold text-zinc-200 font-mono tracking-tight tabular-nums">
+                                {formatDuration(userEntry.total_seconds)}
+                            </div>
                         </div>
                 </div>
             </div>
@@ -224,8 +248,14 @@ function LeaderboardRow({
     )
 }
 
-export function LedgerBoard({ initialData }: { initialData: LeaderboardEntry[] }) {
+type LedgerBoardProps = {
+  initialData: LeaderboardEntry[]
+  initialHeatmaps?: Record<string, HeatmapData[]>
+}
+
+export function LedgerBoard({ initialData, initialHeatmaps }: LedgerBoardProps) {
   const [data, setData] = useState<LeaderboardEntry[]>(initialData)
+  const [heatmaps, setHeatmaps] = useState<Record<string, HeatmapData[]>>(initialHeatmaps || {})
   const [period, setPeriod] = useState<'daily' | 'weekly'>('daily')
   const [loading, setLoading] = useState(false)
   const [user, setUser] = useState<User | null>(null)
@@ -249,6 +279,11 @@ export function LedgerBoard({ initialData }: { initialData: LeaderboardEntry[] }
     }))
     
     setData(formattedData)
+    
+    // Fetch heatmaps for new users
+    const userIds = formattedData.map((e: LeaderboardEntry) => e.user_id)
+    const newHeatmaps = await getLeaderboardHeatmaps(userIds)
+    setHeatmaps(newHeatmaps)
   }
 
   // 2. Fetch data on period switch
@@ -374,6 +409,7 @@ export function LedgerBoard({ initialData }: { initialData: LeaderboardEntry[] }
                         index={index} 
                         period={period}
                         isActive={isActive}
+                        heatmapData={heatmaps[user.user_id]}
                     />
                 )
             })
