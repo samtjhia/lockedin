@@ -201,6 +201,21 @@ export async function deleteSession(id: string) {
   return { success: true }
 }
 
+export async function getSounds() {
+  const supabase = await createClient()
+  const { data, error } = await supabase
+    .from('sounds')
+    .select('*')
+    .order('label')
+
+  if (error) {
+    console.error('Error fetching sounds:', error)
+    return []
+  }
+
+  return data
+}
+
 export async function updateSessionName(id: string, name: string) {
   const supabase = await createClient()
   const { error } = await supabase

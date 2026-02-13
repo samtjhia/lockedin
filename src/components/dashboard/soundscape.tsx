@@ -4,19 +4,40 @@ import { useState, useRef, useEffect } from 'react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Slider } from '@/components/ui/slider'
-import { Volume2, VolumeX, CloudRain, Music, Pause, Play, Coffee } from 'lucide-react'
+import { Volume2, VolumeX, CloudRain, Flame, Moon, Waves, CloudLightning, Tv } from 'lucide-react'
+import { getSounds } from '@/app/actions/dashboard'
 
-const SOUNDS = [
-    { id: 'rain', name: 'Rain', icon: CloudRain, url: 'https://cdn.pixabay.com/audio/2022/07/04/audio_06d64d5059.mp3' }, // Free rain sound
-    { id: 'lofi', name: 'Lofi', icon: Music, url: 'https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3?filename=lofi-study-112762.mp3' }, // Free lofi beat
-    { id: 'cafe', name: 'Cafe', icon: Coffee, url: 'https://cdn.pixabay.com/audio/2017/08/07/22/56/coffee-shop-2608889_1280.mp3' } // Cafe ambience
-]
+const ICON_MAP: Record<string, any> = {
+    rain: CloudRain,
+    fire: Flame,
+    night: Moon,
+    ocean: Waves,
+    storm: CloudLightning,
+    white: Tv // Using TV icon to represent "Static/White Noise"
+}
+
+type Sound = {
+    id: string
+    label: string
+    icon_key: string
+    file_url: string
+}
 
 export function Soundscape() {
+    const [sounds, setSounds] = useState<Sound[]>([])
     const [activeSound, setActiveSound] = useState<string | null>(null)
     const [isPlaying, setIsPlaying] = useState(false)
     const [volume, setVolume] = useState([0.5])
     const audioRef = useRef<HTMLAudioElement | null>(null)
+
+    useEffect(() => {
+        getSounds().then(data => {
+            if (data && data.length > 0) {
+                setSounds(data)
+            }
+        })
+    }, [])
+
 
     useEffect(() => {
         if (audioRef.current) {
@@ -26,12 +47,12 @@ export function Soundscape() {
 
     useEffect(() => {
         if (activeSound) {
-             const sound = SOUNDS.find(s => s.id === activeSound)
-             if (sound && audioRef.current && audioRef.current.src !== sound.url) {
-                 audioRef.current.src = sound.url
+             const sound = sounds.find(s => s.id === activeSound)
+             if (sound && audioRef.current && audioRef.current.src !== sound.file_url) {
+                 audioRef.current.src = sound.file_url
              }
         }
-    }, [activeSound])
+    }, [activeSound, sounds])
 
     useEffect(() => {
         if (isPlaying && activeSound) {
@@ -54,18 +75,25 @@ export function Soundscape() {
         <Card className="border-zinc-800 bg-zinc-950/50">
             <CardContent className="p-4 flex items-center justify-between gap-4">
                 <div className="flex gap-2">
-                    {SOUNDS.map(sound => (
-                        <Button
-                            key={sound.id}
-                            variant={activeSound === sound.id ? "secondary" : "ghost"}
-                            size="icon"
-                            onClick={() => togglePlay(sound.id)}
-                            className={activeSound === sound.id && isPlaying ? "text-green-400 bg-green-400/10" : "text-zinc-500 hover:text-zinc-300"}
-                            title={sound.name}
-                        >
-                            <sound.icon className="h-4 w-4" />
-                        </Button>
-                    ))}
+                    {sounds.length === 0 ? (
+                         <div className="text-zinc-600 text-xs">No sounds loaded</div>
+                    ) : (
+                        sounds.map(sound => {
+                            const Icon = ICON_MAP[sound.icon_key] || Volume2
+                            return (
+                                <Button
+                                    key={sound.id}
+                                    variant={activeSound === sound.id ? "secondary" : "ghost"}
+                                    size="icon"
+                                    onClick={() => togglePlay(sound.id)}
+                                    className={activeSound === sound.id && isPlaying ? "text-green-400 bg-green-400/10" : "text-zinc-500 hover:text-zinc-300"}
+                                    title={sound.label}
+                                >
+                                    <Icon className="h-4 w-4" />
+                                </Button>
+                            )
+                        })
+                    )}
                 </div>
 
                 <div className="flex items-center gap-2 flex-1 max-w-[120px]">
