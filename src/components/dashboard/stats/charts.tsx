@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts'
 import { getDailyMetrics } from '@/app/actions/dashboard'
 import { formatDuration } from '@/lib/utils'
+import { useTheme } from '@/components/theme/theme-provider'
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8']
 
@@ -27,7 +28,15 @@ export function Charts({ initialMetrics }: ChartsProps) {
         return () => window.removeEventListener('session-completed', loadMetrics)
     }, [initialMetrics])
 
+    const { theme } = useTheme()
+
     if (!metrics) return null
+
+    const axisColor = theme === 'dark' ? '#71717a' : '#a1a1aa'
+    const tooltipBg = theme === 'dark' ? '#18181b' : '#ffffff'
+    const tooltipBorder = theme === 'dark' ? '#27272a' : '#e4e4e7'
+    const tooltipText = theme === 'dark' ? '#f4f4f5' : '#18181b'
+    const cursorFill = theme === 'dark' ? '#27272a' : '#f4f4f5'
 
     const hourlyData = (metrics.hourly || []).map((h: any) => {
         // Create a date object for today and set the hour
@@ -66,24 +75,24 @@ export function Charts({ initialMetrics }: ChartsProps) {
                         <BarChart data={hourlyData}>
                             <XAxis 
                                 dataKey="name" 
-                                tick={{ fill: '#71717a', fontSize: 12 }} 
+                                tick={{ fill: axisColor, fontSize: 12 }} 
                                 axisLine={false}
                                 tickLine={false}
                             />
                             <YAxis 
                                 hide={false}
-                                tick={{ fill: '#71717a', fontSize: 12 }} 
+                                tick={{ fill: axisColor, fontSize: 12 }} 
                                 axisLine={false}
                                 tickLine={false}
                             />
                             <Tooltip 
-                                contentStyle={{ backgroundColor: '#18181b', borderColor: '#27272a', color: '#f4f4f5' }}
-                                itemStyle={{ color: '#f4f4f5' }}
-                                labelStyle={{ color: '#f4f4f5' }}
-                                cursor={{ fill: '#27272a' }}
+                                contentStyle={{ backgroundColor: tooltipBg, borderColor: tooltipBorder, color: tooltipText }}
+                                itemStyle={{ color: tooltipText }}
+                                labelStyle={{ color: tooltipText }}
+                                cursor={{ fill: cursorFill }}
                                 formatter={(value: number | undefined) => [formatDuration((value || 0) * 60), 'Focus Time']}
                             />
-                            <Bar dataKey="minutes" fill="#22c55e" radius={[4, 4, 0, 0]} />
+                            <Bar dataKey="minutes" fill="#34d399" radius={[4, 4, 0, 0]} />
                         </BarChart>
                     </ResponsiveContainer>
                 </CardContent>
@@ -112,8 +121,8 @@ export function Charts({ initialMetrics }: ChartsProps) {
                                 ))}
                             </Pie>
                             <Tooltip 
-                                contentStyle={{ backgroundColor: '#18181b', borderColor: '#27272a', color: '#f4f4f5' }} 
-                                itemStyle={{ color: '#f4f4f5' }}
+                                contentStyle={{ backgroundColor: tooltipBg, borderColor: tooltipBorder, color: tooltipText }} 
+                                itemStyle={{ color: tooltipText }}
                                 formatter={(value: number | undefined) => [formatDuration((value || 0) * 60), 'Duration']}
                             />
                             <Legend />

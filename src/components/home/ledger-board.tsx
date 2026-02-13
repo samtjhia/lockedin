@@ -41,13 +41,15 @@ function LeaderboardRow({
     index, 
     period,
     isActive,
-    heatmapData
+    heatmapData,
+    viewerVerified
 }: { 
     userEntry: LeaderboardEntry, 
     index: number, 
     period: 'daily' | 'weekly',
     isActive: boolean,
-    heatmapData?: HeatmapData[]
+    heatmapData?: HeatmapData[],
+    viewerVerified: boolean
 }) {
     const [expanded, setExpanded] = useState(false)
     const [stats, setStats] = useState<TaskStat[] | null>(null)
@@ -104,18 +106,43 @@ function LeaderboardRow({
 
                 {/* User Info */}
                 <div className="flex items-center gap-2 sm:gap-3 md:gap-4 flex-1 min-w-0">
-                        <Avatar className="h-8 w-8 sm:h-10 sm:w-10 border border-border shrink-0">
-                        <AvatarImage src={userEntry.avatar_url || ''} />
-                        <AvatarFallback className="bg-background text-muted-foreground font-bold text-xs sm:text-sm">
-                            {userEntry.username?.[0]?.toUpperCase() || '?'}
-                        </AvatarFallback>
-                        </Avatar>
+                        {viewerVerified ? (
+                            <Link
+                                href={`/profile/${encodeURIComponent(userEntry.user_id)}`}
+                                onClick={(e) => e.stopPropagation()}
+                                className="shrink-0"
+                            >
+                                <Avatar className="h-8 w-8 sm:h-10 sm:w-10 border border-border ring-0 hover:ring-2 hover:ring-emerald-500/40 transition-all">
+                                    <AvatarImage src={userEntry.avatar_url || ''} />
+                                    <AvatarFallback className="bg-background text-muted-foreground font-bold text-xs sm:text-sm">
+                                        {userEntry.username?.[0]?.toUpperCase() || '?'}
+                                    </AvatarFallback>
+                                </Avatar>
+                            </Link>
+                        ) : (
+                            <Avatar className="h-8 w-8 sm:h-10 sm:w-10 border border-border shrink-0">
+                                <AvatarImage src={userEntry.avatar_url || ''} />
+                                <AvatarFallback className="bg-background text-muted-foreground font-bold text-xs sm:text-sm">
+                                    {userEntry.username?.[0]?.toUpperCase() || '?'}
+                                </AvatarFallback>
+                            </Avatar>
+                        )}
                         
                         <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
-                            <span className="font-bold text-foreground text-sm sm:text-base truncate">
-                                {userEntry.username || 'Anonymous'}
-                            </span>
+                            {viewerVerified ? (
+                                <Link
+                                    href={`/profile/${encodeURIComponent(userEntry.user_id)}`}
+                                    onClick={(e) => e.stopPropagation()}
+                                    className="font-bold text-foreground text-sm sm:text-base truncate hover:text-emerald-400 transition-colors"
+                                >
+                                    {userEntry.username || 'Anonymous'}
+                                </Link>
+                            ) : (
+                                <span className="font-bold text-foreground text-sm sm:text-base truncate">
+                                    {userEntry.username || 'Anonymous'}
+                                </span>
+                            )}
                             {isActive && (
                                 <Badge variant="outline" className="text-[10px] sm:text-xs border-green-500/50 bg-green-500/10 text-green-400 px-1.5 sm:px-2 h-4 sm:h-5 gap-1 sm:gap-1.5 shadow-[0_0_10px_-4px_#4ade80]">
                                     <span className="relative flex h-1.5 w-1.5">
@@ -259,13 +286,22 @@ export function LedgerBoard({ initialData, initialHeatmaps }: LedgerBoardProps) 
   const [period, setPeriod] = useState<'daily' | 'weekly'>('daily')
   const [loading, setLoading] = useState(false)
   const [user, setUser] = useState<User | null>(null)
+  const [viewerVerified, setViewerVerified] = useState(false)
   
   const supabase = createClient()
 
-  // 1. Check Auth 
+  // 1. Check Auth + verified status
   useEffect(() => {
-      supabase.auth.getUser().then(({ data }) => {
+      supabase.auth.getUser().then(async ({ data }) => {
           setUser(data.user)
+          if (data.user) {
+              const { data: profile } = await supabase
+                  .from('profiles')
+                  .select('is_verified')
+                  .eq('id', data.user.id)
+                  .single()
+              setViewerVerified(profile?.is_verified ?? false)
+          }
       })
   }, [])
 
@@ -411,6 +447,7 @@ export function LedgerBoard({ initialData, initialHeatmaps }: LedgerBoardProps) 
                         period={period}
                         isActive={isActive}
                         heatmapData={heatmaps[user.user_id]}
+                        viewerVerified={viewerVerified}
                     />
                 )
             })
