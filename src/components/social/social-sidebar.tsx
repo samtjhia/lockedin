@@ -317,12 +317,12 @@ export function SocialSidebar() {
                                                 </div>
                                             </div>
                                             
-                                            <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <div className="flex gap-1 shrink-0 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
                                                 <Button 
                                                     variant="ghost" 
                                                     size="icon" 
                                                     className="h-8 w-8 text-yellow-500 hover:text-yellow-400 hover:bg-yellow-500/10"
-                                                    onClick={() => handlePoke(friend.user_id, friend.username)}
+                                                    onClick={(e) => { e.stopPropagation(); handlePoke(friend.user_id, friend.username) }}
                                                     title="Poke"
                                                 >
                                                     <Hand className="h-4 w-4 rotate-90" />

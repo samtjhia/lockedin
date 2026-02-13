@@ -217,9 +217,9 @@ export function DashboardToolbar({ initialSounds, initialQuickLinks, initialYout
     return (
         <>
             <Card className="border-zinc-800 bg-zinc-950/50">
-                <CardContent className="p-2 flex items-center gap-2 flex-wrap">
+                <CardContent className="p-0 sm:p-2 sm:flex sm:flex-row sm:items-center sm:gap-2 sm:flex-wrap">
                     {/* Quick Links Section */}
-                    <div className="flex items-center gap-1">
+                    <div className="flex items-center gap-1 flex-wrap px-3 py-2 sm:p-0">
                         <Link2 className="h-4 w-4 text-zinc-400 flex-shrink-0" />
                         {quickLinks.map(link => (
                             <div key={link.id} className="group relative">
@@ -273,10 +273,10 @@ export function DashboardToolbar({ initialSounds, initialQuickLinks, initialYout
                         )}
                     </div>
 
-                    <div className="h-5 w-px bg-zinc-700" />
+                    <div className="hidden sm:block h-5 w-px bg-zinc-700" />
 
                     {/* YouTube Section */}
-                    <div className="flex items-center gap-1">
+                    <div className="flex items-center gap-1 flex-wrap border-t border-zinc-800 sm:border-t-0 px-3 py-2 sm:p-0">
                         <Youtube className="h-4 w-4 text-zinc-400 flex-shrink-0" />
                         <Button
                             variant="ghost"
@@ -323,10 +323,10 @@ export function DashboardToolbar({ initialSounds, initialQuickLinks, initialYout
                         )}
                     </div>
 
-                    <div className="h-5 w-px bg-zinc-700" />
+                    <div className="hidden sm:block h-5 w-px bg-zinc-700" />
 
                     {/* Sound Section */}
-                    <div className="flex items-center gap-1">
+                    <div className="flex items-center gap-1 flex-wrap border-t border-zinc-800 sm:border-t-0 px-3 py-2 sm:p-0">
                         {sounds.length === 0 ? (
                             <div className="text-zinc-600 text-xs">No sounds</div>
                         ) : (
@@ -346,7 +346,7 @@ export function DashboardToolbar({ initialSounds, initialQuickLinks, initialYout
                                 )
                             })
                         )}
-                        <div className="flex items-center gap-1 w-[140px]">
+                        <div className="flex items-center gap-1 w-[100px] sm:w-[140px]">
                             <Button variant="ghost" size="icon" className="h-6 w-6 text-zinc-500" onClick={() => setVolume(v => v[0] === 0 ? [0.5] : [0])}>
                                 {volume[0] === 0 ? <VolumeX className="h-3 w-3" /> : <Volume2 className="h-3 w-3" />}
                             </Button>

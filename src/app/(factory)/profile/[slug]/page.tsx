@@ -187,8 +187,8 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
               {topTasksDaily.length === 0 && (
                 <p className="text-xs text-zinc-500">No focused work logged today yet.</p>
               )}
-              {topTasksDaily.map(task => (
-                <div key={task.task_name} className="space-y-1">
+              {topTasksDaily.map((task, i) => (
+                <div key={`${task.task_name}-${i}`} className="space-y-1">
                   <div className="flex items-center justify-between text-xs text-zinc-300">
                     <span className="truncate">{task.task_name}</span>
                     <span className="text-zinc-500">{formatSeconds(task.total_seconds)}</span>
@@ -219,8 +219,8 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
               {topTasksWeekly.length === 0 && (
                 <p className="text-xs text-zinc-500">No sessions logged this week yet.</p>
               )}
-              {topTasksWeekly.map(task => (
-                <div key={task.task_name} className="space-y-1">
+              {topTasksWeekly.map((task, i) => (
+                <div key={`${task.task_name}-${i}`} className="space-y-1">
                   <div className="flex items-center justify-between text-xs text-zinc-300">
                     <span className="truncate">{task.task_name}</span>
                     <span className="text-zinc-500">{formatSeconds(task.total_seconds)}</span>

@@ -6,6 +6,7 @@ import { SocialSidebar } from '@/components/social/social-sidebar'
 import { FeedbackModal } from '@/components/feedback/feedback-modal'
 import { Button } from '@/components/ui/button'
 import { ProfileMenu } from '@/components/profile/profile-menu'
+import { MobileNav } from '@/components/layout/mobile-nav'
 
 export default async function FactoryLayout({
   children,
@@ -34,10 +35,16 @@ export default async function FactoryLayout({
 
   return (
     <div className="flex min-h-screen flex-col bg-black text-zinc-50">
-        <header className="border-b border-zinc-800 px-6 py-3 sticky top-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-between gap-6">
-          <div className="flex items-center gap-6 min-w-0">
-            <div className="flex items-center">
-              <h1 className="font-mono font-bold tracking-tight text-zinc-100">LOCKED IN FACTORY</h1>
+        <header className="border-b border-zinc-800 px-3 sm:px-6 py-3 sticky top-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-between gap-2 sm:gap-6">
+          <div className="flex items-center gap-2 sm:gap-6 min-w-0">
+            {/* Mobile nav menu */}
+            <MobileNav />
+
+            <div className="flex items-center min-w-0">
+              <h1 className="font-mono font-bold tracking-tight text-zinc-100 text-sm sm:text-base truncate">
+                <span className="hidden sm:inline">LOCKED IN FACTORY</span>
+                <span className="sm:hidden">LIF</span>
+              </h1>
             </div>
                 
             <nav className="hidden md:flex items-center gap-1">
@@ -65,8 +72,10 @@ export default async function FactoryLayout({
             </nav>
           </div>
             
-          <div className="flex items-center gap-2">
-            <FeedbackModal />
+          <div className="flex items-center gap-1 sm:gap-2">
+            <div className="hidden sm:block">
+              <FeedbackModal />
+            </div>
             <SocialSidebar />
             <ProfileMenu />
           </div>

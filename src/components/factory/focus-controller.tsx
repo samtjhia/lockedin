@@ -187,56 +187,56 @@ export function FocusController({ initialSession }: FocusControllerProps) {
     
     // Standard Timer View
     return (
-      <div className={`relative flex flex-col items-center justify-center p-6 bg-zinc-900 border rounded-xl shadow-[0_0_50px_-12px_rgba(0,0,0,0.5)] animate-in fade-in zoom-in-95 duration-300 ${session.status === 'paused' ? 'border-yellow-900/30' : isBreak ? 'border-blue-900/30' : 'border-red-900/30'}`}>
+      <div className={`relative flex flex-col items-center justify-center p-4 sm:p-6 bg-zinc-900 border rounded-xl shadow-[0_0_50px_-12px_rgba(0,0,0,0.5)] animate-in fade-in zoom-in-95 duration-300 ${session.status === 'paused' ? 'border-yellow-900/30' : isBreak ? 'border-blue-900/30' : 'border-red-900/30'}`}>
         
         {/* Settings Toggles */}
-       <div className="absolute top-4 right-4 flex gap-2">
+       <div className="absolute top-3 right-3 sm:top-4 sm:right-4 flex gap-1 sm:gap-2">
             <Button 
                 variant="ghost" 
                 size="icon" 
-                className="h-8 w-8 text-zinc-500 hover:text-zinc-300" 
+                className="h-7 w-7 sm:h-8 sm:w-8 text-zinc-500 hover:text-zinc-300" 
                 onClick={() => setSoundEnabled(!soundEnabled)}
                 title={soundEnabled ? "Mute Sound" : "Enable Sound"}
             >
-                {soundEnabled ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
+                {soundEnabled ? <Volume2 className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> : <VolumeX className="h-3.5 w-3.5 sm:h-4 sm:w-4" />}
             </Button>
             <Button 
                 variant="ghost" 
                 size="icon" 
-                className="h-8 w-8 text-zinc-500 hover:text-zinc-300"
+                className="h-7 w-7 sm:h-8 sm:w-8 text-zinc-500 hover:text-zinc-300"
                 onClick={notifEnabled ? () => setNotifEnabled(false) : requestNotifPermission}
                 title={notifEnabled ? "Disable Notifications" : "Enable Notifications"}
             >
-                {notifEnabled ? <Bell className="h-4 w-4" /> : <BellOff className="h-4 w-4" />}
+                {notifEnabled ? <Bell className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> : <BellOff className="h-3.5 w-3.5 sm:h-4 sm:w-4" />}
             </Button>
        </div>
 
-        <div className={`flex items-center gap-2 mb-4 font-mono text-sm tracking-widest uppercase animate-pulse ${session.status === 'paused' ? 'text-yellow-500' : isBreak ? 'text-blue-500' : 'text-red-500'}`}>
+        <div className={`flex items-center gap-2 mb-3 sm:mb-4 font-mono text-xs sm:text-sm tracking-widest uppercase animate-pulse ${session.status === 'paused' ? 'text-yellow-500' : isBreak ? 'text-blue-500' : 'text-red-500'}`}>
             <span className="relative flex h-3 w-3">
               <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${session.status === 'paused' ? 'bg-yellow-400' : isBreak ? 'bg-blue-400' : 'bg-red-400'}`}></span>
               <span className={`relative inline-flex rounded-full h-3 w-3 ${session.status === 'paused' ? 'bg-yellow-500' : isBreak ? 'bg-blue-500' : 'bg-red-500'}`}></span>
             </span>
             {session.status === 'paused' ? 'Session Paused' : isBreak ? 'Break Time' : 'Session Active'}
-            {isPomo && <span className="ml-2 text-zinc-500 font-bold border rounded px-1 border-zinc-700">Loop {(pomoCount % 4) + 1}/4</span>}
+            {isPomo && <span className="ml-2 text-zinc-500 font-bold border rounded px-1 border-zinc-700 text-[10px] sm:text-xs">Loop {(pomoCount % 4) + 1}/4</span>}
         </div>
         
-        <div className="text-8xl font-black tabular-nums tracking-tighter text-zinc-100 mb-2 font-mono">
+        <div className="text-5xl sm:text-7xl md:text-8xl font-black tabular-nums tracking-tighter text-zinc-100 mb-1 sm:mb-2 font-mono">
           {formattedTime}
         </div>
         
-        <div className="text-zinc-500 text-lg mb-8 font-medium">
+        <div className="text-zinc-500 text-sm sm:text-lg mb-6 sm:mb-8 font-medium truncate max-w-full px-4 text-center">
           {session.task_name}
         </div>
 
-        <div className="flex items-center gap-4 w-full max-w-xs">
+        <div className="flex items-center gap-3 sm:gap-4 w-full max-w-xs">
             {session.status === 'active' ? (
                  <Button 
                     onClick={handlePause} 
                     disabled={loading}
                     variant="outline" 
-                    className="flex-1 h-14 text-lg font-bold border-zinc-700 bg-zinc-900 text-zinc-100 hover:bg-zinc-800 hover:text-white"
+                    className="flex-1 h-12 sm:h-14 text-base sm:text-lg font-bold border-zinc-700 bg-zinc-900 text-zinc-100 hover:bg-zinc-800 hover:text-white"
                 >
-                    <Pause className="mr-2 h-5 w-5" />
+                    <Pause className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
                     PAUSE
                 </Button>
             ) : (
@@ -244,9 +244,9 @@ export function FocusController({ initialSession }: FocusControllerProps) {
                     onClick={handleResume} 
                     disabled={loading}
                     variant="outline" 
-                    className="flex-1 h-14 text-lg font-bold border-yellow-500/50 bg-yellow-500/10 text-yellow-400 hover:bg-yellow-500/20 hover:text-yellow-300"
+                    className="flex-1 h-12 sm:h-14 text-base sm:text-lg font-bold border-yellow-500/50 bg-yellow-500/10 text-yellow-400 hover:bg-yellow-500/20 hover:text-yellow-300"
                 >
-                    <Play className="mr-2 h-5 w-5" />
+                    <Play className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
                     RESUME
                 </Button>
             )}
@@ -255,10 +255,10 @@ export function FocusController({ initialSession }: FocusControllerProps) {
                 onClick={handleStop} 
                 disabled={loading}
                 variant="destructive" 
-                className="h-14 w-14 p-0 rounded-lg shrink-0"
+                className="h-12 w-12 sm:h-14 sm:w-14 p-0 rounded-lg shrink-0"
                 title="End Session"
             >
-                <StopCircle className="h-6 w-6" />
+                <StopCircle className="h-5 w-5 sm:h-6 sm:w-6" />
             </Button>
         </div>
       </div>
@@ -267,56 +267,56 @@ export function FocusController({ initialSession }: FocusControllerProps) {
 
   // --- STATE 1: IDLE ---
   return (
-    <div className="flex flex-col gap-6 p-6 bg-zinc-900/50 border border-zinc-800 rounded-xl">
-       <div className="flex justify-between items-center">
-            <h3 className="text-zinc-400 font-mono text-sm uppercase tracking-widest">New Session</h3>
+    <div className="flex flex-col gap-4 sm:gap-6 p-4 sm:p-6 bg-zinc-900/50 border border-zinc-800 rounded-xl">
+       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0">
+            <h3 className="text-zinc-400 font-mono text-xs sm:text-sm uppercase tracking-widest">New Session</h3>
             
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
                  <div className="flex items-center gap-1">
                     <Button 
                         variant="ghost" 
                         size="icon" 
-                        className="h-8 w-8 text-zinc-500 hover:text-zinc-300" 
+                        className="h-7 w-7 sm:h-8 sm:w-8 text-zinc-500 hover:text-zinc-300" 
                         onClick={() => setSoundEnabled(!soundEnabled)}
                         title={soundEnabled ? "Mute Sound" : "Enable Sound"}
                     >
-                        {soundEnabled ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
+                        {soundEnabled ? <Volume2 className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> : <VolumeX className="h-3.5 w-3.5 sm:h-4 sm:w-4" />}
                     </Button>
                     <Button 
                         variant="ghost" 
                         size="icon" 
-                        className="h-8 w-8 text-zinc-500 hover:text-zinc-300"
+                        className="h-7 w-7 sm:h-8 sm:w-8 text-zinc-500 hover:text-zinc-300"
                         onClick={notifEnabled ? () => setNotifEnabled(false) : requestNotifPermission}
                         title={notifEnabled ? "Disable Notifications" : "Enable Notifications"}
                     >
-                        {notifEnabled ? <Bell className="h-4 w-4" /> : <BellOff className="h-4 w-4" />}
+                        {notifEnabled ? <Bell className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> : <BellOff className="h-3.5 w-3.5 sm:h-4 sm:w-4" />}
                     </Button>
                 </div>
                 
                 <div className="h-4 w-px bg-zinc-800" />
 
                 <ToggleGroup type="single" value={mode} onValueChange={(v) => v && setMode(v)}>
-                    <ToggleGroupItem value="stopwatch" aria-label="Toggle stopwatch">
-                        <Clock className="h-4 w-4 mr-2" />
+                    <ToggleGroupItem value="stopwatch" aria-label="Toggle stopwatch" className="text-xs sm:text-sm px-2 sm:px-3">
+                        <Clock className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
                         Free
                     </ToggleGroupItem>
-                    <ToggleGroupItem value="pomo" aria-label="Toggle pomodoro">
-                        <Timer className="h-4 w-4 mr-2" />
+                    <ToggleGroupItem value="pomo" aria-label="Toggle pomodoro" className="text-xs sm:text-sm px-2 sm:px-3">
+                        <Timer className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
                         Pomo
                     </ToggleGroupItem>
-                    <ToggleGroupItem value="short-break" aria-label="Toggle break">
-                        <Coffee className="h-4 w-4 mr-2" />
+                    <ToggleGroupItem value="short-break" aria-label="Toggle break" className="text-xs sm:text-sm px-2 sm:px-3">
+                        <Coffee className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
                         Break
                     </ToggleGroupItem>
                 </ToggleGroup>
             </div>
        </div>
 
-       <form action={handleStart} className="flex flex-col gap-4">
+       <form action={handleStart} className="flex flex-col gap-3 sm:gap-4">
             <Input 
                 name="taskName"
                 placeholder={mode === 'short-break' ? "Taking a breather..." : "What are you working on?"}
-                className={`h-14 text-lg bg-zinc-950 focus:border-zinc-700 ${error ? 'border-red-500/50 focus-visible:ring-red-500/20' : 'border-zinc-800'}`}
+                className={`h-12 sm:h-14 text-base sm:text-lg bg-zinc-950 focus:border-zinc-700 ${error ? 'border-red-500/50 focus-visible:ring-red-500/20' : 'border-zinc-800'}`}
                 required
                 autoComplete="off"
                 value={taskName}
@@ -327,13 +327,13 @@ export function FocusController({ initialSession }: FocusControllerProps) {
             />
             
             {error && (
-                <div className="text-red-400 text-sm font-bold flex items-center gap-2 animate-in slide-in-from-left-2">
+                <div className="text-red-400 text-xs sm:text-sm font-bold flex items-center gap-2 animate-in slide-in-from-left-2">
                     <div className="h-1.5 w-1.5 rounded-full bg-red-500" />
                     {error}
                 </div>
             )}
             
-            <div className="text-zinc-500 text-sm px-1">
+            <div className="text-zinc-500 text-xs sm:text-sm px-1">
                 {mode === 'stopwatch' && "Open-ended session. Count up timer for flexible deep work."}
                 {mode === 'pomo' && "25-minute focused sprint. Alerts you when it's time for a break."}
                 {mode === 'short-break' && "5-minute timer to recharge. Not counted towards study stats."}
@@ -343,11 +343,11 @@ export function FocusController({ initialSession }: FocusControllerProps) {
             <Button 
                 type="submit" 
                 disabled={loading}
-                className="h-14 text-lg font-bold bg-white text-black hover:bg-zinc-200"
+                className="h-12 sm:h-14 text-base sm:text-lg font-bold bg-white text-black hover:bg-zinc-200"
             >
                 {loading ? 'Initializing...' : (
                     <>
-                        <Play className="mr-2 h-5 w-5" />
+                        <Play className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
                         START SESSION
                     </>
                 )}

@@ -153,15 +153,15 @@ export function TaskList({ initialTodos }: TaskListProps) {
 
                     {activeTodos.map(todo => (
                         <div key={todo.id} className="group flex items-center justify-between p-2 rounded-md hover:bg-zinc-900/50 transition-colors border border-transparent hover:border-zinc-800">
-                            <div className="flex items-center gap-3 overflow-hidden">
+                            <div className="flex items-center gap-3 overflow-hidden min-w-0">
                                 <Checkbox 
                                     checked={todo.is_completed} 
                                     onCheckedChange={() => handleToggle(todo.id, todo.is_completed)}
-                                    className="border-zinc-700 data-[state=checked]:bg-green-600 data-[state=checked]:border-green-600"
+                                    className="border-zinc-700 data-[state=checked]:bg-green-600 data-[state=checked]:border-green-600 shrink-0"
                                 />
                                 <span className="text-sm text-zinc-300 truncate">{todo.task_name}</span>
                             </div>
-                            <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <div className="flex items-center gap-1 shrink-0 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity">
                                 <Button 
                                     size="icon" 
                                     variant="ghost" 

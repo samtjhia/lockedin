@@ -33,6 +33,8 @@ export function YouTubePlayerProvider({ children }: { children: ReactNode }) {
                 setActiveVideoId(id)
                 setActiveVideoUrl(url)
                 setActiveVideoTitle(title)
+                // Notify DashboardGrid to auto-open right panel on mobile
+                window.dispatchEvent(new Event('youtube-video-started'))
             }
         }
     }

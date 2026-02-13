@@ -9,6 +9,7 @@ import { ShiftLog } from '@/components/dashboard/stats/shift-log'
 import { DashboardToolbar } from '@/components/dashboard/dashboard-toolbar'
 import { YouTubePlayer } from '@/components/dashboard/youtube-player'
 import { YouTubePlayerProvider } from '@/components/dashboard/youtube-player-context'
+import { DashboardGrid } from '@/components/dashboard/dashboard-grid'
 import { getDashboardData } from '@/app/actions/dashboard'
 import { 
   ChartsSkeleton, 
@@ -32,12 +33,12 @@ export default async function Dashboard() {
 
   return (
     <YouTubePlayerProvider>
-      <div className="p-4 md:p-8 space-y-6 max-w-[1600px] mx-auto min-h-screen">
+      <div className="p-4 md:p-8 space-y-4 sm:space-y-6 max-w-[1600px] mx-auto min-h-screen">
         {/* Header */}
         <div className="border-b border-zinc-800 pb-4">
           <div className="flex flex-col gap-1 mb-4">
-            <h1 className="text-3xl font-bold tracking-tight text-white">Dashboard</h1>
-            <p className="text-zinc-400">
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">Dashboard</h1>
+            <p className="text-zinc-400 text-sm sm:text-base">
               Welcome back, <span className="text-zinc-200 font-medium">{profile?.username}</span>. 
               Ready to lock in?
             </p>
@@ -50,35 +51,20 @@ export default async function Dashboard() {
           />
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 pb-8">
-          {/* Left Column: Tasks (1 col) */}
-          <div className="lg:col-span-1 relative">
-              <div className="absolute inset-0">
-                  <TaskList initialTodos={dashboardData.todos} />
-              </div>
-          </div>
-
-          {/* Center Column: Focus & Charts (2 cols) */}
-          <div className="lg:col-span-2 space-y-6 flex flex-col">
+        <DashboardGrid
+          taskList={<TaskList initialTodos={dashboardData.todos} />}
+          centerContent={
+            <>
               <FocusController initialSession={currentSession} />
               <div className="grid grid-cols-1 gap-6">
-                  <Charts initialMetrics={dashboardData.dailyMetrics} />
-                  <HeatMap initialData={dashboardData.heatmapData} />
+                <Charts initialMetrics={dashboardData.dailyMetrics} />
+                <HeatMap initialData={dashboardData.heatmapData} />
               </div>
-          </div>
-
-          {/* Right Column: YouTube Player & Log (1 col) */}
-          <div className="lg:col-span-1 relative">
-              <div className="absolute inset-0 flex flex-col gap-4">
-                  <YouTubePlayer />
-                  <div className="flex-1 relative min-h-0">
-                      <div className="absolute inset-0">
-                          <ShiftLog initialLogs={dashboardData.shiftLog} />
-                      </div>
-                  </div>
-              </div>
-          </div>
-        </div>
+            </>
+          }
+          youtubePlayer={<YouTubePlayer />}
+          shiftLog={<ShiftLog initialLogs={dashboardData.shiftLog} />}
+        />
       </div>
     </YouTubePlayerProvider>
   )

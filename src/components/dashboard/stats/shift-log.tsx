@@ -126,14 +126,14 @@ export function ShiftLog({ initialLogs }: ShiftLogProps) {
                                                         <p className="text-sm font-medium text-zinc-200 leading-none">
                                                             {session.task_name || 'Untitled Task'}
                                                         </p>
-                                                        <div className="flex items-center text-xs text-zinc-500 gap-2">
-                                                            <span>{formatDuration(session.duration_seconds)} focus</span>
+                                                        <div className="flex items-center text-xs text-zinc-500 gap-1.5 flex-wrap">
+                                                            <span className="whitespace-nowrap">{formatDuration(session.duration_seconds)} focus</span>
                                                             <span>•</span>
-                                                            <span>{formatDistanceToNow(new Date(session.ended_at), { addSuffix: true })}</span>
+                                                            <span className="whitespace-nowrap">{formatDistanceToNow(new Date(session.ended_at), { addSuffix: true })}</span>
                                                         </div>
                                                     </div>
                                                     
-                                                    <div className="opacity-0 group-hover/item:opacity-100 flex items-center gap-1 transition-opacity">
+                                                    <div className="flex items-center gap-1 shrink-0 opacity-100 lg:opacity-0 lg:group-hover/item:opacity-100 transition-opacity">
                                                         <Button 
                                                             size="icon" 
                                                             variant="ghost" 
