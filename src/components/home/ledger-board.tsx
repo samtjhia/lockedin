@@ -92,32 +92,32 @@ function LeaderboardRow({
         )}>
             <div 
                 onClick={toggleExpand}
-                className="flex items-center gap-4 p-4 cursor-pointer select-none"
+                className="flex items-center gap-2 sm:gap-3 md:gap-4 p-3 sm:p-4 cursor-pointer select-none"
             >
                 {/* Rank */}
-                <div className={`w-8 text-center font-mono font-bold text-lg flex justify-center ${getRankStyle(index)}`}>
-                    {index === 0 ? <Crown size={20} className="fill-yellow-400 stroke-yellow-500" /> : 
-                        index === 1 ? <Medal size={20} className="fill-zinc-300 stroke-zinc-400" /> :
-                        index === 2 ? <Medal size={20} className="fill-amber-700 stroke-amber-800" /> :
+                <div className={`w-6 sm:w-8 text-center font-mono font-bold text-sm sm:text-lg flex justify-center shrink-0 ${getRankStyle(index)}`}>
+                    {index === 0 ? <Crown size={18} className="sm:w-5 sm:h-5 fill-yellow-400 stroke-yellow-500" /> : 
+                        index === 1 ? <Medal size={18} className="sm:w-5 sm:h-5 fill-zinc-300 stroke-zinc-400" /> :
+                        index === 2 ? <Medal size={18} className="sm:w-5 sm:h-5 fill-amber-700 stroke-amber-800" /> :
                         `#${index + 1}`}
                 </div>
 
                 {/* User Info */}
-                <div className="flex items-center gap-4 flex-1">
-                        <Avatar className="h-10 w-10 border border-zinc-800">
+                <div className="flex items-center gap-2 sm:gap-3 md:gap-4 flex-1 min-w-0">
+                        <Avatar className="h-8 w-8 sm:h-10 sm:w-10 border border-zinc-800 shrink-0">
                         <AvatarImage src={userEntry.avatar_url || ''} />
-                        <AvatarFallback className="bg-zinc-950 text-zinc-500 font-bold">
+                        <AvatarFallback className="bg-zinc-950 text-zinc-500 font-bold text-xs sm:text-sm">
                             {userEntry.username?.[0]?.toUpperCase() || '?'}
                         </AvatarFallback>
                         </Avatar>
                         
                         <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2">
-                            <span className="font-bold text-zinc-200">
+                        <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
+                            <span className="font-bold text-zinc-200 text-sm sm:text-base truncate">
                                 {userEntry.username || 'Anonymous'}
                             </span>
                             {isActive && (
-                                <Badge variant="outline" className="text-xs border-green-500/50 bg-green-500/10 text-green-400 px-2 h-5 gap-1.5 shadow-[0_0_10px_-4px_#4ade80]">
+                                <Badge variant="outline" className="text-[10px] sm:text-xs border-green-500/50 bg-green-500/10 text-green-400 px-1.5 sm:px-2 h-4 sm:h-5 gap-1 sm:gap-1.5 shadow-[0_0_10px_-4px_#4ade80]">
                                     <span className="relative flex h-1.5 w-1.5">
                                         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
                                         <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-green-500"></span>
@@ -126,14 +126,14 @@ function LeaderboardRow({
                                 </Badge>
                             )}
                             {userEntry.current_status === 'paused' && (
-                                <Badge variant="outline" className="text-xs border-dashed border-yellow-700/50 text-yellow-600 px-2 h-5">
+                                <Badge variant="outline" className="text-[10px] sm:text-xs border-dashed border-yellow-700/50 text-yellow-600 px-1.5 sm:px-2 h-4 sm:h-5">
                                     PAUSED
                                 </Badge>
                             )}
                         </div>
-                        <div className="text-xs text-zinc-500 font-mono mt-0.5 flex items-center gap-2">
+                        <div className="text-[10px] sm:text-xs text-zinc-500 font-mono mt-0.5 flex items-center gap-1.5 sm:gap-2">
                              {/* Task name truncation */}
-                             <span className="max-w-[150px] md:max-w-[200px] truncate" title={userEntry.current_task || 'Idle'}>
+                             <span className="max-w-[100px] sm:max-w-[150px] md:max-w-[200px] truncate" title={userEntry.current_task || 'Idle'}>
                                 {userEntry.current_task || 'Idle'}
                              </span>
                             {expanded ? <ChevronUp className="h-3 w-3 text-zinc-600" /> : <ChevronDown className="h-3 w-3 text-zinc-700" />}
@@ -155,12 +155,12 @@ function LeaderboardRow({
                 )}
 
                 {/* Stats: Time + Grade */}
-                <div className="flex items-center gap-3 md:gap-4">
+                <div className="flex items-center gap-2 sm:gap-3 md:gap-4 shrink-0">
                         {/* Grade */}
                         <div 
                             title="Grade"
                             className={`
-                                flex items-center justify-center w-9 h-9 md:w-10 md:h-10 rounded-lg font-black text-lg md:text-xl cursor-default
+                                flex items-center justify-center w-7 h-7 sm:w-9 sm:h-9 md:w-10 md:h-10 rounded-md sm:rounded-lg font-black text-sm sm:text-lg md:text-xl cursor-default
                                 ${grade === 'S' ? 'bg-gradient-to-br from-indigo-500/30 to-purple-500/20 text-indigo-300 ring-1 ring-indigo-400/50' : ''}
                                 ${grade === 'A' ? 'bg-gradient-to-br from-green-500/30 to-emerald-500/20 text-green-300 ring-1 ring-green-400/50' : ''}
                                 ${grade === 'B' ? 'bg-gradient-to-br from-blue-500/30 to-cyan-500/20 text-blue-300 ring-1 ring-blue-400/50' : ''}
@@ -173,8 +173,8 @@ function LeaderboardRow({
                         </div>
 
                         {/* Time */}
-                        <div className="text-right min-w-[60px]">
-                            <div className="text-base md:text-lg font-bold text-zinc-200 font-mono tracking-tight tabular-nums">
+                        <div className="text-right">
+                            <div className="text-xs sm:text-base md:text-lg font-bold text-zinc-200 font-mono tracking-tight tabular-nums">
                                 {formatDuration(userEntry.total_seconds)}
                             </div>
                         </div>
@@ -183,8 +183,8 @@ function LeaderboardRow({
 
             {/* Expanded Stats */}
             {expanded && (
-                <div className="px-4 pb-4 md:pl-20 md:pr-10 animate-in slide-in-from-top-1 duration-200 fade-in-0">
-                    <div className="h-px w-full bg-gradient-to-r from-transparent via-zinc-800 to-transparent mb-4" />
+                <div className="px-3 pb-3 sm:px-4 sm:pb-4 md:pl-20 md:pr-10 animate-in slide-in-from-top-1 duration-200 fade-in-0">
+                    <div className="h-px w-full bg-gradient-to-r from-transparent via-zinc-800 to-transparent mb-3 sm:mb-4" />
                     
                     <div className="flex items-center justify-between mb-2">
                          <h4 className="text-[10px] uppercase tracking-widest font-bold text-zinc-500 flex items-center gap-2">
@@ -194,14 +194,14 @@ function LeaderboardRow({
                     </div>
                     
                     {loadingStats ? (
-                        <div className="py-2 flex items-center gap-2 text-zinc-600 text-sm font-mono">
+                        <div className="py-2 flex items-center gap-2 text-zinc-600 text-xs sm:text-sm font-mono">
                             <span className="h-3 w-3 animate-spin rounded-full border-2 border-zinc-700 border-t-zinc-500"></span>
                             Fetching details...
                         </div>
                     ) : stats && stats.length > 0 ? (
                         period === 'daily' ? (
                             // Daily Schedule View
-                            <div className="space-y-2">
+                            <div className="space-y-1 sm:space-y-2">
                                 {stats.map((stat, i) => {
                                     // Fallback if started_at is missing (e.g. migration not run)
                                     const timeStr = stat.started_at 
@@ -209,14 +209,14 @@ function LeaderboardRow({
                                         : '--:--'
                                     
                                     return (
-                                        <div key={i} className="flex items-center gap-3 text-sm group/row p-2 rounded hover:bg-zinc-950/30 border border-transparent hover:border-zinc-800/50 transition-colors">
-                                            <div className="font-mono text-zinc-500 text-xs w-16 shrink-0">
+                                        <div key={i} className="flex items-center gap-2 sm:gap-3 text-xs sm:text-sm group/row p-1.5 sm:p-2 rounded hover:bg-zinc-950/30 border border-transparent hover:border-zinc-800/50 transition-colors">
+                                            <div className="font-mono text-zinc-500 text-[10px] sm:text-xs w-12 sm:w-16 shrink-0">
                                                 {timeStr}
                                             </div>
                                             <div className="flex-1 truncate font-medium text-zinc-300">
                                                 {stat.task_name}
                                             </div>
-                                            <div className="font-mono text-zinc-500 text-xs tabular-nums group-hover/row:text-zinc-300">
+                                            <div className="font-mono text-zinc-500 text-[10px] sm:text-xs tabular-nums group-hover/row:text-zinc-300">
                                                 {formatDuration(stat.total_seconds)}
                                             </div>
                                         </div>
@@ -225,11 +225,11 @@ function LeaderboardRow({
                             </div>
                         ) : (
                             // Weekly Top 3 Grid
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3">
                                 {stats.slice(0, 3).map((stat, i) => (
                                     <div key={i} className="flex flex-col p-2 rounded bg-zinc-950/30 border border-zinc-800/50">
                                         <div className="text-xs text-zinc-400 truncate font-medium mb-1" title={stat.task_name}>{stat.task_name}</div>
-                                        <div className="text-sm font-mono font-bold text-zinc-300">
+                                        <div className="text-xs sm:text-sm font-mono font-bold text-zinc-300">
                                             {formatDuration(stat.total_seconds)}
                                         </div>
                                     </div>
@@ -237,7 +237,7 @@ function LeaderboardRow({
                             </div>
                         )
                     ) : (
-                        <div className="py-2 text-zinc-600 text-sm italic flex items-center gap-2">
+                        <div className="py-2 text-zinc-600 text-xs sm:text-sm italic flex items-center gap-2">
                             <div className="w-1.5 h-1.5 rounded-full bg-zinc-700"></div>
                             No specific tasks recorded
                         </div>
@@ -337,14 +337,14 @@ export function LedgerBoard({ initialData, initialHeatmaps }: LedgerBoardProps) 
   const totalSecondSum = data.reduce((acc, curr) => acc + (curr.total_seconds || 0), 0)
 
   return (
-    <div className="w-full max-w-4xl mx-auto space-y-8">
+    <div className="w-full max-w-4xl mx-auto space-y-4 sm:space-y-6 md:space-y-8">
       {/* Header Stats */}
-      <div className="flex flex-col md:flex-row justify-between items-end gap-4 pb-6 border-b border-zinc-800">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 pb-6 border-b border-zinc-800">
         <div>
-            <h1 className="text-4xl font-black tracking-tighter text-white mb-2 font-mono">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-black tracking-tighter text-white mb-2 font-mono">
                 LEADERBOARD
             </h1>
-            <div className="flex items-center gap-2 text-zinc-400 font-mono text-sm">
+            <div className="flex items-center gap-2 text-zinc-400 font-mono text-xs sm:text-sm">
                 <span className="relative flex h-2 w-2">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
@@ -353,10 +353,10 @@ export function LedgerBoard({ initialData, initialHeatmaps }: LedgerBoardProps) 
             </div>
         </div>
 
-        <div className="flex flex-col items-end gap-2">
-            <div className="text-right">
-                <div className="text-sm text-zinc-500 font-mono uppercase tracking-widest">Community Time ({period})</div>
-                <div className="text-3xl font-bold text-white font-mono min-w-[200px] text-right">
+        <div className="flex flex-col items-start md:items-end gap-2 w-full md:w-auto">
+            <div className="md:text-right">
+                <div className="text-xs sm:text-sm text-zinc-500 font-mono uppercase tracking-widest">Community Time ({period})</div>
+                <div className="text-2xl sm:text-3xl font-bold text-white font-mono">
                     {formatDuration(totalSecondSum)}
                 </div>
             </div>
@@ -364,28 +364,29 @@ export function LedgerBoard({ initialData, initialHeatmaps }: LedgerBoardProps) 
       </div>
 
       {/* Controls */}
-      <div className="flex items-center justify-between">
-         <Tabs value={period} onValueChange={(v) => setPeriod(v as any)} className="w-[400px]">
+      <div className="flex items-center justify-between gap-3">
+         <Tabs value={period} onValueChange={(v) => setPeriod(v as any)} className="w-auto">
             <TabsList className="bg-zinc-900 border border-zinc-800">
-                <TabsTrigger value="daily" className="data-[state=active]:bg-zinc-800 data-[state=active]:text-white text-zinc-500">
+                <TabsTrigger value="daily" className="data-[state=active]:bg-zinc-800 data-[state=active]:text-white text-zinc-500 text-xs sm:text-sm px-3 sm:px-4">
                     Today
                 </TabsTrigger>
-                <TabsTrigger value="weekly" className="data-[state=active]:bg-zinc-800 data-[state=active]:text-white text-zinc-500">
+                <TabsTrigger value="weekly" className="data-[state=active]:bg-zinc-800 data-[state=active]:text-white text-zinc-500 text-xs sm:text-sm px-3 sm:px-4">
                     This Week
                 </TabsTrigger>
             </TabsList>
          </Tabs>
 
          <Link href={user ? "/dashboard" : "/login"}>
-             <Button variant="outline" className="border-zinc-700 bg-transparent hover:bg-zinc-900 hover:text-white transition-colors">
+             <Button variant="outline" className="border-zinc-700 bg-transparent hover:bg-zinc-900 hover:text-white transition-colors text-xs sm:text-sm">
                 {user ? (
                     <>
-                        <LayoutDashboard className="mr-2 h-4 w-4 text-zinc-400" />
-                        Open Dashboard
+                        <LayoutDashboard className="mr-1.5 sm:mr-2 h-4 w-4 text-zinc-400" />
+                        <span className="hidden sm:inline">Open Dashboard</span>
+                        <span className="sm:hidden">Dashboard</span>
                     </>
                 ) : (
                     <>
-                        <LogIn className="mr-2 h-4 w-4 text-zinc-400" />
+                        <LogIn className="mr-1.5 sm:mr-2 h-4 w-4 text-zinc-400" />
                         Log In
                     </>
                 )}
@@ -396,7 +397,7 @@ export function LedgerBoard({ initialData, initialHeatmaps }: LedgerBoardProps) 
       {/* Leaderboard Table */}
       <div className={`space-y-1 transition-opacity duration-300 ${loading ? 'opacity-50' : 'opacity-100'}`}>
          {data.length === 0 ? (
-             <div className="text-center py-20 text-zinc-600 font-mono border border-dashed border-zinc-800 rounded-lg">
+             <div className="text-center py-12 sm:py-20 text-zinc-600 font-mono text-xs sm:text-sm border border-dashed border-zinc-800 rounded-lg">
                 NO DATA RECORDED FOR THIS PERIOD
              </div>
          ) : (
