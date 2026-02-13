@@ -2,11 +2,13 @@
 
 import { createClient } from '@/utils/supabase/server'
 import { getFriends } from '@/app/actions/social'
+import { calculateGrade } from '@/lib/utils'
 
 export type ProfileSummary = {
   id: string
   username: string | null
   avatar_url: string | null
+  bio: string | null
   is_verified: boolean
   current_status: string | null
   current_task: string | null
@@ -45,17 +47,6 @@ export type UserProfileData = {
   }[]
 }
 
-function computeGrade(seconds: number): string {
-  const minutes = seconds / 60
-
-  if (minutes <= 0) return 'F'
-  if (minutes < 30) return 'D'
-  if (minutes < 60) return 'C'
-  if (minutes < 120) return 'B'
-  if (minutes < 240) return 'A'
-  return 'S'
-}
-
 export async function getUserProfileData(slug: string): Promise<UserProfileData | null> {
   const supabase = await createClient()
 
@@ -72,22 +63,34 @@ export async function getUserProfileData(slug: string): Promise<UserProfileData 
   let profile: any | null = null
   let error: any = null
 
-  const byUsername = await supabase
-    .from('profiles')
-    .select('id, username, avatar_url, is_verified, current_status, current_task')
-    .eq('username', effectiveSlug)
-    .maybeSingle()
+  const selectFields = 'id, username, avatar_url, is_verified, current_status, current_task'
 
+  // Try with bio column first; if it doesn't exist yet, retry without it
+  async function queryProfile(column: string, value: string) {
+    let res = await supabase
+      .from('profiles')
+      .select(`${selectFields}, bio`)
+      .eq(column, value)
+      .maybeSingle()
+
+    // If the query failed (e.g. bio column doesn't exist), retry without bio
+    if (res.error) {
+      res = await supabase
+        .from('profiles')
+        .select(selectFields)
+        .eq(column, value)
+        .maybeSingle()
+    }
+
+    return res
+  }
+
+  const byUsername = await queryProfile('username', effectiveSlug)
   profile = byUsername.data
   error = byUsername.error
 
   if (!profile && !error) {
-    const byId = await supabase
-      .from('profiles')
-      .select('id, username, avatar_url, is_verified, current_status, current_task')
-      .eq('id', effectiveSlug)
-      .maybeSingle()
-
+    const byId = await queryProfile('id', effectiveSlug)
     profile = byId.data
     error = byId.error
   }
@@ -144,9 +147,9 @@ export async function getUserProfileData(slug: string): Promise<UserProfileData 
   const monthlySeconds = historyStats?.monthly?.total_seconds ?? 0
 
   const grades: ProfileGrades = {
-    day: computeGrade(dailySeconds),
-    week: computeGrade(weeklySeconds),
-    month: computeGrade(monthlySeconds),
+    day: calculateGrade(dailySeconds, 'daily'),
+    week: calculateGrade(weeklySeconds, 'weekly'),
+    month: calculateGrade(monthlySeconds, 'monthly'),
   }
 
   const heatmap: ProfileHeatmapEntry[] =

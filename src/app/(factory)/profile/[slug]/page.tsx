@@ -7,13 +7,14 @@ import { Button } from '@/components/ui/button'
 import { HeatMap } from '@/components/dashboard/stats/heat-map'
 
 type ProfilePageProps = {
-  params: {
+  params: Promise<{
     slug: string
-  }
+  }>
 }
 
 export default async function ProfilePage({ params }: ProfilePageProps) {
-  const data = await getUserProfileData(params.slug)
+  const { slug } = await params
+  const data = await getUserProfileData(slug)
 
   if (!data) {
     notFound()
@@ -71,11 +72,18 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
               </div>
               <p className="text-sm text-zinc-400 mt-1">
                 {profile.current_status === 'active'
-                  ? `Locked in on ${profile.current_task || 'a focus session'}`
+                  ? profile.current_task
+                    ? `Locked in on ${profile.current_task}`
+                    : 'Locked in'
                   : profile.current_status === 'paused'
                   ? 'On a short break'
-                  : 'Currently offline'}
+                  : isSelf
+                  ? 'Online'
+                  : 'Offline'}
               </p>
+              {profile.bio && (
+                <p className="text-sm text-zinc-300 mt-2 max-w-md">{profile.bio}</p>
+              )}
             </div>
           </div>
 
@@ -250,7 +258,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
                   {friendsPreview.map(friend => (
                     <a
                       key={friend.id}
-                      href={`/profile/${encodeURIComponent(friend.username)}`}
+                      href={`/profile/${encodeURIComponent(friend.id)}`}
                       className="flex items-center gap-2 rounded-full border border-zinc-800 px-2 py-1 hover:border-zinc-700 hover:bg-zinc-900/60 transition-colors"
                     >
                       <Avatar className="h-7 w-7 border border-zinc-700">

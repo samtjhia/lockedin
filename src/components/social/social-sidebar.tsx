@@ -294,7 +294,7 @@ export function SocialSidebar() {
                                             className="flex items-center justify-between group p-2 hover:bg-zinc-900/50 rounded-lg transition-colors cursor-pointer"
                                             onClick={() => {
                                                 setIsOpen(false)
-                                                window.location.href = `/profile/${encodeURIComponent(friend.username)}`
+                                                window.location.href = `/profile/${encodeURIComponent(friend.user_id)}`
                                             }}
                                         >
                                             <div className="flex items-center gap-3">

@@ -60,9 +60,7 @@ export function ProfileMenu() {
     (profile?.id ? profile.id.substring(0, 2).toUpperCase() : '?')
 
   const handleViewProfile = () => {
-    if (profile?.username) {
-      router.push(`/profile/${encodeURIComponent(profile.username)}`)
-    } else if (profile?.id) {
+    if (profile?.id) {
       router.push(`/profile/${encodeURIComponent(profile.id)}`)
     } else {
       router.push('/profile')
