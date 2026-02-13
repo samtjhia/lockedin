@@ -133,6 +133,19 @@ const rdpStyles = `
   .rdp-cell {
     text-align: center;
   }
+
+  /* Mobile: tighter calendar cells */
+  @media (max-width: 639px) {
+    select.rdp-dropdown {
+      padding: 6px 10px;
+      font-size: 0.85rem;
+      min-width: 90px;
+    }
+    .rdp-caption_dropdowns {
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+  }
 `
 
 type CalendarData = {
@@ -261,12 +274,12 @@ export function HistoryCalendar({ initialData, initialStats }: HistoryCalendarPr
   return (
     <>
       <style>{rdpStyles}</style>
-      <div className="flex flex-col lg:flex-row gap-8 items-start">
+      <div className="flex flex-col lg:flex-row gap-4 sm:gap-6 lg:gap-8 items-start">
         
         {/* Left Col: Calendar */}
         <div className="w-full lg:w-auto">
           <Card className="border-zinc-800 bg-zinc-950/50 inline-block w-full lg:w-auto">
-            <CardContent className="p-6 flex justify-center">
+            <CardContent className="p-3 sm:p-6 flex justify-center">
               <DayPicker
                 mode="single"
                 selected={selectedDate}
@@ -309,7 +322,7 @@ export function HistoryCalendar({ initialData, initialStats }: HistoryCalendarPr
           </Card>
 
           {/* Legend */}
-          <div className="mt-6 bg-zinc-900/30 p-4 rounded-lg border border-zinc-800/50 md:max-w-[350px]">
+          <div className="mt-4 sm:mt-6 bg-zinc-900/30 p-3 sm:p-4 rounded-lg border border-zinc-800/50 lg:max-w-[350px]">
             <h3 className="text-sm font-medium text-zinc-400 mb-3">Activity Levels</h3>
             <div className="flex items-center justify-between text-xs text-zinc-600">
                 <span>Less</span>
@@ -335,18 +348,18 @@ export function HistoryCalendar({ initialData, initialStats }: HistoryCalendarPr
         </div>
 
         {/* Right Col: Details Panel */}
-        <div className="flex-1 w-full h-[600px] lg:h-[650px] bg-zinc-950/30 rounded-xl border border-zinc-800/50 flex flex-col">
+        <div className="flex-1 w-full min-h-[400px] h-[500px] sm:h-[600px] lg:h-[650px] bg-zinc-950/30 rounded-xl border border-zinc-800/50 flex flex-col">
             {/* Header */}
-            <div className="p-4 border-b border-zinc-800 flex items-center justify-between bg-zinc-900/20 rounded-t-xl shrink-0">
-                <div className="flex items-center gap-4">
-                    <div className="h-12 w-12 rounded-xl bg-zinc-900 flex items-center justify-center border border-zinc-800 shadow-inner">
-                        <CalendarIcon className="h-6 w-6 text-green-500" />
+            <div className="p-3 sm:p-4 border-b border-zinc-800 flex items-center justify-between bg-zinc-900/20 rounded-t-xl shrink-0">
+                <div className="flex items-center gap-3 sm:gap-4 min-w-0">
+                    <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-xl bg-zinc-900 flex items-center justify-center border border-zinc-800 shadow-inner shrink-0">
+                        <CalendarIcon className="h-5 w-5 sm:h-6 sm:w-6 text-green-500" />
                     </div>
-                    <div>
-                        <h2 className="text-2xl font-bold text-zinc-100 mb-1">
+                    <div className="min-w-0">
+                        <h2 className="text-lg sm:text-2xl font-bold text-zinc-100 mb-0.5 sm:mb-1 truncate">
                      {selectedDate ? format(selectedDate, 'EEE, MMM do') : format(currentMonth, 'MMMM yyyy')}
                         </h2>
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
                     {stats && (
                       selectedDate ? (
                         <div className={`px-2 py-0.5 rounded text-xs font-bold border ${
@@ -380,40 +393,40 @@ export function HistoryCalendar({ initialData, initialStats }: HistoryCalendarPr
             
             {/* Stats Grid */}
             {stats && selectedDate && (
-              <div className="grid grid-cols-4 gap-3 px-4 pt-4 animate-in slide-in-from-top-2 shrink-0">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 px-3 sm:px-4 pt-3 sm:pt-4 animate-in slide-in-from-top-2 shrink-0">
                      {/* Daily Grade */}
-                     <div className="bg-zinc-900/40 p-3 rounded-xl border border-zinc-800/50 flex flex-col gap-1">
+                     <div className="bg-zinc-900/40 p-2.5 sm:p-3 rounded-xl border border-zinc-800/50 flex flex-col gap-1">
                         <div className="text-[10px] uppercase font-bold text-zinc-400 flex items-center gap-1.5">
-                            <CalendarIcon className="h-3.5 w-3.5" /> Day
+                            <CalendarIcon className="h-3 w-3 sm:h-3.5 sm:w-3.5" /> Day
                         </div>
-                        <div className="text-2xl font-black text-zinc-200">
+                        <div className="text-xl sm:text-2xl font-black text-zinc-200">
                              {isFuture(selectedDate) || stats.daily.total_seconds === 0 ? '--' : calculateGrade(stats.daily.total_seconds)}
                         </div>
                     </div>
                      {/* Weekly Grade */}
-                    <div className="bg-zinc-900/40 p-3 rounded-xl border border-zinc-800/50 flex flex-col gap-1">
+                    <div className="bg-zinc-900/40 p-2.5 sm:p-3 rounded-xl border border-zinc-800/50 flex flex-col gap-1">
                         <div className="text-[10px] uppercase font-bold text-zinc-400 flex items-center gap-1.5">
-                            <TrendingUp className="h-3.5 w-3.5" /> Week
+                            <TrendingUp className="h-3 w-3 sm:h-3.5 sm:w-3.5" /> Week
                         </div>
-                        <div className="text-2xl font-black text-zinc-200">
+                        <div className="text-xl sm:text-2xl font-black text-zinc-200">
                             {isFuture(selectedDate) || stats.weekly.total_seconds === 0 ? '--' : calculateGrade(stats.weekly.total_seconds, 'weekly')}
                         </div>
                     </div>
                      {/* Monthly Grade */}
-                    <div className="bg-zinc-900/40 p-3 rounded-xl border border-zinc-800/50 flex flex-col gap-1">
+                    <div className="bg-zinc-900/40 p-2.5 sm:p-3 rounded-xl border border-zinc-800/50 flex flex-col gap-1">
                         <div className="text-[10px] uppercase font-bold text-zinc-400 flex items-center gap-1.5">
-                            <BarChart3 className="h-3.5 w-3.5" /> Month
+                            <BarChart3 className="h-3 w-3 sm:h-3.5 sm:w-3.5" /> Month
                         </div>
-                        <div className="text-2xl font-black text-zinc-200">
+                        <div className="text-xl sm:text-2xl font-black text-zinc-200">
                             {isFuture(selectedDate) || stats.monthly.total_seconds === 0 ? '--' : calculateGrade(stats.monthly.total_seconds, 'monthly')}
                         </div>
                     </div>
                      {/* Peak Hour */}
-                    <div className="bg-zinc-900/40 p-3 rounded-xl border border-zinc-800/50 flex flex-col gap-1">
+                    <div className="bg-zinc-900/40 p-2.5 sm:p-3 rounded-xl border border-zinc-800/50 flex flex-col gap-1">
                         <div className="text-[10px] uppercase font-bold text-zinc-400 flex items-center gap-1.5">
-                            <Zap className="h-3.5 w-3.5" /> Peak
+                            <Zap className="h-3 w-3 sm:h-3.5 sm:w-3.5" /> Peak
                         </div>
-                        <div className="text-lg font-bold text-zinc-200 mt-0.5">
+                        <div className="text-base sm:text-lg font-bold text-zinc-200 mt-0.5">
                             {stats.daily.peak_hour !== null ? (() => {
                                 const h = stats.daily.peak_hour;
                                 const ampm = h >= 12 ? 'pm' : 'am';
@@ -426,20 +439,20 @@ export function HistoryCalendar({ initialData, initialStats }: HistoryCalendarPr
             )}
 
                 {stats && !selectedDate && (
-                  <div className="grid grid-cols-2 gap-3 px-4 pt-4 animate-in slide-in-from-top-2 shrink-0">
-                    <div className="bg-zinc-900/40 p-3 rounded-xl border border-zinc-800/50 flex flex-col gap-1">
+                  <div className="grid grid-cols-2 gap-2 sm:gap-3 px-3 sm:px-4 pt-3 sm:pt-4 animate-in slide-in-from-top-2 shrink-0">
+                    <div className="bg-zinc-900/40 p-2.5 sm:p-3 rounded-xl border border-zinc-800/50 flex flex-col gap-1">
                       <div className="text-[10px] uppercase font-bold text-zinc-400 flex items-center gap-1.5">
-                        <BarChart3 className="h-3.5 w-3.5" /> Month
+                        <BarChart3 className="h-3 w-3 sm:h-3.5 sm:w-3.5" /> Month
                       </div>
-                      <div className="text-2xl font-black text-zinc-200">
+                      <div className="text-xl sm:text-2xl font-black text-zinc-200">
                         {calculateGrade(stats.monthly.total_seconds, 'monthly')}
                       </div>
                     </div>
-                    <div className="bg-zinc-900/40 p-3 rounded-xl border border-zinc-800/50 flex flex-col gap-1">
+                    <div className="bg-zinc-900/40 p-2.5 sm:p-3 rounded-xl border border-zinc-800/50 flex flex-col gap-1">
                       <div className="text-[10px] uppercase font-bold text-zinc-400 flex items-center gap-1.5">
-                        <Zap className="h-3.5 w-3.5" /> Peak
+                        <Zap className="h-3 w-3 sm:h-3.5 sm:w-3.5" /> Peak
                       </div>
-                      <div className="text-lg font-bold text-zinc-200 mt-0.5">
+                      <div className="text-base sm:text-lg font-bold text-zinc-200 mt-0.5">
                         {stats.monthly.peak_hour !== null ? (() => {
                           const h = stats.monthly.peak_hour
                           const ampm = h >= 12 ? 'pm' : 'am'
@@ -453,15 +466,15 @@ export function HistoryCalendar({ initialData, initialStats }: HistoryCalendarPr
 
             {/* Top Topics */}
                 {stats && selectedDate && stats.daily.top_topics.length > 0 && (
-                 <div className="px-4 pt-4 shrink-0">
+                 <div className="px-3 sm:px-4 pt-3 sm:pt-4 shrink-0">
                     <h4 className="text-xs font-bold text-zinc-400 uppercase mb-2 flex items-center gap-1.5">
-                        <Flame className="h-4 w-4" /> Top Focus
+                        <Flame className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> Top Focus
                     </h4>
-                    <div className="flex flex-wrap gap-2">
+                    <div className="flex flex-wrap gap-1.5 sm:gap-2">
                         {stats.daily.top_topics.map((t, i) => (
-                            <div key={i} className="bg-zinc-900/60 px-2.5 py-1 rounded text-xs border border-zinc-800 flex items-center gap-2">
-                                <span className="text-zinc-300 font-medium capitalize max-w-[100px] truncate">{t.name}</span>
-                                <span className="text-zinc-400 border-l border-zinc-700 pl-2">{formatDuration(t.duration)}</span>
+                            <div key={i} className="bg-zinc-900/60 px-2 sm:px-2.5 py-1 rounded text-[11px] sm:text-xs border border-zinc-800 flex items-center gap-1.5 sm:gap-2">
+                                <span className="text-zinc-300 font-medium capitalize max-w-[80px] sm:max-w-[100px] truncate">{t.name}</span>
+                                <span className="text-zinc-400 border-l border-zinc-700 pl-1.5 sm:pl-2 whitespace-nowrap">{formatDuration(t.duration)}</span>
                             </div>
                         ))}
                     </div>
@@ -469,25 +482,25 @@ export function HistoryCalendar({ initialData, initialStats }: HistoryCalendarPr
             )}
 
                 {stats && !selectedDate && stats.monthly.top_topics.length > 0 && (
-                  <div className="px-4 pt-4 shrink-0">
-                    <h4 className="text-xs font-bold text-zinc-400 uppercase mb-3 flex items-center gap-1.5">
-                      <Flame className="h-4 w-4" /> Top Focus (Month)
+                  <div className="px-3 sm:px-4 pt-3 sm:pt-4 shrink-0">
+                    <h4 className="text-xs font-bold text-zinc-400 uppercase mb-2 sm:mb-3 flex items-center gap-1.5">
+                      <Flame className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> Top Focus (Month)
                     </h4>
-                    <div className="space-y-2">
+                    <div className="space-y-1.5 sm:space-y-2">
                       {(() => {
                         const maxDuration = Math.max(...stats.monthly.top_topics.map(t => t.duration), 1)
                         return stats.monthly.top_topics.map((t, i) => (
-                          <div key={i} className="flex items-center gap-3">
-                            <div className="w-24 text-xs text-zinc-300 font-medium capitalize truncate">{t.name}</div>
-                            <div className="flex-1">
-                              <div className="h-2 rounded-full bg-zinc-900/60 border border-zinc-800/60 overflow-hidden">
+                          <div key={i} className="flex items-center gap-2 sm:gap-3">
+                            <div className="w-20 sm:w-24 text-[11px] sm:text-xs text-zinc-300 font-medium capitalize truncate shrink-0">{t.name}</div>
+                            <div className="flex-1 min-w-0">
+                              <div className="h-1.5 sm:h-2 rounded-full bg-zinc-900/60 border border-zinc-800/60 overflow-hidden">
                                 <div
                                   className="h-full bg-green-500/70"
                                   style={{ width: `${Math.round((t.duration / maxDuration) * 100)}%` }}
                                 />
                               </div>
                             </div>
-                            <div className="w-16 text-right text-[10px] text-zinc-400">
+                            <div className="w-14 sm:w-16 text-right text-[10px] text-zinc-400 shrink-0 whitespace-nowrap">
                               {formatDuration(t.duration)}
                             </div>
                           </div>
@@ -499,19 +512,19 @@ export function HistoryCalendar({ initialData, initialStats }: HistoryCalendarPr
 
             {/* Logs Header */}
             {selectedDate && (
-              <div className="px-4 pt-4 pb-2 shrink-0">
+              <div className="px-3 sm:px-4 pt-3 sm:pt-4 pb-1.5 sm:pb-2 shrink-0">
                 <h4 className="text-xs font-bold text-zinc-400 uppercase flex items-center gap-1.5">
-                  <BarChart3 className="h-4 w-4" /> Session Log
+                  <BarChart3 className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> Session Log
                 </h4>
               </div>
             )}
 
             {/* Scrollable List */}
-            <div className="flex-1 overflow-y-auto px-4 pb-4 space-y-2 min-h-0">
+            <div className="flex-1 overflow-y-auto px-3 sm:px-4 pb-3 sm:pb-4 space-y-1.5 sm:space-y-2 min-h-0">
                 {!selectedDate ? (
                  <div className="h-full flex flex-col items-center justify-center text-zinc-500 space-y-3">
-                        <CalendarIcon className="h-10 w-10 opacity-20" />
-                  <p className="text-sm">Select a date to view sessions.</p>
+                        <CalendarIcon className="h-8 w-8 sm:h-10 sm:w-10 opacity-20" />
+                  <p className="text-xs sm:text-sm">Select a date to view sessions.</p>
                      </div>
                 ) : loadingLogs ? (
                     <div className="h-full flex flex-col items-center justify-center gap-2 text-zinc-400">
@@ -520,24 +533,24 @@ export function HistoryCalendar({ initialData, initialStats }: HistoryCalendarPr
                     </div>
                 ) : dayLogs.length > 0 ? (
                     dayLogs.map((log) => (
-                        <div key={log.id} className="group flex items-center gap-3 p-3 rounded-lg bg-zinc-900/40 border border-zinc-800/50 hover:bg-zinc-900/60 hover:border-zinc-700/50 transition-all">
+                        <div key={log.id} className="group flex items-center gap-2 sm:gap-3 p-2.5 sm:p-3 rounded-lg bg-zinc-900/40 border border-zinc-800/50 hover:bg-zinc-900/60 hover:border-zinc-700/50 transition-all">
                             <div className="shrink-0">
                                 <CheckCircle2 className="h-4 w-4 text-green-500/50 group-hover:text-green-400 transition-colors" />
                             </div>
                             <div className="flex-1 min-w-0">
-                                <div className="text-sm font-medium text-zinc-200 truncate group-hover:text-white transition-colors" title={log.task_name}>
+                                <div className="text-xs sm:text-sm font-medium text-zinc-200 truncate group-hover:text-white transition-colors" title={log.task_name}>
                                     {log.task_name}
                                 </div>
-                                <div className="flex items-center gap-2 text-xs text-zinc-400 font-mono mt-0.5">
-                                    <span className="flex items-center gap-1">
+                                <div className="flex items-center gap-1.5 sm:gap-2 text-[11px] sm:text-xs text-zinc-400 font-mono mt-0.5 flex-wrap">
+                                    <span className="flex items-center gap-1 whitespace-nowrap">
                                         {format(new Date(log.started_at), 'h:mm a')}
                                     </span>
                                     <span className="w-0.5 h-0.5 rounded-full bg-zinc-700" />
-                                    <span className="text-zinc-300">
+                                    <span className="text-zinc-300 whitespace-nowrap">
                                         {formatDuration(log.duration_seconds)}
                                     </span>
                                      {log.mode !== 'focus' && (
-                                        <span className="bg-zinc-800/50 px-1.5 rounded text-[10px] uppercase text-zinc-400 border border-zinc-700">
+                                        <span className="bg-zinc-800/50 px-1.5 rounded text-[10px] uppercase text-zinc-400 border border-zinc-700 whitespace-nowrap">
                                             {log.mode}
                                         </span>
                                     )}

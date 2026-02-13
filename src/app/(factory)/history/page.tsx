@@ -7,8 +7,8 @@ export default async function HistoryPage() {
   const { calendarData, initialStats } = await getHistoryPageData()
 
   return (
-    <div className="container mx-auto p-4 md:p-8 space-y-8">
-      <div className="grid gap-6">
+    <div className="container mx-auto p-3 sm:p-4 md:p-8 space-y-4 sm:space-y-6 md:space-y-8">
+      <div className="grid gap-4 sm:gap-6">
         <Suspense fallback={<div className="text-zinc-500">Loading history...</div>}>
           <HistoryCalendar initialData={calendarData} initialStats={initialStats} />
         </Suspense>
