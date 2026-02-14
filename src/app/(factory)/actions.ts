@@ -94,10 +94,9 @@ export async function transitionSession(endedSessionId: string) {
             nextTaskName = 'Short Break'
         }
     } else if (prevSession.mode === 'short-break' || prevSession.mode === 'long-break') {
-        // BUG FIX: Don't auto-start Pomo after break. Just stop.
-        // Unless we want "auto-chaining" which the user said they didn't like ("it thinks it's in pomo mode and then auto starts").
-        // Let's stop after a break.
-        return { success: true, stop: true }
+        // Continue the pomo cycle: auto-start the next focus session
+        nextMode = 'pomo'
+        nextTaskName = 'Focus'
     } else {
         // If it was stopwatch, just stop.
         return { success: true, stop: true }
@@ -128,40 +127,13 @@ export async function punchIn(formData: FormData) {
      return { error: 'Task name is required' }
   }
 
-  // LOGIC: Reset cycle if starting manual session and it's been a while
+  // When they manually start a pomo session, always restart the cycle at 1 (Loop 1/4).
+  // Auto-started pomos (after a break) keep the current count.
   if (mode === 'pomo' && !isAuto) {
-      // Check last session
-      const { data: lastSession } = await supabase
-        .from('sessions')
-        .select('ended_at, mode')
-        .eq('user_id', user.id)
-        .order('ended_at', { ascending: false })
-        .limit(1)
-        .single()
-      
-      let shouldReset = false
-      if (!lastSession || !lastSession.ended_at) {
-          shouldReset = true
-      } else {
-          // Check staleness (e.g., > 30 mins break)
-          const lastEnd = new Date(lastSession.ended_at)
-          const diffMins = (new Date().getTime() - lastEnd.getTime()) / 60000
-          
-          if (diffMins > 30) {
-              shouldReset = true
-          }
-          // Also reset if switching from non-pomo modes (like stopwatch)
-          if (!['pomo', 'short-break', 'long-break'].includes(lastSession.mode)) {
-              shouldReset = true
-          }
-      }
-
-      if (shouldReset) {
-          await supabase
-            .from('profiles')
-            .update({ pomo_session_count: 0 })
-            .eq('id', user.id)
-      }
+      await supabase
+        .from('profiles')
+        .update({ pomo_session_count: 0 })
+        .eq('id', user.id)
   }
 
   const now = new Date().toISOString()

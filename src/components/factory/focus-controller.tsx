@@ -196,6 +196,9 @@ export function FocusController({ initialSession }: FocusControllerProps) {
       const result = await punchIn(formData)
       if (result?.success && result.session) {
         setSession(result.session)
+        if (mode === 'pomo') {
+          getPomoStats().then(s => setPomoCount(s.count))
+        }
       } else if (result?.error) {
          setError(result.error)
       }
