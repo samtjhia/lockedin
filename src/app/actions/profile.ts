@@ -1,6 +1,7 @@
 'use server'
 
 import { createClient } from '@/utils/supabase/server'
+import { revalidatePath } from 'next/cache'
 import { calculateGrade } from '@/lib/utils'
 
 export type ProfileSummary = {
@@ -63,7 +64,7 @@ export async function getUserProfileData(slug: string): Promise<UserProfileData 
   let profile: any | null = null
   let error: any = null
 
-  const selectFields = 'id, username, avatar_url, is_verified, current_status, current_task, bio, goals'
+  const selectFields = 'id, username, avatar_url, is_verified, current_status, current_task, bio, goals, hidden_at'
 
   async function queryProfile(column: string, value: string) {
     const res = await supabase
@@ -92,6 +93,11 @@ export async function getUserProfileData(slug: string): Promise<UserProfileData 
 
   const targetUserId = profile.id as string
   const isSelf = currentUser.id === targetUserId
+
+  // Hidden profiles are not viewable by others (test accounts, etc.)
+  if (!isSelf && profile.hidden_at) {
+    return null
+  }
 
   const today = new Date()
   const todayStr = today.toISOString().split('T')[0]
@@ -185,5 +191,22 @@ export async function getUserProfileData(slug: string): Promise<UserProfileData 
     historyStats,
     friendsPreview,
   }
+}
+
+export async function setProfileHidden(hidden: boolean) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Not authenticated' }
+
+  const { error } = await supabase
+    .from('profiles')
+    .update({ hidden_at: hidden ? new Date().toISOString() : null })
+    .eq('id', user.id)
+
+  if (error) return { error: error.message }
+  revalidatePath('/profile')
+  revalidatePath('/profile/edit')
+  revalidatePath('/')
+  return { success: true }
 }
 
