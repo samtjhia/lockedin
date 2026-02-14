@@ -101,6 +101,18 @@ export function FocusController({ initialSession }: FocusControllerProps) {
     if (!session) setIsFullscreen(false)
   }, [session])
 
+  // Warn when closing/navigating away with an active or paused session (can't run code after tab closes)
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (session && (session.status === 'active' || session.status === 'paused')) {
+        e.preventDefault()
+        e.returnValue = ''
+      }
+    }
+    window.addEventListener('beforeunload', handleBeforeUnload)
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload)
+  }, [session?.id, session?.status])
+
   // Settings
   const [soundEnabled, setSoundEnabled] = useState(false)
   const [notifEnabled, setNotifEnabled] = useState(false)

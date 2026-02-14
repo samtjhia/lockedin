@@ -7,7 +7,7 @@ import { differenceInSeconds } from 'date-fns'
 export async function checkCurrentSession() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  
+
   if (!user) return null
 
   const { data: session } = await supabase
@@ -16,7 +16,7 @@ export async function checkCurrentSession() {
     .eq('user_id', user.id)
     .in('status', ['active', 'paused'])
     .single()
-    
+
   return session
 }
 

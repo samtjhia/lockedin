@@ -198,6 +198,7 @@ export async function deleteSession(id: string) {
   }
 
   revalidatePath('/dashboard')
+  revalidatePath('/history')
   return { success: true }
 }
 

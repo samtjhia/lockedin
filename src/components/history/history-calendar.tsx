@@ -5,8 +5,21 @@ import { DayPicker } from 'react-day-picker'
 import { format, isFuture, isSameDay, startOfMonth } from 'date-fns'
 import { Card, CardContent } from '@/components/ui/card'
 import { getDayLogs, getHistoryStats } from '@/app/actions/history'
+import { deleteSession } from '@/app/actions/dashboard'
 import { formatDuration, calculateGrade } from '@/lib/utils'
-import { ChevronLeft, ChevronRight, Loader2, Calendar as CalendarIcon, Clock, CheckCircle2, TrendingUp, Trophy, Zap, Hourglass, BarChart3, Flame, HelpCircle } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Loader2, Calendar as CalendarIcon, Clock, CheckCircle2, TrendingUp, Trophy, Zap, Hourglass, BarChart3, Flame, HelpCircle, Trash2 } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
+import { toast } from 'sonner'
 import 'react-day-picker/dist/style.css'
 
 // Custom CSS to override DayPicker styles for dark theme
@@ -192,6 +205,7 @@ export function HistoryCalendar({ initialData, initialStats }: HistoryCalendarPr
   const [loadingLogs, setLoadingLogs] = useState(false)
   const [loadingStats, setLoadingStats] = useState(false)
   const [initialLoad, setInitialLoad] = useState(true)
+  const [deletingLogId, setDeletingLogId] = useState<string | null>(null)
 
   // Map dates to levels for quick lookup
   const dataMap = useMemo(() => {
@@ -585,6 +599,17 @@ export function HistoryCalendar({ initialData, initialStats }: HistoryCalendarPr
                                     )}
                                 </div>
                             </div>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8 shrink-0 opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-all"
+                              onClick={() => setDeletingLogId(log.id)}
+                              title="Delete session"
+                              aria-label="Delete session"
+                            >
+                              <Trash2 className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                            </Button>
                         </div>
                     ))
                 ) : (
@@ -596,6 +621,38 @@ export function HistoryCalendar({ initialData, initialStats }: HistoryCalendarPr
                     </div>
                 )}
             </div>
+
+            {/* Delete session confirmation */}
+            <AlertDialog open={!!deletingLogId} onOpenChange={(open) => !open && setDeletingLogId(null)}>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Delete this session?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This will remove the session from your logs and analytics. This action cannot be undone.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction
+                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                    onClick={async () => {
+                      if (!deletingLogId) return
+                      const res = await deleteSession(deletingLogId)
+                      if (res.success) {
+                        toast.success('Session deleted')
+                        setDayLogs(prev => prev.filter(l => l.id !== deletingLogId))
+                        if (selectedDate) loadDayData(selectedDate)
+                      } else {
+                        toast.error(res.error ?? 'Failed to delete session')
+                      }
+                      setDeletingLogId(null)
+                    }}
+                  >
+                    Delete
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
         </div>
       </div>
     </>
