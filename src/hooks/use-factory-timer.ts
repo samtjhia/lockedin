@@ -3,19 +3,33 @@
 import { useState, useEffect, useRef } from 'react'
 import { differenceInSeconds } from 'date-fns'
 
+export type PomoConfig = {
+  sessionMinutes: number
+  shortBreakMinutes: number
+  longBreakMinutes: number
+}
+
+const DEFAULT_POMO: PomoConfig = {
+  sessionMinutes: 25,
+  shortBreakMinutes: 5,
+  longBreakMinutes: 15,
+}
+
 export function useFactoryTimer(
     status: string = 'active',
-    lastResumedAt: string | null, 
+    lastResumedAt: string | null,
     accumulatedSeconds: number = 0,
-    mode: string = 'stopwatch'
+    mode: string = 'stopwatch',
+    pomoConfig?: PomoConfig | null
 ) {
   const [seconds, setSeconds] = useState(0)
   const [isRunning, setIsRunning] = useState(false)
   const [isFinished, setIsFinished] = useState(false) // For Pomo/Break completion
   const intervalRef = useRef<NodeJS.Timeout | null>(null)
+  const config = pomoConfig ?? DEFAULT_POMO
 
   useEffect(() => {
-    // Logic: 
+    // Logic:
     // If paused, time is just accumulated.
     // If active, time is accumulated + (now - lastResumedAt)
 
@@ -28,25 +42,25 @@ export function useFactoryTimer(
           elapsed += Math.max(0, differenceInSeconds(now, start))
       }
 
-      // Determine display time based on mode
+      // Determine display time based on mode (custom durations from pomoConfig)
       let displaySeconds = elapsed
       let finished = false
 
       if (mode === 'pomo') {
-        const target = 25 * 60 // 25 Minutes
+        const target = config.sessionMinutes * 60
         const remaining = Math.max(0, target - elapsed)
         displaySeconds = remaining
         if (remaining === 0) finished = true
       } else if (mode === 'short-break') {
-        const target = 5 * 60 // 5 Minutes
+        const target = config.shortBreakMinutes * 60
         const remaining = Math.max(0, target - elapsed)
         displaySeconds = remaining
         if (remaining === 0) finished = true
       } else if (mode === 'long-break') {
-         const target = 15 * 60 
-         const remaining = Math.max(0, target - elapsed)
-         displaySeconds = remaining
-         if (remaining === 0) finished = true
+        const target = config.longBreakMinutes * 60
+        const remaining = Math.max(0, target - elapsed)
+        displaySeconds = remaining
+        if (remaining === 0) finished = true
       }
 
       setSeconds(displaySeconds)
@@ -54,7 +68,7 @@ export function useFactoryTimer(
     }
 
     calculateTime() // Initial
-    
+
     if (status === 'active') {
         setIsRunning(true)
         intervalRef.current = setInterval(calculateTime, 1000)
@@ -66,7 +80,7 @@ export function useFactoryTimer(
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current)
     }
-  }, [status, lastResumedAt, accumulatedSeconds, mode])
+  }, [status, lastResumedAt, accumulatedSeconds, mode, config.sessionMinutes, config.shortBreakMinutes, config.longBreakMinutes])
 
   // Helper to format MM:SS or HH:MM:SS
   const formattedTime = (() => {

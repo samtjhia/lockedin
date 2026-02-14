@@ -23,15 +23,31 @@ export async function checkCurrentSession() {
 export async function getPomoStats() {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return { count: 0 }
+    if (!user) return { count: 0, cycleSize: 4 }
 
     const { data: profile } = await supabase
         .from('profiles')
-        .select('pomo_session_count')
+        .select('pomo_session_count, pomo_cycle_size')
         .eq('id', user.id)
         .single()
     
-    return { count: profile?.pomo_session_count || 0 }
+    const cycleSize = profile?.pomo_cycle_size ?? 4
+    return { count: profile?.pomo_session_count || 0, cycleSize }
+}
+
+export async function updatePomoSettings(cycleSize: number) {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return { error: 'Not authenticated' }
+    if (cycleSize < 2 || cycleSize > 20) return { error: 'Cycle size must be between 2 and 20' }
+
+    const { error } = await supabase
+        .from('profiles')
+        .update({ pomo_cycle_size: cycleSize })
+        .eq('id', user.id)
+    if (error) return { error: error.message }
+    revalidatePath('/dashboard')
+    return { success: true }
 }
 
 export async function transitionSession(endedSessionId: string) {
@@ -55,21 +71,22 @@ export async function transitionSession(endedSessionId: string) {
     let nextMode = 'stopwatch'
     let nextTaskName = ''
     
-    // Get current cycle count
+    // Get current cycle count and cycle size
     const { data: profile } = await supabase
         .from('profiles')
-        .select('pomo_session_count')
+        .select('pomo_session_count, pomo_cycle_size')
         .eq('id', user.id)
         .single()
     
     let currentCount = profile?.pomo_session_count || 0
+    const cycleSize = profile?.pomo_cycle_size ?? 4
 
     if (prevSession.mode === 'pomo') {
         const newCount = currentCount + 1
         // Update count
         await supabase.from('profiles').update({ pomo_session_count: newCount }).eq('id', user.id)
         
-        if (newCount % 4 === 0) {
+        if (newCount % cycleSize === 0) {
             nextMode = 'long-break'
             nextTaskName = 'Long Break'
         } else {

@@ -1,13 +1,45 @@
 'use client'
 
-import { useState, useEffect } from 'react' // Added useEffect
-import { useFactoryTimer } from '../../hooks/use-factory-timer'
-import { punchIn, punchOut, pauseSession, resumeSession, transitionSession, getPomoStats } from '@/app/(factory)/actions' // Added transitionSession
+import { useState, useEffect } from 'react'
+import { useFactoryTimer, type PomoConfig } from '../../hooks/use-factory-timer'
+import { punchIn, punchOut, pauseSession, resumeSession, transitionSession, getPomoStats, updatePomoSettings } from '@/app/(factory)/actions'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
-import { StopCircle, Play, Timer, Clock, Pause, Coffee, Bell, BellOff, Volume2, VolumeX, Maximize2, Minimize2 } from 'lucide-react'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogDescription,
+} from '@/components/ui/dialog'
+import { StopCircle, Play, Timer, Clock, Pause, Coffee, Bell, BellOff, Volume2, VolumeX, Maximize2, Minimize2, Settings2 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
+
+const POMO_STORAGE_KEY = 'lockedin-pomo-settings'
+const DEFAULT_POMO: PomoConfig = { sessionMinutes: 25, shortBreakMinutes: 5, longBreakMinutes: 15 }
+
+function getStoredPomoConfig(): PomoConfig {
+  if (typeof window === 'undefined') return DEFAULT_POMO
+  try {
+    const raw = localStorage.getItem(POMO_STORAGE_KEY)
+    if (!raw) return DEFAULT_POMO
+    const parsed = JSON.parse(raw) as Partial<PomoConfig>
+    return {
+      sessionMinutes: clamp(parsed.sessionMinutes ?? 25, 1, 120),
+      shortBreakMinutes: clamp(parsed.shortBreakMinutes ?? 5, 1, 60),
+      longBreakMinutes: clamp(parsed.longBreakMinutes ?? 15, 1, 60),
+    }
+  } catch {
+    return DEFAULT_POMO
+  }
+}
+
+function clamp(n: number, min: number, max: number) {
+  return Math.min(max, Math.max(min, n))
+}
 
 type FocusControllerProps = {
   initialSession: any 
@@ -21,6 +53,9 @@ export function FocusController({ initialSession }: FocusControllerProps) {
   const [error, setError] = useState<string | null>(null)
   const [mode, setMode] = useState<string>('stopwatch')
   const [pomoCount, setPomoCount] = useState(0)
+  const [cycleSize, setCycleSize] = useState(4)
+  const [pomoConfig, setPomoConfig] = useState<PomoConfig>(DEFAULT_POMO)
+  const [pomoSettingsOpen, setPomoSettingsOpen] = useState(false)
   const [taskName, setTaskName] = useState('')
 
   useEffect(() => {
@@ -70,9 +105,13 @@ export function FocusController({ initialSession }: FocusControllerProps) {
   const [soundEnabled, setSoundEnabled] = useState(false)
   const [notifEnabled, setNotifEnabled] = useState(false)
   
-  // Init stats & Permission
+  // Init stats, cycle size, and pomo config (from localStorage)
   useEffect(() => {
-     getPomoStats().then(s => setPomoCount(s.count))
+     getPomoStats().then(s => {
+       setPomoCount(s.count)
+       setCycleSize(s.cycleSize ?? 4)
+     })
+     setPomoConfig(getStoredPomoConfig())
      if (typeof window !== 'undefined' && 'Notification' in window && Notification.permission === 'granted') {
         setNotifEnabled(true)
      }
@@ -85,12 +124,13 @@ export function FocusController({ initialSession }: FocusControllerProps) {
     setNotifEnabled(permission === 'granted')
   }
 
-  // Timer hook
+  // Timer hook (pomoConfig drives session/short/long break durations)
   const { formattedTime, isRunning, isFinished } = useFactoryTimer(
       session?.status,
       session?.last_resumed_at,
       session?.accumulated_seconds,
-      session?.mode || 'stopwatch'
+      session?.mode || 'stopwatch',
+      pomoConfig
   )
 
   // Auto-transition effect
@@ -231,7 +271,7 @@ export function FocusController({ initialSession }: FocusControllerProps) {
               <span className={`relative inline-flex rounded-full h-3 w-3 ${session.status === 'paused' ? 'bg-yellow-500' : isBreak ? 'bg-blue-500' : 'bg-red-500'}`}></span>
             </span>
             {session.status === 'paused' ? 'Session Paused' : isBreak ? 'Break Time' : 'Session Active'}
-            {isPomo && <span className="ml-2 text-muted-foreground font-bold border rounded px-1 border-border text-[10px] sm:text-xs">Loop {(pomoCount % 4) + 1}/4</span>}
+            {isPomo && <span className="ml-2 text-muted-foreground font-bold border rounded px-1 border-border text-[10px] sm:text-xs">Loop {(pomoCount % cycleSize) + 1}/{cycleSize}</span>}
           </div>
 
           <div className="text-5xl sm:text-7xl md:text-8xl font-black tabular-nums tracking-tighter text-foreground mb-1 sm:mb-2 font-mono">
@@ -286,7 +326,7 @@ export function FocusController({ initialSession }: FocusControllerProps) {
                 <span className={`relative inline-flex rounded-full h-3 w-3 ${session.status === 'paused' ? 'bg-yellow-500' : isBreak ? 'bg-blue-500' : 'bg-red-500'}`}></span>
               </span>
               {session.status === 'paused' ? 'Session Paused' : isBreak ? 'Break Time' : 'Session Active'}
-              {isPomo && <span className="ml-2 text-muted-foreground font-bold border rounded px-1 border-border text-[10px] sm:text-xs">Loop {(pomoCount % 4) + 1}/4</span>}
+              {isPomo && <span className="ml-2 text-muted-foreground font-bold border rounded px-1 border-border text-[10px] sm:text-xs">Loop {(pomoCount % cycleSize) + 1}/{cycleSize}</span>}
             </div>
 
             <div className="text-6xl sm:text-8xl md:text-9xl lg:text-[10rem] font-black tabular-nums tracking-tighter text-foreground mb-2 sm:mb-4 font-mono">
@@ -368,6 +408,19 @@ export function FocusController({ initialSession }: FocusControllerProps) {
                         Break
                     </ToggleGroupItem>
                 </ToggleGroup>
+                {mode === 'pomo' && (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="h-7 w-7 sm:h-8 sm:w-8 text-muted-foreground hover:text-foreground/70 shrink-0"
+                    onClick={() => setPomoSettingsOpen(true)}
+                    title="Pomodoro settings"
+                    aria-label="Pomodoro settings"
+                  >
+                    <Settings2 className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                  </Button>
+                )}
             </div>
        </div>
 
@@ -394,9 +447,9 @@ export function FocusController({ initialSession }: FocusControllerProps) {
             
             <div className="text-muted-foreground text-xs sm:text-sm px-1">
                 {mode === 'stopwatch' && "Open-ended session. Count up timer for flexible deep work."}
-                {mode === 'pomo' && "25-minute focused sprint. Alerts you when it's time for a break."}
-                {mode === 'short-break' && "5-minute timer to recharge. Not counted towards study stats."}
-                {mode === 'long-break' && "15-minute extended break. Go for a walk!"}
+                {mode === 'pomo' && `${pomoConfig.sessionMinutes}-minute focused sprint. Alerts you when it's time for a break.`}
+                {mode === 'short-break' && `${pomoConfig.shortBreakMinutes}-minute timer to recharge. Not counted towards study stats.`}
+                {mode === 'long-break' && `${pomoConfig.longBreakMinutes}-minute extended break. Go for a walk!`}
             </div>
 
             <Button 
@@ -412,6 +465,145 @@ export function FocusController({ initialSession }: FocusControllerProps) {
                 )}
             </Button>
        </form>
+
+       {/* Pomodoro settings dialog */}
+       <PomoSettingsDialog
+         open={pomoSettingsOpen}
+         onOpenChange={setPomoSettingsOpen}
+         initialConfig={pomoConfig}
+         initialCycleSize={cycleSize}
+         onSave={(config, size) => {
+           setPomoConfig(config)
+           setCycleSize(size)
+           try {
+             localStorage.setItem(POMO_STORAGE_KEY, JSON.stringify(config))
+           } catch (_) {}
+         }}
+       />
     </div>
+  )
+}
+
+type PomoSettingsDialogProps = {
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  initialConfig: PomoConfig
+  initialCycleSize: number
+  onSave: (config: PomoConfig, cycleSize: number) => void
+}
+
+function PomoSettingsDialog({ open, onOpenChange, initialConfig, initialCycleSize, onSave }: PomoSettingsDialogProps) {
+  const [sessionMinutes, setSessionMinutes] = useState(String(initialConfig.sessionMinutes))
+  const [shortBreakMinutes, setShortBreakMinutes] = useState(String(initialConfig.shortBreakMinutes))
+  const [longBreakMinutes, setLongBreakMinutes] = useState(String(initialConfig.longBreakMinutes))
+  const [cycleSize, setCycleSize] = useState(String(initialCycleSize))
+  const [saving, setSaving] = useState(false)
+  const [saveError, setSaveError] = useState<string | null>(null)
+
+  // Sync form when dialog opens with current values
+  useEffect(() => {
+    if (open) {
+      setSessionMinutes(String(initialConfig.sessionMinutes))
+      setShortBreakMinutes(String(initialConfig.shortBreakMinutes))
+      setLongBreakMinutes(String(initialConfig.longBreakMinutes))
+      setCycleSize(String(initialCycleSize))
+      setSaveError(null)
+    }
+  }, [open, initialConfig.sessionMinutes, initialConfig.shortBreakMinutes, initialConfig.longBreakMinutes, initialCycleSize])
+
+  async function handleSave(e: React.FormEvent) {
+    e.preventDefault()
+    setSaveError(null)
+    const s = clamp(parseInt(sessionMinutes, 10) || 25, 1, 120)
+    const sh = clamp(parseInt(shortBreakMinutes, 10) || 5, 1, 60)
+    const l = clamp(parseInt(longBreakMinutes, 10) || 15, 1, 60)
+    const c = clamp(parseInt(cycleSize, 10) || 4, 2, 20)
+    setSaving(true)
+    const res = await updatePomoSettings(c)
+    setSaving(false)
+    if (res?.error) {
+      setSaveError(res.error)
+      return
+    }
+    onSave({ sessionMinutes: s, shortBreakMinutes: sh, longBreakMinutes: l }, c)
+    onOpenChange(false)
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-[min(90vw,22rem)] sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle className="text-base sm:text-lg">Pomodoro settings</DialogTitle>
+          <DialogDescription className="text-xs sm:text-sm">
+            Set session and break lengths. Breaks are never counted as study time.
+          </DialogDescription>
+        </DialogHeader>
+        <form onSubmit={handleSave} className="grid gap-4 py-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="pomo-session" className="text-xs sm:text-sm">Focus session (min)</Label>
+              <Input
+                id="pomo-session"
+                type="number"
+                min={1}
+                max={120}
+                value={sessionMinutes}
+                onChange={(e) => setSessionMinutes(e.target.value)}
+                className="h-10 sm:h-11"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="pomo-short" className="text-xs sm:text-sm">Short break (min)</Label>
+              <Input
+                id="pomo-short"
+                type="number"
+                min={1}
+                max={60}
+                value={shortBreakMinutes}
+                onChange={(e) => setShortBreakMinutes(e.target.value)}
+                className="h-10 sm:h-11"
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="pomo-long" className="text-xs sm:text-sm">Long break (min)</Label>
+              <Input
+                id="pomo-long"
+                type="number"
+                min={1}
+                max={60}
+                value={longBreakMinutes}
+                onChange={(e) => setLongBreakMinutes(e.target.value)}
+                className="h-10 sm:h-11"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="pomo-cycles" className="text-xs sm:text-sm">Sessions before long break</Label>
+              <Input
+                id="pomo-cycles"
+                type="number"
+                min={2}
+                max={20}
+                value={cycleSize}
+                onChange={(e) => setCycleSize(e.target.value)}
+                className="h-10 sm:h-11"
+              />
+            </div>
+          </div>
+          {saveError && (
+            <p className="text-red-500 text-xs sm:text-sm">{saveError}</p>
+          )}
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)} className="sm:order-1">
+              Cancel
+            </Button>
+            <Button type="submit" disabled={saving} className="sm:order-2">
+              {saving ? 'Saving…' : 'Save'}
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
   )
 }
