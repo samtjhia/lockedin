@@ -34,9 +34,12 @@ export default async function FactoryLayout({
     redirect('/gate')
   }
 
-  // Refresh presence: set online if offline, and always bump updated_at so friends don't see us as stale
+  // Refresh presence: when you're in the app (this layout), show as online unless you're in a session (active/paused)
   const updates: { current_status?: string; updated_at: string } = { updated_at: new Date().toISOString() }
-  if (profile.current_status === 'offline') updates.current_status = 'online'
+  const status = profile.current_status
+  if (status !== 'active' && status !== 'paused') {
+    updates.current_status = 'online'
+  }
   await supabase.from('profiles').update(updates).eq('id', user.id)
 
   return (
