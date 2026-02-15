@@ -51,32 +51,22 @@ export async function getDailyMetrics(date?: Date) {
 
 export async function getShiftLog(date?: Date) {
   const supabase = await createClient()
-  const targetDate = date || new Date()
-  
-  // Start of day
-  const startOfDay = new Date(targetDate)
-  startOfDay.setHours(0, 0, 0, 0)
-  
-  // End of day
-  const endOfDay = new Date(targetDate)
-  endOfDay.setHours(23, 59, 59, 999)
-  
-  const { data, error } = await supabase
-    .from('sessions')
-    .select('*')
-    .eq('user_id', (await supabase.auth.getUser()).data.user?.id)
-    .gte('started_at', startOfDay.toISOString())
-    .lte('started_at', endOfDay.toISOString())
-    .eq('status', 'completed')
-    .order('ended_at', { ascending: false })
-    .order('started_at', { ascending: false })
-    
+
+  // Use Toronto time for "today" so session log matches daily metrics, heatmap, and history
+  const targetDateStr = date
+    ? date.toLocaleDateString('en-CA', { timeZone: 'America/Toronto' })
+    : new Date().toLocaleDateString('en-CA', { timeZone: 'America/Toronto' })
+
+  const { data, error } = await supabase.rpc('get_day_metrics_log', {
+    target_date: targetDateStr
+  })
+
   if (error) {
     console.error('Error fetching shift log:', error)
     return []
   }
-  
-  return data
+
+  return data ?? []
 }
 
 export async function getTodos() {
