@@ -53,6 +53,19 @@ type Friend = {
 
 const STATUS_STALE_MS = 3 * 60 * 1000 // 3 minutes — treat as offline if no activity
 
+/** Short notification sound when receiving a poke (Mixkit - soft notification) */
+const POKE_SOUND_URL = 'https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3'
+
+function playPokeSound() {
+  try {
+    const audio = new Audio(POKE_SOUND_URL)
+    audio.volume = 0.6
+    audio.play().catch(() => {})
+  } catch {
+    // ignore
+  }
+}
+
 function friendEffectiveStatus(friend: Friend): 'active' | 'paused' | 'online' | 'offline' {
   const s = friend.current_status
   if (!s || s === 'offline') return 'offline'
@@ -106,13 +119,14 @@ export function SocialSidebar() {
             const { data: { user } } = await supabase.auth.getUser()
             if (!user) return
 
-            // 1. Listen for Pokes — show in-app toast (bottom-right, same as other notifs) with longer duration
+            // 1. Listen for Pokes — play sound, show toast
             channel.on('postgres_changes', { 
                 event: 'INSERT', 
                 schema: 'public', 
                 table: 'pokes',
                 filter: `receiver_id=eq.${user.id}`
             }, async (payload: { new?: { sender_id?: string } }) => {
+                playPokeSound()
                 const senderId = payload.new?.sender_id
                 let senderName: string | null = null
                 if (senderId) {
