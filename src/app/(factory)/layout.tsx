@@ -26,7 +26,7 @@ export default async function FactoryLayout({
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('is_verified')
+    .select('is_verified, current_status')
     .eq('id', user.id)
     .single()
 
@@ -34,12 +34,10 @@ export default async function FactoryLayout({
     redirect('/gate')
   }
 
-  // Mark user as online when they're in the app (only if currently offline — don't override active/paused)
-  await supabase
-    .from('profiles')
-    .update({ current_status: 'online', updated_at: new Date().toISOString() })
-    .eq('id', user.id)
-    .eq('current_status', 'offline')
+  // Refresh presence: set online if offline, and always bump updated_at so friends don't see us as stale
+  const updates: { current_status?: string; updated_at: string } = { updated_at: new Date().toISOString() }
+  if (profile.current_status === 'offline') updates.current_status = 'online'
+  await supabase.from('profiles').update(updates).eq('id', user.id)
 
   return (
     <div className="flex min-h-screen flex-col bg-background text-foreground">

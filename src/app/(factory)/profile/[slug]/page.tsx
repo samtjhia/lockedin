@@ -1,11 +1,11 @@
 import { notFound } from 'next/navigation'
-import { getUserProfileData } from '@/app/actions/profile'
+import { getUserProfileData, effectiveStatus } from '@/app/actions/profile'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { HeatMap } from '@/components/dashboard/stats/heat-map'
-import { Target } from 'lucide-react'
+import { Target, HelpCircle } from 'lucide-react'
 import { PokeButton } from '@/components/profile/poke-button'
 
 type ProfilePageProps = {
@@ -82,15 +82,18 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
                   )}
                 </div>
                 <p className="text-sm text-muted-foreground mt-0.5">
-                  {profile.current_status === 'active'
-                    ? profile.current_task
-                      ? `Locked in on ${profile.current_task}`
-                      : 'Locked in'
-                    : profile.current_status === 'paused'
-                    ? 'On a short break'
-                    : profile.current_status === 'online'
-                    ? 'Online'
-                    : 'Offline'}
+                  {(() => {
+                    const status = effectiveStatus(profile.current_status, profile.updated_at ?? null)
+                    return status === 'active'
+                      ? profile.current_task
+                        ? `Locked in on ${profile.current_task}`
+                        : 'Locked in'
+                      : status === 'paused'
+                      ? 'On a short break'
+                      : status === 'online'
+                      ? 'Online'
+                      : 'Offline'
+                  })()}
                 </p>
                 {profile.bio && (
                   <p className="text-sm text-foreground/70 mt-1.5">{profile.bio}</p>
@@ -135,21 +138,69 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
         <CardContent className="p-0">
           <div className="grid grid-cols-2 sm:grid-cols-4 divide-x divide-border">
             <div className="px-4 py-3">
-              <p className="text-xs text-muted-foreground mb-1">Today</p>
+              <p className="text-xs text-muted-foreground mb-1 flex items-center gap-1">
+                Today
+                <span className="relative inline-flex group/day">
+                  <HelpCircle className="h-3 w-3 text-muted-foreground cursor-help shrink-0" />
+                  <span className="absolute left-0 top-full mt-1.5 z-50 w-48 rounded-lg border border-border bg-popover px-3 py-2 text-popover-foreground shadow-xl text-[10px] opacity-0 pointer-events-none group-hover/day:opacity-100 group-hover/day:pointer-events-auto transition-opacity origin-top-left">
+                    <span className="font-semibold text-foreground">Daily grade</span>
+                    <div className="mt-1.5 space-y-0.5 text-muted-foreground">
+                      <div className="flex justify-between"><span className="text-indigo-400 font-bold">S</span>6+ h</div>
+                      <div className="flex justify-between"><span className="text-green-400 font-bold">A</span>4+ h</div>
+                      <div className="flex justify-between"><span className="text-blue-400 font-bold">B</span>3+ h</div>
+                      <div className="flex justify-between">C 2+ h</div>
+                      <div className="flex justify-between">D 1+ h</div>
+                      <div className="flex justify-between">F &lt;1 h</div>
+                    </div>
+                  </span>
+                </span>
+              </p>
               <div className="flex items-baseline justify-between">
                 <span className="text-2xl font-bold text-foreground">{grades.day}</span>
                 <span className="text-xs text-muted-foreground">{formatSeconds(historyStats?.daily?.total_seconds ?? 0)}</span>
               </div>
             </div>
             <div className="px-4 py-3">
-              <p className="text-xs text-muted-foreground mb-1">Week</p>
+              <p className="text-xs text-muted-foreground mb-1 flex items-center gap-1">
+                Week
+                <span className="relative inline-flex group/week">
+                  <HelpCircle className="h-3 w-3 text-muted-foreground cursor-help shrink-0" />
+                  <span className="absolute left-0 top-full mt-1.5 z-50 w-48 rounded-lg border border-border bg-popover px-3 py-2 text-popover-foreground shadow-xl text-[10px] opacity-0 pointer-events-none group-hover/week:opacity-100 group-hover/week:pointer-events-auto transition-opacity origin-top-left">
+                    <span className="font-semibold text-foreground">Weekly grade</span>
+                    <div className="mt-1.5 space-y-0.5 text-muted-foreground">
+                      <div className="flex justify-between"><span className="text-indigo-400 font-bold">S</span>30+ h</div>
+                      <div className="flex justify-between"><span className="text-green-400 font-bold">A</span>20+ h</div>
+                      <div className="flex justify-between"><span className="text-blue-400 font-bold">B</span>15+ h</div>
+                      <div className="flex justify-between">C 10+ h</div>
+                      <div className="flex justify-between">D 5+ h</div>
+                      <div className="flex justify-between">F &lt;5 h</div>
+                    </div>
+                  </span>
+                </span>
+              </p>
               <div className="flex items-baseline justify-between">
                 <span className="text-2xl font-bold text-foreground">{grades.week}</span>
                 <span className="text-xs text-muted-foreground">{formatSeconds(historyStats?.weekly?.total_seconds ?? 0)}</span>
               </div>
             </div>
             <div className="px-4 py-3">
-              <p className="text-xs text-muted-foreground mb-1">Month</p>
+              <p className="text-xs text-muted-foreground mb-1 flex items-center gap-1">
+                Month
+                <span className="relative inline-flex group/month">
+                  <HelpCircle className="h-3 w-3 text-muted-foreground cursor-help shrink-0" />
+                  <span className="absolute left-0 top-full mt-1.5 z-50 w-48 rounded-lg border border-border bg-popover px-3 py-2 text-popover-foreground shadow-xl text-[10px] opacity-0 pointer-events-none group-hover/month:opacity-100 group-hover/month:pointer-events-auto transition-opacity origin-top-left">
+                    <span className="font-semibold text-foreground">Monthly grade</span>
+                    <div className="mt-1.5 space-y-0.5 text-muted-foreground">
+                      <div className="flex justify-between"><span className="text-indigo-400 font-bold">S</span>100+ h</div>
+                      <div className="flex justify-between"><span className="text-green-400 font-bold">A</span>80+ h</div>
+                      <div className="flex justify-between"><span className="text-blue-400 font-bold">B</span>60+ h</div>
+                      <div className="flex justify-between">C 40+ h</div>
+                      <div className="flex justify-between">D 20+ h</div>
+                      <div className="flex justify-between">F &lt;20 h</div>
+                    </div>
+                  </span>
+                </span>
+              </p>
               <div className="flex items-baseline justify-between">
                 <span className="text-2xl font-bold text-foreground">{grades.month}</span>
                 <span className="text-xs text-muted-foreground">{formatSeconds(historyStats?.monthly?.total_seconds ?? 0)}</span>

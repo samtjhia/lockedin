@@ -4,6 +4,9 @@ import { createClient } from '@/utils/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { calculateGrade } from '@/lib/utils'
 
+/** Consider status stale (treat as offline) after this many ms without updated_at. */
+const STATUS_STALE_MS = 3 * 60 * 1000 // 3 minutes
+
 export type ProfileSummary = {
   id: string
   username: string | null
@@ -13,6 +16,15 @@ export type ProfileSummary = {
   is_verified: boolean
   current_status: string | null
   current_task: string | null
+  updated_at: string | null
+}
+
+export function effectiveStatus(status: string | null, updatedAt: string | null): string {
+  if (!status || status === 'offline') return status || 'offline'
+  if (!updatedAt) return status
+  const age = Date.now() - new Date(updatedAt).getTime()
+  if (age > STATUS_STALE_MS) return 'offline'
+  return status
 }
 
 export type ProfileGrades = {
@@ -64,7 +76,7 @@ export async function getUserProfileData(slug: string): Promise<UserProfileData 
   let profile: any | null = null
   let error: any = null
 
-  const selectFields = 'id, username, avatar_url, is_verified, current_status, current_task, bio, goals, hidden_at'
+  const selectFields = 'id, username, avatar_url, is_verified, current_status, current_task, bio, goals, hidden_at, updated_at'
 
   async function queryProfile(column: string, value: string) {
     const res = await supabase
@@ -100,7 +112,8 @@ export async function getUserProfileData(slug: string): Promise<UserProfileData 
   }
 
   const today = new Date()
-  const todayStr = today.toISOString().split('T')[0]
+  // Use Toronto date so "Today" grade/times match get_user_history_stats (which uses America/Toronto)
+  const todayStr = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Toronto' })
   const oneYearAgo = new Date(today)
   oneYearAgo.setFullYear(today.getFullYear() - 1)
 

@@ -51,6 +51,16 @@ type Friend = {
     last_active_at?: string
 }
 
+const STATUS_STALE_MS = 3 * 60 * 1000 // 3 minutes — treat as offline if no activity
+
+function friendEffectiveStatus(friend: Friend): 'active' | 'paused' | 'online' | 'offline' {
+  const s = friend.current_status
+  if (!s || s === 'offline') return 'offline'
+  if (!friend.last_active_at) return s
+  if (Date.now() - new Date(friend.last_active_at).getTime() > STATUS_STALE_MS) return 'offline'
+  return s
+}
+
 type Request = {
     id: string
     sender: Profile
@@ -327,17 +337,16 @@ export function SocialSidebar() {
                                                         <AvatarFallback>{friend.username.substring(0, 2).toUpperCase()}</AvatarFallback>
                                                     </Avatar>
                                                     <div className={`absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-background ${
-                                                        friend.current_status === 'active' ? 'bg-green-500' :
-                                                        friend.current_status === 'paused' ? 'bg-yellow-500' :
-                                                        friend.current_status === 'online' ? 'bg-sky-500' : 'bg-muted-foreground/50'
+                                                        (() => { const status = friendEffectiveStatus(friend); return status === 'active' ? 'bg-green-500' : status === 'paused' ? 'bg-yellow-500' : status === 'online' ? 'bg-sky-500' : 'bg-muted-foreground/50' })()
                                                     }`} />
                                                 </div>
                                                 <div>
                                                     <p className="font-medium text-sm text-foreground">{friend.username}</p>
                                                     <p className="text-xs text-muted-foreground">
-                                                        {friend.current_status === 'active' ? (friend.current_task || 'Focusing') : 
-                                                         friend.current_status === 'paused' ? 'Paused' : 
-                                                         friend.current_status === 'online' ? 'Online' : 'Offline'}
+                                                        {(() => {
+                                                            const status = friendEffectiveStatus(friend)
+                                                            return status === 'active' ? (friend.current_task || 'Focusing') : status === 'paused' ? 'Paused' : status === 'online' ? 'Online' : 'Offline'
+                                                        })()}
                                                     </p>
                                                 </div>
                                             </div>
