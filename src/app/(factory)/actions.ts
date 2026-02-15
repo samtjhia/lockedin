@@ -71,10 +71,10 @@ export async function transitionSession(endedSessionId: string) {
     let nextMode = 'stopwatch'
     let nextTaskName = ''
     
-    // Get current cycle count and cycle size
+    // Get current cycle count, cycle size, and last focus task name (for restoring after break)
     const { data: profile } = await supabase
         .from('profiles')
-        .select('pomo_session_count, pomo_cycle_size')
+        .select('pomo_session_count, pomo_cycle_size, last_pomo_task_name')
         .eq('id', user.id)
         .single()
     
@@ -83,8 +83,11 @@ export async function transitionSession(endedSessionId: string) {
 
     if (prevSession.mode === 'pomo') {
         const newCount = currentCount + 1
-        // Update count
-        await supabase.from('profiles').update({ pomo_session_count: newCount }).eq('id', user.id)
+        // Update count and persist focus task name so next focus session after break keeps it
+        await supabase.from('profiles').update({
+            pomo_session_count: newCount,
+            last_pomo_task_name: prevSession.task_name?.trim() || null,
+        }).eq('id', user.id)
         
         if (newCount % cycleSize === 0) {
             nextMode = 'long-break'
@@ -94,9 +97,9 @@ export async function transitionSession(endedSessionId: string) {
             nextTaskName = 'Short Break'
         }
     } else if (prevSession.mode === 'short-break' || prevSession.mode === 'long-break') {
-        // Continue the pomo cycle: auto-start the next focus session
+        // Continue the pomo cycle: auto-start the next focus session with same title as before break
         nextMode = 'pomo'
-        nextTaskName = 'Focus'
+        nextTaskName = (profile?.last_pomo_task_name?.trim()) || 'Focus'
     } else {
         // If it was stopwatch, just stop.
         return { success: true, stop: true }
