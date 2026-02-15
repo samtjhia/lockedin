@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button'
 import { HeatMap } from '@/components/dashboard/stats/heat-map'
 import { Target, HelpCircle } from 'lucide-react'
 import { PokeButton } from '@/components/profile/poke-button'
+import { AddFriendButton } from '@/components/profile/add-friend-button'
 
 type ProfilePageProps = {
   params: Promise<{
@@ -105,6 +106,12 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
             <div className="flex items-center gap-2 shrink-0">
               {isFriend && !isSelf && (
                 <PokeButton targetUserId={profile.id} targetUsername={profile.username || 'user'} />
+              )}
+              {!isSelf && !isFriend && (
+                <AddFriendButton
+                  targetUserId={profile.id}
+                  targetUsername={profile.username || 'Unknown user'}
+                />
               )}
               {isSelf && (
                 <Button
