@@ -64,14 +64,17 @@ export function EditProfileForm({ username, avatarUrl, bio, goals, initials }: E
       const res = await fetch('/api/profile/update', {
         method: 'POST',
         body: formData,
+        redirect: 'manual', // so we get 303 and can navigate client-side
       })
 
-      if (res.redirected) {
-        router.push(res.url)
-      } else {
-        router.push('/profile')
+      if (res.status === 303 || res.ok) {
+        const location = res.headers.get('Location')
+        const path = location
+          ? (location.startsWith('http') ? new URL(location).pathname : location)
+          : '/profile'
+        router.push(path)
+        router.refresh()
       }
-      router.refresh()
     } catch (error) {
       console.error('Error saving profile:', error)
     } finally {

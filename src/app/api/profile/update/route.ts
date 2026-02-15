@@ -39,8 +39,9 @@ export async function POST(request: Request) {
       const {
         data: { publicUrl },
       } = supabase.storage.from("avatars").getPublicUrl(filePath)
-
-      updateData.avatar_url = publicUrl
+      // Cache-bust so the new image loads (same path = same URL, so browser would show old cached image)
+      const separator = publicUrl.includes("?") ? "&" : "?"
+      updateData.avatar_url = `${publicUrl}${separator}t=${Date.now()}`
     }
   }
 
