@@ -1,5 +1,5 @@
 import { verifySecretCode } from './actions'
-import { Button } from '@/components/ui/button'
+import { GateSubmitButton } from './gate-submit-button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 
@@ -55,9 +55,7 @@ export default async function GatePage(props: {
                 required
               />
             </div>
-            <Button type="submit" className="w-full">
-              Continue
-            </Button>
+            <GateSubmitButton />
           </form>
         </CardContent>
       </Card>
