@@ -46,3 +46,15 @@ export function calculateGrade(seconds: number, period: 'daily' | 'weekly' | 'mo
   return 'F'
 }
 
+/** Consider status stale (treat as offline) after this many ms without updated_at. */
+export const STATUS_STALE_MS = 3 * 60 * 1000 // 3 minutes
+
+/** Returns display status; treats non-offline status as offline if updatedAt is older than STATUS_STALE_MS. */
+export function effectiveStatus(status: string | null, updatedAt: string | null): string {
+  if (!status || status === 'offline') return status || 'offline'
+  if (!updatedAt) return status
+  const age = Date.now() - new Date(updatedAt).getTime()
+  if (age > STATUS_STALE_MS) return 'offline'
+  return status
+}
+
