@@ -7,7 +7,7 @@ import { calculateGrade, formatDuration, cn } from '@/lib/utils'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Zap, LayoutDashboard, LogIn, Crown, Medal, ChevronDown, ChevronUp, Clock } from 'lucide-react'
+import { Zap, LayoutDashboard, LogIn, Crown, Medal, ChevronDown, ChevronUp, Clock, HelpCircle } from 'lucide-react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { User } from '@supabase/supabase-js'
@@ -401,16 +401,49 @@ export function LedgerBoard({ initialData, initialHeatmaps }: LedgerBoardProps) 
 
       {/* Controls */}
       <div className="flex items-center justify-between gap-3">
-         <Tabs value={period} onValueChange={(v) => setPeriod(v as any)} className="w-auto">
-            <TabsList className="bg-card border border-border">
-                <TabsTrigger value="daily" className="data-[state=active]:bg-muted data-[state=active]:text-foreground text-muted-foreground text-xs sm:text-sm px-3 sm:px-4">
-                    Today
-                </TabsTrigger>
-                <TabsTrigger value="weekly" className="data-[state=active]:bg-muted data-[state=active]:text-foreground text-muted-foreground text-xs sm:text-sm px-3 sm:px-4">
-                    This Week
-                </TabsTrigger>
-            </TabsList>
-         </Tabs>
+         <div className="flex items-center gap-2">
+            <Tabs value={period} onValueChange={(v) => setPeriod(v as any)} className="w-auto">
+               <TabsList className="bg-card border border-border">
+                   <TabsTrigger value="daily" className="data-[state=active]:bg-muted data-[state=active]:text-foreground text-muted-foreground text-xs sm:text-sm px-3 sm:px-4">
+                       Today
+                   </TabsTrigger>
+                   <TabsTrigger value="weekly" className="data-[state=active]:bg-muted data-[state=active]:text-foreground text-muted-foreground text-xs sm:text-sm px-3 sm:px-4">
+                       This Week
+                   </TabsTrigger>
+               </TabsList>
+            </Tabs>
+            {/* Grading scheme tooltip — content depends on day vs week leaderboard */}
+            <div className="relative group/grade">
+               <HelpCircle className="h-3.5 w-3.5 text-muted-foreground cursor-help" aria-label="Grading scale" />
+               <div className="absolute left-0 top-full mt-2 z-50 w-56 rounded-lg border border-border bg-popover p-3 text-popover-foreground shadow-xl opacity-0 scale-95 pointer-events-none group-hover/grade:opacity-100 group-hover/grade:scale-100 group-hover/grade:pointer-events-auto transition-all duration-150 origin-top-left">
+                  <p className="text-[11px] font-bold mb-2 text-foreground">Grading scale</p>
+                  <p className="text-[10px] font-semibold text-muted-foreground mb-1.5">
+                     {period === 'daily' ? 'Daily (today)' : 'Weekly (this week)'}
+                  </p>
+                  <div className="space-y-1.5 text-[10px]">
+                     {period === 'daily' ? (
+                        <>
+                           <div className="flex justify-between"><span className="text-indigo-400 font-bold">S</span><span className="text-muted-foreground">6+ hours</span></div>
+                           <div className="flex justify-between"><span className="text-green-400 font-bold">A</span><span className="text-muted-foreground">4+ hours</span></div>
+                           <div className="flex justify-between"><span className="text-blue-400 font-bold">B</span><span className="text-muted-foreground">3+ hours</span></div>
+                           <div className="flex justify-between"><span className="text-muted-foreground font-bold">C</span><span className="text-muted-foreground">2+ hours</span></div>
+                           <div className="flex justify-between"><span className="text-muted-foreground font-bold">D</span><span className="text-muted-foreground">1+ hour</span></div>
+                           <div className="flex justify-between"><span className="text-muted-foreground font-bold">F</span><span className="text-muted-foreground">&lt; 1 hour</span></div>
+                        </>
+                     ) : (
+                        <>
+                           <div className="flex justify-between"><span className="text-indigo-400 font-bold">S</span><span className="text-muted-foreground">30+ hours</span></div>
+                           <div className="flex justify-between"><span className="text-green-400 font-bold">A</span><span className="text-muted-foreground">20+ hours</span></div>
+                           <div className="flex justify-between"><span className="text-blue-400 font-bold">B</span><span className="text-muted-foreground">15+ hours</span></div>
+                           <div className="flex justify-between"><span className="text-muted-foreground font-bold">C</span><span className="text-muted-foreground">10+ hours</span></div>
+                           <div className="flex justify-between"><span className="text-muted-foreground font-bold">D</span><span className="text-muted-foreground">5+ hours</span></div>
+                           <div className="flex justify-between"><span className="text-muted-foreground font-bold">F</span><span className="text-muted-foreground">&lt; 5 hours</span></div>
+                        </>
+                     )}
+                  </div>
+               </div>
+            </div>
+         </div>
 
          <Link href={user ? "/dashboard" : "/login"}>
              <Button variant="outline" className="border-border bg-transparent hover:bg-card hover:text-foreground transition-colors text-xs sm:text-sm">
