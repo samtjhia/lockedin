@@ -138,70 +138,64 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
       <Card className="bg-muted/60 border-border">
         <CardContent className="p-0">
           <div className="grid grid-cols-2 sm:grid-cols-4 divide-x divide-border">
-            <div className="px-4 py-3">
+            <div className="px-4 py-3 relative group/day">
               <p className="text-xs text-muted-foreground mb-1 flex items-center gap-1">
                 Today
-                <span className="relative inline-flex group/day">
-                  <HelpCircle className="h-3 w-3 text-muted-foreground cursor-help shrink-0" />
-                  <span className="absolute left-0 top-full mt-1.5 z-50 w-48 rounded-lg border border-border bg-popover px-3 py-2 text-popover-foreground shadow-xl text-[10px] opacity-0 pointer-events-none group-hover/day:opacity-100 group-hover/day:pointer-events-auto transition-opacity origin-top-left">
-                    <span className="font-semibold text-foreground">Daily grade</span>
-                    <div className="mt-1.5 space-y-0.5 text-muted-foreground">
-                      <div className="flex justify-between"><span className="text-indigo-400 font-bold">S</span>6+ h</div>
-                      <div className="flex justify-between"><span className="text-green-400 font-bold">A</span>4+ h</div>
-                      <div className="flex justify-between"><span className="text-blue-400 font-bold">B</span>3+ h</div>
-                      <div className="flex justify-between">C 2+ h</div>
-                      <div className="flex justify-between">D 1+ h</div>
-                      <div className="flex justify-between">F &lt;1 h</div>
-                    </div>
-                  </span>
-                </span>
+                <HelpCircle className="h-3 w-3 text-muted-foreground cursor-help shrink-0" />
               </p>
+              <div className="absolute left-1/2 -translate-x-1/2 top-full mt-1 z-50 w-44 min-w-[11rem] rounded-lg border border-border bg-popover px-3 py-2.5 text-popover-foreground shadow-xl text-[10px] opacity-0 pointer-events-none group-hover/day:opacity-100 group-hover/day:pointer-events-auto transition-opacity origin-top">
+                <span className="font-semibold text-foreground">Daily grade</span>
+                <div className="mt-1.5 space-y-0.5 text-muted-foreground">
+                  <div className="flex justify-between gap-4"><span className="text-indigo-400 font-bold shrink-0">S</span><span>6+ h</span></div>
+                  <div className="flex justify-between gap-4"><span className="text-green-400 font-bold shrink-0">A</span><span>4+ h</span></div>
+                  <div className="flex justify-between gap-4"><span className="text-blue-400 font-bold shrink-0">B</span><span>3+ h</span></div>
+                  <div className="flex justify-between gap-4"><span className="font-bold shrink-0">C</span><span>2+ h</span></div>
+                  <div className="flex justify-between gap-4"><span className="font-bold shrink-0">D</span><span>1+ h</span></div>
+                  <div className="flex justify-between gap-4"><span className="font-bold shrink-0">F</span><span>&lt;1 h</span></div>
+                </div>
+              </div>
               <div className="flex items-baseline justify-between">
                 <span className="text-2xl font-bold text-foreground">{grades.day}</span>
                 <span className="text-xs text-muted-foreground">{formatSeconds(historyStats?.daily?.total_seconds ?? 0)}</span>
               </div>
             </div>
-            <div className="px-4 py-3">
+            <div className="px-4 py-3 relative group/week">
               <p className="text-xs text-muted-foreground mb-1 flex items-center gap-1">
                 Week
-                <span className="relative inline-flex group/week">
-                  <HelpCircle className="h-3 w-3 text-muted-foreground cursor-help shrink-0" />
-                  <span className="absolute left-0 top-full mt-1.5 z-50 w-48 rounded-lg border border-border bg-popover px-3 py-2 text-popover-foreground shadow-xl text-[10px] opacity-0 pointer-events-none group-hover/week:opacity-100 group-hover/week:pointer-events-auto transition-opacity origin-top-left">
-                    <span className="font-semibold text-foreground">Weekly grade</span>
-                    <div className="mt-1.5 space-y-0.5 text-muted-foreground">
-                      <div className="flex justify-between"><span className="text-indigo-400 font-bold">S</span>30+ h</div>
-                      <div className="flex justify-between"><span className="text-green-400 font-bold">A</span>20+ h</div>
-                      <div className="flex justify-between"><span className="text-blue-400 font-bold">B</span>15+ h</div>
-                      <div className="flex justify-between">C 10+ h</div>
-                      <div className="flex justify-between">D 5+ h</div>
-                      <div className="flex justify-between">F &lt;5 h</div>
-                    </div>
-                  </span>
-                </span>
+                <HelpCircle className="h-3 w-3 text-muted-foreground cursor-help shrink-0" />
               </p>
+              <div className="absolute left-1/2 -translate-x-1/2 top-full mt-1 z-50 w-44 min-w-[11rem] rounded-lg border border-border bg-popover px-3 py-2.5 text-popover-foreground shadow-xl text-[10px] opacity-0 pointer-events-none group-hover/week:opacity-100 group-hover/week:pointer-events-auto transition-opacity origin-top">
+                <span className="font-semibold text-foreground">Weekly grade</span>
+                <div className="mt-1.5 space-y-0.5 text-muted-foreground">
+                  <div className="flex justify-between gap-4"><span className="text-indigo-400 font-bold shrink-0">S</span><span>30+ h</span></div>
+                  <div className="flex justify-between gap-4"><span className="text-green-400 font-bold shrink-0">A</span><span>20+ h</span></div>
+                  <div className="flex justify-between gap-4"><span className="text-blue-400 font-bold shrink-0">B</span><span>15+ h</span></div>
+                  <div className="flex justify-between gap-4"><span className="font-bold shrink-0">C</span><span>10+ h</span></div>
+                  <div className="flex justify-between gap-4"><span className="font-bold shrink-0">D</span><span>5+ h</span></div>
+                  <div className="flex justify-between gap-4"><span className="font-bold shrink-0">F</span><span>&lt;5 h</span></div>
+                </div>
+              </div>
               <div className="flex items-baseline justify-between">
                 <span className="text-2xl font-bold text-foreground">{grades.week}</span>
                 <span className="text-xs text-muted-foreground">{formatSeconds(historyStats?.weekly?.total_seconds ?? 0)}</span>
               </div>
             </div>
-            <div className="px-4 py-3">
+            <div className="px-4 py-3 relative group/month">
               <p className="text-xs text-muted-foreground mb-1 flex items-center gap-1">
                 Month
-                <span className="relative inline-flex group/month">
-                  <HelpCircle className="h-3 w-3 text-muted-foreground cursor-help shrink-0" />
-                  <span className="absolute left-0 top-full mt-1.5 z-50 w-48 rounded-lg border border-border bg-popover px-3 py-2 text-popover-foreground shadow-xl text-[10px] opacity-0 pointer-events-none group-hover/month:opacity-100 group-hover/month:pointer-events-auto transition-opacity origin-top-left">
-                    <span className="font-semibold text-foreground">Monthly grade</span>
-                    <div className="mt-1.5 space-y-0.5 text-muted-foreground">
-                      <div className="flex justify-between"><span className="text-indigo-400 font-bold">S</span>100+ h</div>
-                      <div className="flex justify-between"><span className="text-green-400 font-bold">A</span>80+ h</div>
-                      <div className="flex justify-between"><span className="text-blue-400 font-bold">B</span>60+ h</div>
-                      <div className="flex justify-between">C 40+ h</div>
-                      <div className="flex justify-between">D 20+ h</div>
-                      <div className="flex justify-between">F &lt;20 h</div>
-                    </div>
-                  </span>
-                </span>
+                <HelpCircle className="h-3 w-3 text-muted-foreground cursor-help shrink-0" />
               </p>
+              <div className="absolute left-1/2 -translate-x-1/2 top-full mt-1 z-50 w-44 min-w-[11rem] rounded-lg border border-border bg-popover px-3 py-2.5 text-popover-foreground shadow-xl text-[10px] opacity-0 pointer-events-none group-hover/month:opacity-100 group-hover/month:pointer-events-auto transition-opacity origin-top">
+                <span className="font-semibold text-foreground">Monthly grade</span>
+                <div className="mt-1.5 space-y-0.5 text-muted-foreground">
+                  <div className="flex justify-between gap-4"><span className="text-indigo-400 font-bold shrink-0">S</span><span>100+ h</span></div>
+                  <div className="flex justify-between gap-4"><span className="text-green-400 font-bold shrink-0">A</span><span>80+ h</span></div>
+                  <div className="flex justify-between gap-4"><span className="text-blue-400 font-bold shrink-0">B</span><span>60+ h</span></div>
+                  <div className="flex justify-between gap-4"><span className="font-bold shrink-0">C</span><span>40+ h</span></div>
+                  <div className="flex justify-between gap-4"><span className="font-bold shrink-0">D</span><span>20+ h</span></div>
+                  <div className="flex justify-between gap-4"><span className="font-bold shrink-0">F</span><span>&lt;20 h</span></div>
+                </div>
+              </div>
               <div className="flex items-baseline justify-between">
                 <span className="text-2xl font-bold text-foreground">{grades.month}</span>
                 <span className="text-xs text-muted-foreground">{formatSeconds(historyStats?.monthly?.total_seconds ?? 0)}</span>
