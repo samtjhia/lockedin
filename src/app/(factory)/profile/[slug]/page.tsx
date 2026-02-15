@@ -28,6 +28,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
     profile,
     isSelf,
     isFriend,
+    hasPendingRequestToThem,
     grades,
     heatmap,
     topTasksDaily,
@@ -111,6 +112,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
                 <AddFriendButton
                   targetUserId={profile.id}
                   targetUsername={profile.username || 'Unknown user'}
+                  initialRequestSent={hasPendingRequestToThem}
                 />
               )}
               {isSelf && (

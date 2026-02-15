@@ -37,6 +37,8 @@ export type UserProfileData = {
   profile: ProfileSummary
   isSelf: boolean
   isFriend: boolean
+  /** True when current user has already sent a pending friend request to this profile */
+  hasPendingRequestToThem: boolean
   grades: ProfileGrades
   heatmap: ProfileHeatmapEntry[]
   topTasksDaily: ProfileTopTask[]
@@ -106,7 +108,7 @@ export async function getUserProfileData(slug: string): Promise<UserProfileData 
   const oneYearAgo = new Date(today)
   oneYearAgo.setFullYear(today.getFullYear() - 1)
 
-  const [historyStatsRes, heatmapRes, dailyTasksRes, weeklyTasksRes, targetFriendsRes, myFriendsRes] = await Promise.all([
+  const [historyStatsRes, heatmapRes, dailyTasksRes, weeklyTasksRes, targetFriendsRes, myFriendsRes, pendingOutgoingRes] = await Promise.all([
     supabase.rpc('get_user_history_stats', {
       target_user_id: targetUserId,
       target_date: todayStr,
@@ -125,6 +127,15 @@ export async function getUserProfileData(slug: string): Promise<UserProfileData 
     }),
     supabase.rpc('get_user_friends', { target_user_id: targetUserId }),
     supabase.rpc('get_friends'),
+    !isSelf
+      ? supabase
+          .from('friendships')
+          .select('id')
+          .eq('requester_id', currentUser.id)
+          .eq('recipient_id', targetUserId)
+          .eq('status', 'pending')
+          .maybeSingle()
+      : Promise.resolve({ data: null, error: null }),
   ])
 
   if (historyStatsRes.error) {
@@ -182,10 +193,13 @@ export async function getUserProfileData(slug: string): Promise<UserProfileData 
   const myFriendsArray = (myFriendsRes.data || []) as any[]
   const isFriend = !!myFriendsArray.find((f: any) => f.user_id === targetUserId)
 
+  const hasPendingRequestToThem = !isSelf && !!pendingOutgoingRes.data
+
   return {
     profile: profile as ProfileSummary,
     isSelf,
     isFriend,
+    hasPendingRequestToThem,
     grades,
     heatmap,
     topTasksDaily,

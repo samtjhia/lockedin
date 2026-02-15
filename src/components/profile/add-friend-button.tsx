@@ -10,11 +10,13 @@ import { toast } from 'sonner'
 type AddFriendButtonProps = {
   targetUserId: string
   targetUsername: string
+  /** When true, show "Request sent" (e.g. they already have a pending request from you) */
+  initialRequestSent?: boolean
 }
 
-export function AddFriendButton({ targetUserId, targetUsername }: AddFriendButtonProps) {
+export function AddFriendButton({ targetUserId, targetUsername, initialRequestSent = false }: AddFriendButtonProps) {
   const [loading, setLoading] = useState(false)
-  const [requestSent, setRequestSent] = useState(false)
+  const [requestSent, setRequestSent] = useState(initialRequestSent)
   const router = useRouter()
 
   async function handleAddFriend() {
