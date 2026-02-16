@@ -627,16 +627,16 @@ export function LedgerBoard({ initialData, initialHeatmaps }: LedgerBoardProps) 
 
   // Close grade popover when clicking outside
   useEffect(() => {
-    const handleClickOutside = (e: MouseEvent | TouchEvent) => {
+    const handler = (e: MouseEvent | TouchEvent) => {
       if (gradeRef.current && !gradeRef.current.contains(e.target as Node)) {
         setGradeOpen(false)
       }
     }
-    document.addEventListener('mousedown', handleClickOutside)
-    document.addEventListener('touchstart', handleClickOutside)
+    document.addEventListener('mousedown', handler)
+    document.addEventListener('touchstart', handler)
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside)
-      document.removeEventListener('touchstart', handleClickOutside)
+      document.removeEventListener('mousedown', handler)
+      document.removeEventListener('touchstart', handler)
     }
   }, [])
 
