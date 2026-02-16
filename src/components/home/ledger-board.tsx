@@ -335,6 +335,16 @@ export function LedgerBoard({ initialData, initialHeatmaps }: LedgerBoardProps) 
     }
   }, [period])
 
+  // 2b. Refetch when tab becomes visible so status/times stay in sync (fixes missed realtime or stale data)
+  useEffect(() => {
+    const handleVisibility = () => {
+      if (document.visibilityState !== 'visible') return
+      fetchData()
+    }
+    document.addEventListener('visibilitychange', handleVisibility)
+    return () => document.removeEventListener('visibilitychange', handleVisibility)
+  }, [period])
+
   // 3. Realtime & Ticker
   useEffect(() => {
     // A. Postgres Subscription

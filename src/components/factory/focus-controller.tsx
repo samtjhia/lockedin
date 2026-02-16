@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useFactoryTimer, type PomoConfig } from '../../hooks/use-factory-timer'
-import { punchIn, punchOut, pauseSession, resumeSession, transitionSession, getPomoStats, updatePomoSettings } from '@/app/(factory)/actions'
+import { punchIn, punchOut, pauseSession, resumeSession, transitionSession, getPomoStats, updatePomoSettings, checkCurrentSession } from '@/app/(factory)/actions'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -128,6 +128,19 @@ export function FocusController({ initialSession }: FocusControllerProps) {
         setNotifEnabled(true)
      }
   }, [])
+
+  // Sync session from server when tab becomes visible so timer and status stay correct (fixes stale UI)
+  useEffect(() => {
+    const handleVisibility = () => {
+      if (document.visibilityState !== 'visible') return
+      if (!session?.id) return
+      checkCurrentSession().then((s) => {
+        if (s?.id === session.id) setSession(s)
+      })
+    }
+    document.addEventListener('visibilitychange', handleVisibility)
+    return () => document.removeEventListener('visibilitychange', handleVisibility)
+  }, [session?.id])
 
   // Function to request notification permission
   const requestNotifPermission = async () => {

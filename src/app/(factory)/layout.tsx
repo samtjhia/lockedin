@@ -24,20 +24,21 @@ export default async function FactoryLayout({
     redirect('/login')
   }
 
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('is_verified, current_status')
-    .eq('id', user.id)
-    .single()
+  const [{ data: profile }, { data: currentSession }] = await Promise.all([
+    supabase.from('profiles').select('is_verified, current_status').eq('id', user.id).single(),
+    supabase.from('sessions').select('status').eq('user_id', user.id).in('status', ['active', 'paused']).maybeSingle(),
+  ])
 
   if (!profile || !profile.is_verified) {
     redirect('/gate')
   }
 
-  // Refresh presence: when you're in the app (this layout), show as online unless you're in a session (active/paused)
+  // Refresh presence: when you're in the app, show as online unless you have an active/paused session.
+  // Use session as source of truth so we never overwrite 'active' with 'online' (e.g. after resume).
   const updates: { current_status?: string; updated_at: string } = { updated_at: new Date().toISOString() }
-  const status = profile.current_status
-  if (status !== 'active' && status !== 'paused') {
+  if (currentSession?.status === 'active' || currentSession?.status === 'paused') {
+    updates.current_status = currentSession.status
+  } else if (profile.current_status !== 'active' && profile.current_status !== 'paused') {
     updates.current_status = 'online'
   }
   await supabase.from('profiles').update(updates).eq('id', user.id)
