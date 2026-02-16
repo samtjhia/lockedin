@@ -33,6 +33,13 @@ export type ProfileHeatmapEntry = {
   level: number
 }
 
+export type MedalHistoryEntry = { date?: string; week_start?: string; rank: number }
+
+export type MedalHistory = {
+  daily: MedalHistoryEntry[]
+  weekly: MedalHistoryEntry[]
+}
+
 export type UserProfileData = {
   profile: ProfileSummary
   isSelf: boolean
@@ -44,6 +51,7 @@ export type UserProfileData = {
   topTasksDaily: ProfileTopTask[]
   topTasksWeekly: ProfileTopTask[]
   historyStats: any
+  medalHistory: MedalHistory
   friendsPreview: {
     id: string
     username: string
@@ -108,7 +116,7 @@ export async function getUserProfileData(slug: string): Promise<UserProfileData 
   const oneYearAgo = new Date(today)
   oneYearAgo.setFullYear(today.getFullYear() - 1)
 
-  const [historyStatsRes, heatmapRes, dailyTasksRes, weeklyTasksRes, targetFriendsRes, myFriendsRes, pendingOutgoingRes] = await Promise.all([
+  const [historyStatsRes, heatmapRes, dailyTasksRes, weeklyTasksRes, targetFriendsRes, myFriendsRes, pendingOutgoingRes, medalHistoryRes] = await Promise.all([
     supabase.rpc('get_user_history_stats', {
       target_user_id: targetUserId,
       target_date: todayStr,
@@ -136,6 +144,10 @@ export async function getUserProfileData(slug: string): Promise<UserProfileData 
           .eq('status', 'pending')
           .maybeSingle()
       : Promise.resolve({ data: null, error: null }),
+    supabase.rpc('get_user_medal_history', {
+      target_user_id: targetUserId,
+      weeks_back: 6,
+    }),
   ])
 
   if (historyStatsRes.error) {
@@ -195,6 +207,12 @@ export async function getUserProfileData(slug: string): Promise<UserProfileData 
 
   const hasPendingRequestToThem = !isSelf && !!pendingOutgoingRes.data
 
+  const rawMedal = medalHistoryRes.data as { daily?: { date?: string; rank: number }[]; weekly?: { week_start?: string; rank: number }[] } | null
+  const medalHistory: MedalHistory = {
+    daily: Array.isArray(rawMedal?.daily) ? rawMedal.daily.map((e: any) => ({ date: e.date, rank: Number(e.rank) })) : [],
+    weekly: Array.isArray(rawMedal?.weekly) ? rawMedal.weekly.map((e: any) => ({ week_start: e.week_start, rank: Number(e.rank) })) : [],
+  }
+
   return {
     profile: profile as ProfileSummary,
     isSelf,
@@ -205,6 +223,7 @@ export async function getUserProfileData(slug: string): Promise<UserProfileData 
     topTasksDaily,
     topTasksWeekly,
     historyStats,
+    medalHistory,
     friendsPreview,
   }
 }

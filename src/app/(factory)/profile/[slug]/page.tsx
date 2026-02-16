@@ -6,7 +6,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { HeatMap } from '@/components/dashboard/stats/heat-map'
-import { Target, HelpCircle } from 'lucide-react'
+import { Target, HelpCircle, Medal } from 'lucide-react'
 import { PokeButton } from '@/components/profile/poke-button'
 import { AddFriendButton } from '@/components/profile/add-friend-button'
 
@@ -34,6 +34,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
     topTasksDaily,
     topTasksWeekly,
     historyStats,
+    medalHistory,
     friendsPreview,
   } = data!
 
@@ -51,6 +52,21 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
     if (m > 0) return `${m}m ${s}s`
     return `${s}s`
   }
+
+  const formatMedalDate = (dateStr: string) => {
+    try {
+      return new Date(dateStr + 'T12:00:00Z').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+    } catch {
+      return dateStr
+    }
+  }
+
+  const dailyGold = medalHistory.daily.filter((e) => e.rank === 1)
+  const dailySilver = medalHistory.daily.filter((e) => e.rank === 2)
+  const dailyBronze = medalHistory.daily.filter((e) => e.rank === 3)
+  const weeklyGold = medalHistory.weekly.filter((e) => e.rank === 1)
+  const weeklySilver = medalHistory.weekly.filter((e) => e.rank === 2)
+  const weeklyBronze = medalHistory.weekly.filter((e) => e.rank === 3)
 
   return (
     <div className="max-w-4xl mx-auto p-4 sm:p-8 space-y-4">
@@ -215,6 +231,82 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
               <div className="text-xs text-foreground/70 space-y-0.5 mt-1">
                 <p>Today: <span className="text-foreground font-medium">{historyStats?.daily?.peak_hour != null ? `${historyStats.daily.peak_hour}:00` : '–'}</span></p>
                 <p>Month: <span className="text-foreground font-medium">{historyStats?.monthly?.peak_hour != null ? `${historyStats.monthly.peak_hour}:00` : '–'}</span></p>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Medals — daily and weekly with dates */}
+      <Card className="bg-muted/60 border-border">
+        <CardContent className="p-4">
+          <div className="flex items-center gap-2 mb-3">
+            <Medal className="h-4 w-4 text-muted-foreground" />
+            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Medals</p>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-2">Daily</p>
+              <div className="space-y-1.5 text-xs">
+                <p className="text-foreground/80">
+                  <span className="text-yellow-400 font-medium">Gold:</span> {dailyGold.length}
+                  {dailyGold.length > 0 && (
+                    <span className="text-muted-foreground ml-1">
+                      — {dailyGold.map((e) => e.date && formatMedalDate(e.date)).filter(Boolean).join(', ')}
+                    </span>
+                  )}
+                </p>
+                <p className="text-foreground/80">
+                  <span className="text-zinc-300 font-medium">Silver:</span> {dailySilver.length}
+                  {dailySilver.length > 0 && (
+                    <span className="text-muted-foreground ml-1">
+                      — {dailySilver.map((e) => e.date && formatMedalDate(e.date)).filter(Boolean).join(', ')}
+                    </span>
+                  )}
+                </p>
+                <p className="text-foreground/80">
+                  <span className="text-amber-700 font-medium">Bronze:</span> {dailyBronze.length}
+                  {dailyBronze.length > 0 && (
+                    <span className="text-muted-foreground ml-1">
+                      — {dailyBronze.map((e) => e.date && formatMedalDate(e.date)).filter(Boolean).join(', ')}
+                    </span>
+                  )}
+                </p>
+                {dailyGold.length === 0 && dailySilver.length === 0 && dailyBronze.length === 0 && (
+                  <p className="text-muted-foreground italic">No daily medals in the past 6 weeks.</p>
+                )}
+              </div>
+            </div>
+            <div>
+              <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-2">Weekly</p>
+              <div className="space-y-1.5 text-xs">
+                <p className="text-foreground/80">
+                  <span className="text-yellow-400 font-medium">Gold:</span> {weeklyGold.length}
+                  {weeklyGold.length > 0 && (
+                    <span className="text-muted-foreground ml-1">
+                      — {weeklyGold.map((e) => e.week_start && formatMedalDate(e.week_start)).filter(Boolean).join(', ')}
+                    </span>
+                  )}
+                </p>
+                <p className="text-foreground/80">
+                  <span className="text-zinc-300 font-medium">Silver:</span> {weeklySilver.length}
+                  {weeklySilver.length > 0 && (
+                    <span className="text-muted-foreground ml-1">
+                      — {weeklySilver.map((e) => e.week_start && formatMedalDate(e.week_start)).filter(Boolean).join(', ')}
+                    </span>
+                  )}
+                </p>
+                <p className="text-foreground/80">
+                  <span className="text-amber-700 font-medium">Bronze:</span> {weeklyBronze.length}
+                  {weeklyBronze.length > 0 && (
+                    <span className="text-muted-foreground ml-1">
+                      — {weeklyBronze.map((e) => e.week_start && formatMedalDate(e.week_start)).filter(Boolean).join(', ')}
+                    </span>
+                  )}
+                </p>
+                {weeklyGold.length === 0 && weeklySilver.length === 0 && weeklyBronze.length === 0 && (
+                  <p className="text-muted-foreground italic">No weekly medals in the past 6 weeks.</p>
+                )}
               </div>
             </div>
           </div>

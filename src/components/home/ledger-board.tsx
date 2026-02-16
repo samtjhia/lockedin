@@ -2,16 +2,41 @@
 
 import { useState, useEffect } from 'react'
 import { createClient } from '@/utils/supabase/client'
-import { getLeaderboardData, getUserTopTasks, getLeaderboardHeatmaps } from '@/app/actions'
+import {
+  getLeaderboardData,
+  getUserTopTasks,
+  getLeaderboardHeatmaps,
+  getLeaderboardMedalCounts,
+  getLeaderboardTimeline,
+  type MedalCountEntry,
+  type TimelinePeriod,
+} from '@/app/actions'
 import { calculateGrade, formatDuration, cn } from '@/lib/utils'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Zap, LayoutDashboard, LogIn, Crown, Medal, ChevronDown, ChevronUp, Clock, HelpCircle } from 'lucide-react'
+import {
+  LayoutDashboard,
+  LogIn,
+  Crown,
+  Medal,
+  ChevronDown,
+  ChevronUp,
+  Clock,
+  HelpCircle,
+  History,
+} from 'lucide-react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { User } from '@supabase/supabase-js'
 import { MiniHeatmap } from './mini-heatmap'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog'
 
 type LeaderboardEntry = {
   user_id: string
@@ -275,6 +300,217 @@ function LeaderboardRow({
     )
 }
 
+const HISTORY_WEEKS = 6
+
+function LeaderboardHistoryRow({
+  entry,
+  index,
+  viewerVerified,
+}: {
+  entry: MedalCountEntry
+  index: number
+  viewerVerified: boolean
+}) {
+  const [expanded, setExpanded] = useState(false)
+  const gd = entry.gold_daily + entry.gold_weekly
+  const sd = entry.silver_daily + entry.silver_weekly
+  const bd = entry.bronze_daily + entry.bronze_weekly
+  const total = gd + sd + bd
+  const compact = total > 6
+
+  const getRankStyle = (i: number) => {
+    if (i === 0) return 'text-yellow-400 drop-shadow-[0_0_10px_rgba(250,204,21,0.5)]'
+    if (i === 1) return 'text-foreground/70 drop-shadow-[0_0_10px_rgba(212,212,216,0.3)]'
+    if (i === 2) return 'text-amber-700 drop-shadow-[0_0_10px_rgba(180,83,9,0.3)]'
+    return 'text-muted-foreground'
+  }
+
+  return (
+    <div
+      className={cn(
+        'flex flex-col rounded-xl border transition-all duration-200 bg-card/20 border-border/50',
+        expanded && 'bg-card/80 border-border shadow-xl ring-1 ring-white/5',
+        !expanded && 'hover:bg-card/40 hover:border-border/50'
+      )}
+    >
+      <div
+        onClick={() => setExpanded(!expanded)}
+        className="flex items-center gap-2 sm:gap-3 md:gap-4 p-3 sm:p-4 cursor-pointer select-none"
+      >
+        <div
+          className={cn(
+            'w-6 sm:w-8 text-center font-mono font-bold text-sm sm:text-lg flex justify-center shrink-0',
+            getRankStyle(index)
+          )}
+        >
+          {index === 0 ? (
+            <Crown size={18} className="sm:w-5 sm:h-5 fill-yellow-400 stroke-yellow-500" />
+          ) : index === 1 ? (
+            <Medal size={18} className="sm:w-5 sm:h-5 fill-zinc-300 stroke-zinc-400" />
+          ) : index === 2 ? (
+            <Medal size={18} className="sm:w-5 sm:h-5 fill-amber-700 stroke-amber-800" />
+          ) : (
+            `#${index + 1}`
+          )}
+        </div>
+        <div className="flex items-center gap-2 sm:gap-3 md:gap-4 flex-1 min-w-0">
+          {viewerVerified ? (
+            <Link
+              href={`/profile/${encodeURIComponent(entry.user_id)}`}
+              onClick={(e) => e.stopPropagation()}
+              className="shrink-0"
+            >
+              <Avatar className="h-8 w-8 sm:h-10 sm:w-10 border border-border ring-0 hover:ring-2 hover:ring-emerald-500/40 transition-all">
+                <AvatarImage src={entry.avatar_url || ''} />
+                <AvatarFallback className="bg-background text-muted-foreground font-bold text-xs sm:text-sm">
+                  {entry.username?.[0]?.toUpperCase() || '?'}
+                </AvatarFallback>
+              </Avatar>
+            </Link>
+          ) : (
+            <Avatar className="h-8 w-8 sm:h-10 sm:w-10 border border-border shrink-0">
+              <AvatarImage src={entry.avatar_url || ''} />
+              <AvatarFallback className="bg-background text-muted-foreground font-bold text-xs sm:text-sm">
+                {entry.username?.[0]?.toUpperCase() || '?'}
+              </AvatarFallback>
+            </Avatar>
+          )}
+          <div className="flex-1 min-w-0">
+            {viewerVerified ? (
+              <Link
+                href={`/profile/${encodeURIComponent(entry.user_id)}`}
+                onClick={(e) => e.stopPropagation()}
+                className="font-bold text-foreground text-sm sm:text-base truncate hover:text-emerald-400 transition-colors block"
+              >
+                {entry.username || 'Anonymous'}
+              </Link>
+            ) : (
+              <span className="font-bold text-foreground text-sm sm:text-base truncate block">
+                {entry.username || 'Anonymous'}
+              </span>
+            )}
+            <div className="text-[10px] sm:text-xs text-muted-foreground font-mono mt-0.5 flex items-center gap-1.5">
+              {compact ? (
+                <span className="font-mono">
+                  {entry.gold_daily + entry.gold_weekly}g {entry.silver_daily + entry.silver_weekly}s{' '}
+                  {entry.bronze_daily + entry.bronze_weekly}b
+                </span>
+              ) : (
+                <span>
+                  {(entry.gold_daily + entry.gold_weekly) > 0 &&
+                    `${entry.gold_daily + entry.gold_weekly} gold`}
+                  {(entry.silver_daily + entry.silver_weekly) > 0 &&
+                    ` ${entry.silver_daily + entry.silver_weekly} silver`}
+                  {(entry.bronze_daily + entry.bronze_weekly) > 0 &&
+                    ` ${entry.bronze_daily + entry.bronze_weekly} bronze`}
+                  {total === 0 && 'No medals yet'}
+                </span>
+              )}
+              {expanded ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
+            </div>
+          </div>
+        </div>
+        <div className="flex items-center gap-2 shrink-0">
+          <div className="flex items-center gap-1.5 sm:gap-2 text-xs font-mono">
+            {entry.gold_daily + entry.gold_weekly > 0 && (
+              <span className="flex items-center gap-0.5 text-yellow-400" title="Gold">
+                <Medal size={14} className="fill-yellow-400 stroke-yellow-500" />
+                {entry.gold_daily + entry.gold_weekly}
+              </span>
+            )}
+            {entry.silver_daily + entry.silver_weekly > 0 && (
+              <span className="flex items-center gap-0.5 text-zinc-300" title="Silver">
+                <Medal size={14} className="fill-zinc-300 stroke-zinc-400" />
+                {entry.silver_daily + entry.silver_weekly}
+              </span>
+            )}
+            {entry.bronze_daily + entry.bronze_weekly > 0 && (
+              <span className="flex items-center gap-0.5 text-amber-700" title="Bronze">
+                <Medal size={14} className="fill-amber-700 stroke-amber-800" />
+                {entry.bronze_daily + entry.bronze_weekly}
+              </span>
+            )}
+            {total === 0 && <span className="text-muted-foreground">0</span>}
+          </div>
+        </div>
+      </div>
+      {expanded && (
+        <div className="px-3 pb-3 sm:px-4 sm:pb-4 md:pl-20 md:pr-10 animate-in slide-in-from-top-1 duration-200 fade-in-0">
+          <div className="h-px w-full bg-gradient-to-r from-transparent via-zinc-800 to-transparent mb-3 sm:mb-4" />
+          <div className="grid grid-cols-2 gap-4 text-xs sm:text-sm">
+            <div>
+              <p className="font-semibold text-muted-foreground uppercase tracking-wider mb-1.5">
+                Daily
+              </p>
+              <p className="text-foreground/80">
+                {entry.gold_daily} gold, {entry.silver_daily} silver, {entry.bronze_daily} bronze
+              </p>
+            </div>
+            <div>
+              <p className="font-semibold text-muted-foreground uppercase tracking-wider mb-1.5">
+                Weekly
+              </p>
+              <p className="text-foreground/80">
+                {entry.gold_weekly} gold, {entry.silver_weekly} silver, {entry.bronze_weekly} bronze
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+function TimelineStrip({
+  timeline,
+  formatDuration,
+}: {
+  timeline: TimelinePeriod[]
+  formatDuration: (s: number) => string
+}) {
+  return (
+    <div className="flex flex-wrap gap-2 mb-6">
+      {timeline.map((period, i) => (
+        <Dialog key={`${period.period_type}-${period.period_date}-${i}`}>
+          <DialogTrigger asChild>
+            <button
+              type="button"
+              className="rounded-lg border border-border bg-card/60 px-3 py-2 text-xs font-mono text-muted-foreground hover:text-foreground hover:bg-card/80 hover:border-border transition-colors text-left"
+            >
+              {period.period_label}
+            </button>
+          </DialogTrigger>
+          <DialogContent className="max-w-sm max-h-[70vh] overflow-hidden flex flex-col">
+            <DialogHeader>
+              <DialogTitle className="text-sm">
+                Standings — {period.period_label}
+              </DialogTitle>
+            </DialogHeader>
+            <div className="overflow-y-auto flex-1 space-y-1 pr-2">
+              {period.standings.length === 0 ? (
+                <p className="text-muted-foreground text-xs">No data for this period.</p>
+              ) : (
+                period.standings.map((s, j) => (
+                  <div
+                    key={s.user_id}
+                    className="flex items-center justify-between gap-2 py-1.5 border-b border-border/50 text-xs"
+                  >
+                    <span className="font-mono text-muted-foreground w-6 shrink-0">#{s.rank}</span>
+                    <span className="truncate font-medium text-foreground">{s.username || 'Anonymous'}</span>
+                    <span className="font-mono text-muted-foreground shrink-0 tabular-nums">
+                      {formatDuration(s.total_seconds)}
+                    </span>
+                  </div>
+                ))
+              )}
+            </div>
+          </DialogContent>
+        </Dialog>
+      ))}
+    </div>
+  )
+}
+
 type LedgerBoardProps = {
   initialData: LeaderboardEntry[]
   initialHeatmaps?: Record<string, HeatmapData[]>
@@ -283,11 +519,15 @@ type LedgerBoardProps = {
 export function LedgerBoard({ initialData, initialHeatmaps }: LedgerBoardProps) {
   const [data, setData] = useState<LeaderboardEntry[]>(initialData)
   const [heatmaps, setHeatmaps] = useState<Record<string, HeatmapData[]>>(initialHeatmaps || {})
-  const [period, setPeriod] = useState<'daily' | 'weekly'>('daily')
+  const [period, setPeriod] = useState<'daily' | 'weekly' | 'history'>('daily')
   const [loading, setLoading] = useState(false)
   const [user, setUser] = useState<User | null>(null)
   const [viewerVerified, setViewerVerified] = useState(false)
-  
+  const [medalData, setMedalData] = useState<MedalCountEntry[]>([])
+  const [timelineData, setTimelineData] = useState<TimelinePeriod[]>([])
+  const [historyLoaded, setHistoryLoaded] = useState(false)
+  const [loadingHistory, setLoadingHistory] = useState(false)
+
   const supabase = createClient()
 
   // 1. Check Auth + verified status
@@ -306,37 +546,50 @@ export function LedgerBoard({ initialData, initialHeatmaps }: LedgerBoardProps) 
   }, [])
 
   const fetchData = async () => {
-    // Re-fetch data helper
-    const newData = await getLeaderboardData(period)
-    
+    const newData = await getLeaderboardData(period as 'daily' | 'weekly')
     const formattedData = (newData || []).map((entry: any) => ({
         ...entry,
         total_seconds: Number(entry.total_seconds)
     }))
-    
     setData(formattedData)
-    
-    // Fetch heatmaps for new users
     const userIds = formattedData.map((e: LeaderboardEntry) => e.user_id)
     const newHeatmaps = await getLeaderboardHeatmaps(userIds)
     setHeatmaps(newHeatmaps)
   }
 
-  // 2. Fetch data on period switch
+  // 2. Fetch data on period switch (daily/weekly only)
   useEffect(() => {
+    if (period === 'history') return
     const run = async () => {
         setLoading(true)
         await fetchData()
         setLoading(false)
     }
-    
-    if (period !== 'daily' || data !== initialData) { 
+    if (period !== 'daily' || data !== initialData) {
         run()
     }
   }, [period])
 
-  // 2b. Refetch when tab becomes visible so status/times stay in sync (fixes missed realtime or stale data)
+  // 2b. Fetch history data when History tab is selected for the first time
   useEffect(() => {
+    if (period !== 'history' || historyLoaded) return
+    const load = async () => {
+      setLoadingHistory(true)
+      const [medals, timeline] = await Promise.all([
+        getLeaderboardMedalCounts(HISTORY_WEEKS),
+        getLeaderboardTimeline(HISTORY_WEEKS),
+      ])
+      setMedalData(medals)
+      setTimelineData(timeline)
+      setHistoryLoaded(true)
+      setLoadingHistory(false)
+    }
+    load()
+  }, [period, historyLoaded])
+
+  // 2c. Refetch when tab becomes visible (daily/weekly only)
+  useEffect(() => {
+    if (period === 'history') return
     const handleVisibility = () => {
       if (document.visibilityState !== 'visible') return
       fetchData()
@@ -345,26 +598,17 @@ export function LedgerBoard({ initialData, initialHeatmaps }: LedgerBoardProps) 
     return () => document.removeEventListener('visibilitychange', handleVisibility)
   }, [period])
 
-  // 3. Realtime & Ticker
+  // 3. Realtime & Ticker (daily/weekly only)
   useEffect(() => {
-    // A. Postgres Subscription
+    if (period === 'history') return
     const channel = supabase
       .channel('ledger_realtime')
       .on(
         'postgres_changes',
-        {
-          event: '*', 
-          schema: 'public',
-          table: 'profiles',
-        },
-        () => {
-           // On ANY profile change, re-fetch logic to ensure stats/status correctness
-           fetchData()
-        }
+        { event: '*', schema: 'public', table: 'profiles' },
+        () => fetchData()
       )
       .subscribe()
-
-    // B. Local Ticker for Active Users
     const ticker = setInterval(() => {
         setData(current => current.map(u => {
             if (u.current_status === 'active') {
@@ -373,7 +617,6 @@ export function LedgerBoard({ initialData, initialHeatmaps }: LedgerBoardProps) 
             return u
         }))
     }, 1000)
-
     return () => {
       supabase.removeChannel(channel)
       clearInterval(ticker)
@@ -400,19 +643,21 @@ export function LedgerBoard({ initialData, initialHeatmaps }: LedgerBoardProps) 
         </div>
 
         <div className="flex flex-col items-start md:items-end gap-2 w-full md:w-auto">
+            {period !== 'history' && (
             <div className="md:text-right">
                 <div className="text-xs sm:text-sm text-muted-foreground font-mono uppercase tracking-widest">Community Time ({period})</div>
                 <div className="text-2xl sm:text-3xl font-bold text-foreground font-mono">
                     {formatDuration(totalSecondSum)}
                 </div>
             </div>
+            )}
         </div>
       </div>
 
       {/* Controls */}
       <div className="flex items-center justify-between gap-3">
          <div className="flex items-center gap-2">
-            <Tabs value={period} onValueChange={(v) => setPeriod(v as any)} className="w-auto">
+            <Tabs value={period} onValueChange={(v) => setPeriod(v as 'daily' | 'weekly' | 'history')} className="w-auto">
                <TabsList className="bg-card border border-border">
                    <TabsTrigger value="daily" className="data-[state=active]:bg-muted data-[state=active]:text-foreground text-muted-foreground text-xs sm:text-sm px-3 sm:px-4">
                        Today
@@ -420,9 +665,14 @@ export function LedgerBoard({ initialData, initialHeatmaps }: LedgerBoardProps) 
                    <TabsTrigger value="weekly" className="data-[state=active]:bg-muted data-[state=active]:text-foreground text-muted-foreground text-xs sm:text-sm px-3 sm:px-4">
                        This Week
                    </TabsTrigger>
+                   <TabsTrigger value="history" className="data-[state=active]:bg-muted data-[state=active]:text-foreground text-muted-foreground text-xs sm:text-sm px-3 sm:px-4 flex items-center gap-1.5">
+                       <History className="h-3.5 w-3.5" />
+                       History
+                   </TabsTrigger>
                </TabsList>
             </Tabs>
-            {/* Grading scheme tooltip — content depends on day vs week leaderboard */}
+            {/* Grading scheme tooltip — only for daily/weekly */}
+            {period !== 'history' && (
             <div className="relative group/grade">
                <HelpCircle className="h-3.5 w-3.5 text-muted-foreground cursor-help" aria-label="Grading scale" />
                <div className="absolute left-0 top-full mt-2 z-50 w-56 rounded-lg border border-border bg-popover p-3 text-popover-foreground shadow-xl opacity-0 scale-95 pointer-events-none group-hover/grade:opacity-100 group-hover/grade:scale-100 group-hover/grade:pointer-events-auto transition-all duration-150 origin-top-left">
@@ -453,6 +703,7 @@ export function LedgerBoard({ initialData, initialHeatmaps }: LedgerBoardProps) 
                   </div>
                </div>
             </div>
+            )}
          </div>
 
          <Link href={user ? "/dashboard" : "/login"}>
@@ -473,9 +724,33 @@ export function LedgerBoard({ initialData, initialHeatmaps }: LedgerBoardProps) 
          </Link>
       </div>
 
+      {/* Timeline (History tab only) */}
+      {period === 'history' && timelineData.length > 0 && (
+        <TimelineStrip timeline={timelineData} formatDuration={formatDuration} />
+      )}
+
       {/* Leaderboard Table */}
-      <div className={`space-y-1 transition-opacity duration-300 ${loading ? 'opacity-50' : 'opacity-100'}`}>
-         {data.length === 0 ? (
+      <div className={`space-y-1 transition-opacity duration-300 ${loading || (period === 'history' && loadingHistory) ? 'opacity-50' : 'opacity-100'}`}>
+         {period === 'history' ? (
+           loadingHistory ? (
+             <div className="text-center py-12 sm:py-20 text-muted-foreground font-mono text-xs sm:text-sm border border-dashed border-border rounded-lg">
+               Loading medal history...
+             </div>
+           ) : medalData.length === 0 ? (
+             <div className="text-center py-12 sm:py-20 text-muted-foreground font-mono text-xs sm:text-sm border border-dashed border-border rounded-lg">
+               NO MEDAL DATA FOR THE PAST {HISTORY_WEEKS} WEEKS
+             </div>
+           ) : (
+             medalData.map((entry, index) => (
+               <LeaderboardHistoryRow
+                 key={entry.user_id}
+                 entry={entry}
+                 index={index}
+                 viewerVerified={viewerVerified}
+               />
+             ))
+           )
+         ) : data.length === 0 ? (
              <div className="text-center py-12 sm:py-20 text-muted-foreground font-mono text-xs sm:text-sm border border-dashed border-border rounded-lg">
                 NO DATA RECORDED FOR THIS PERIOD
              </div>
@@ -487,7 +762,7 @@ export function LedgerBoard({ initialData, initialHeatmaps }: LedgerBoardProps) 
                         key={user.user_id} 
                         userEntry={user} 
                         index={index} 
-                        period={period}
+                        period={period as 'daily' | 'weekly'}
                         isActive={isActive}
                         heatmapData={heatmaps[user.user_id]}
                         viewerVerified={viewerVerified}
