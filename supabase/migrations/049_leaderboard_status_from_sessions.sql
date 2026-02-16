@@ -38,24 +38,20 @@ BEGIN
     WHERE s.started_at >= start_time
     AND s.mode NOT IN ('short-break', 'long-break')
     GROUP BY s.user_id
-  ),
-  open_session_status AS (
-    SELECT DISTINCT ON (user_id) user_id, status
-    FROM sessions
-    WHERE status IN ('active', 'paused')
-    ORDER BY user_id, last_resumed_at DESC NULLS LAST, started_at DESC
   )
   SELECT 
     p.id AS user_id,
     p.username,
     p.avatar_url,
     p.is_verified,
-    COALESCE(os.status, p.current_status) AS current_status,
+    COALESCE(
+      (SELECT sess.status FROM sessions sess WHERE sess.user_id = p.id AND sess.status IN ('active', 'paused') ORDER BY sess.last_resumed_at DESC NULLS LAST LIMIT 1),
+      p.current_status
+    ) AS current_status,
     p.current_task,
     COALESCE(l.seconds, 0) AS total_seconds
   FROM public.profiles p
   LEFT JOIN session_stats l ON l.user_id = p.id
-  LEFT JOIN open_session_status os ON os.user_id = p.id
   WHERE p.is_verified = true
     AND p.hidden_at IS NULL
   ORDER BY 
