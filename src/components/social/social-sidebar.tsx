@@ -69,6 +69,8 @@ function playPokeSound() {
 function friendEffectiveStatus(friend: Friend): 'active' | 'paused' | 'online' | 'offline' {
   const s = friend.current_status
   if (!s || s === 'offline') return 'offline'
+  // Don't treat as stale when they have an active session — they may be focused
+  if (s === 'active' || s === 'paused') return s
   if (!friend.last_active_at) return s
   if (Date.now() - new Date(friend.last_active_at).getTime() > STATUS_STALE_MS) return 'offline'
   return s

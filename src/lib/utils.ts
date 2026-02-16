@@ -49,9 +49,11 @@ export function calculateGrade(seconds: number, period: 'daily' | 'weekly' | 'mo
 /** Consider status stale (treat as offline) after this many ms without updated_at. */
 export const STATUS_STALE_MS = 3 * 60 * 1000 // 3 minutes
 
-/** Returns display status; treats non-offline status as offline if updatedAt is older than STATUS_STALE_MS. */
+/** Returns display status; treats non-offline status as offline if updatedAt is older than STATUS_STALE_MS. Only applies when no session is active (i.e. not active/paused). */
 export function effectiveStatus(status: string | null, updatedAt: string | null): string {
   if (!status || status === 'offline') return status || 'offline'
+  // Don't treat as stale when a session is active — user may be focused and not touching the app
+  if (status === 'active' || status === 'paused') return status
   if (!updatedAt) return status
   const age = Date.now() - new Date(updatedAt).getTime()
   if (age > STATUS_STALE_MS) return 'offline'
