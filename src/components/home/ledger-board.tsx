@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { createClient } from '@/utils/supabase/client'
 import {
   getLeaderboardData,
@@ -26,7 +26,6 @@ import {
   ChevronRight,
   Clock,
   HelpCircle,
-  History,
 } from 'lucide-react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
@@ -621,8 +620,25 @@ export function LedgerBoard({ initialData, initialHeatmaps }: LedgerBoardProps) 
   const [timelineData, setTimelineData] = useState<TimelinePeriod[]>([])
   const [historyLoaded, setHistoryLoaded] = useState(false)
   const [loadingHistory, setLoadingHistory] = useState(false)
+  const [gradeOpen, setGradeOpen] = useState(false)
+  const gradeRef = useRef<HTMLDivElement>(null)
 
   const supabase = createClient()
+
+  // Close grade popover when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent | TouchEvent) => {
+      if (gradeRef.current && !gradeRef.current.contains(e.target as Node)) {
+        setGradeOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    document.addEventListener('touchstart', handleClickOutside)
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+      document.removeEventListener('touchstart', handleClickOutside)
+    }
+  }, [])
 
   // 1. Check Auth + verified status
   useEffect(() => {
@@ -727,7 +743,6 @@ export function LedgerBoard({ initialData, initialHeatmaps }: LedgerBoardProps) 
             <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground mb-2">
                 Leaderboard
             </h1>
-            {period !== 'history' && (
             <div className="flex items-center gap-2 text-muted-foreground font-mono text-xs sm:text-sm">
                 <span className="relative flex h-2 w-2">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
@@ -735,7 +750,6 @@ export function LedgerBoard({ initialData, initialHeatmaps }: LedgerBoardProps) 
                 </span>
                 LIVE STATUS
             </div>
-            )}
         </div>
 
         <div className="flex flex-col items-start md:items-end gap-2 w-full md:w-auto">
@@ -761,17 +775,30 @@ export function LedgerBoard({ initialData, initialHeatmaps }: LedgerBoardProps) 
                    <TabsTrigger value="weekly" className="data-[state=active]:bg-muted data-[state=active]:text-foreground text-muted-foreground text-xs sm:text-sm px-3 sm:px-4">
                        This Week
                    </TabsTrigger>
-                   <TabsTrigger value="history" className="data-[state=active]:bg-muted data-[state=active]:text-foreground text-muted-foreground text-xs sm:text-sm px-3 sm:px-4 flex items-center gap-1.5">
-                       <History className="h-3.5 w-3.5" />
+                   <TabsTrigger value="history" className="data-[state=active]:bg-muted data-[state=active]:text-foreground text-muted-foreground text-xs sm:text-sm px-3 sm:px-4">
                        History
                    </TabsTrigger>
                </TabsList>
             </Tabs>
-            {/* Grading scheme tooltip — only for daily/weekly */}
+            {/* Grading scheme tooltip — only for daily/weekly; click to open on mobile */}
             {period !== 'history' && (
-            <div className="relative group/grade">
-               <HelpCircle className="h-3.5 w-3.5 text-muted-foreground cursor-help" aria-label="Grading scale" />
-               <div className="absolute left-0 top-full mt-2 z-50 w-56 rounded-lg border border-border bg-popover p-3 text-popover-foreground shadow-xl opacity-0 scale-95 pointer-events-none group-hover/grade:opacity-100 group-hover/grade:scale-100 group-hover/grade:pointer-events-auto transition-all duration-150 origin-top-left">
+            <div ref={gradeRef} className="relative group/grade">
+               <button
+                 type="button"
+                 onClick={() => setGradeOpen((o) => !o)}
+                 className="touch-manipulation rounded p-0.5 -m-0.5 text-muted-foreground hover:text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background rounded-full"
+                 aria-label="Grading scale"
+                 aria-expanded={gradeOpen}
+               >
+                 <HelpCircle className="h-3.5 w-3.5 cursor-help" />
+               </button>
+               <div
+                 className={`absolute left-0 top-full mt-2 z-50 w-56 rounded-lg border border-border bg-popover p-3 text-popover-foreground shadow-xl transition-all duration-150 origin-top-left ${
+                   gradeOpen
+                     ? 'opacity-100 scale-100 pointer-events-auto'
+                     : 'opacity-0 scale-95 pointer-events-none group-hover/grade:opacity-100 group-hover/grade:scale-100 group-hover/grade:pointer-events-auto'
+                 }`}
+               >
                   <p className="text-[11px] font-bold mb-2 text-foreground">Grading scale</p>
                   <p className="text-[10px] font-semibold text-muted-foreground mb-1.5">
                      {period === 'daily' ? 'Daily (today)' : 'Weekly (this week)'}
