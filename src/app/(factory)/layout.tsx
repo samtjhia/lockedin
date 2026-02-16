@@ -26,7 +26,7 @@ export default async function FactoryLayout({
 
   const [{ data: profile }, { data: currentSession }] = await Promise.all([
     supabase.from('profiles').select('is_verified, current_status').eq('id', user.id).single(),
-    supabase.from('sessions').select('status').eq('user_id', user.id).in('status', ['active', 'paused']).maybeSingle(),
+    supabase.from('sessions').select('status').eq('user_id', user.id).in('status', ['active', 'paused']).order('last_resumed_at', { ascending: false }).limit(1).maybeSingle(),
   ])
 
   if (!profile || !profile.is_verified) {

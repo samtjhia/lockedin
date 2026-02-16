@@ -15,6 +15,8 @@ export async function POST() {
     .select('status')
     .eq('user_id', user.id)
     .in('status', ['active', 'paused'])
+    .order('last_resumed_at', { ascending: false })
+    .limit(1)
     .maybeSingle()
 
   if (session?.status === 'active' || session?.status === 'paused') {

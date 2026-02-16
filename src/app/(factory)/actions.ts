@@ -15,7 +15,9 @@ export async function checkCurrentSession() {
     .select('*')
     .eq('user_id', user.id)
     .in('status', ['active', 'paused'])
-    .single()
+    .order('last_resumed_at', { ascending: false })
+    .limit(1)
+    .maybeSingle()
 
   return session
 }
@@ -126,6 +128,19 @@ export async function punchIn(formData: FormData) {
   const { data: { user } } = await supabase.auth.getUser()
   
   if (!user) throw new Error('Not authenticated')
+
+  // Prevent duplicate sessions: if user already has an active or paused session, return it so UI syncs (e.g. second tab or double-click).
+  const { data: existing } = await supabase
+    .from('sessions')
+    .select('*')
+    .eq('user_id', user.id)
+    .in('status', ['active', 'paused'])
+    .order('last_resumed_at', { ascending: false })
+    .limit(1)
+    .maybeSingle()
+  if (existing) {
+    return { success: true, session: existing }
+  }
 
   const taskName = (formData.get('taskName') as string)?.trim()
   const mode = formData.get('mode') as string || 'stopwatch'
