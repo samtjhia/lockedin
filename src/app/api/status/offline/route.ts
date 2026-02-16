@@ -9,6 +9,18 @@ export async function POST() {
     return NextResponse.json({ ok: false }, { status: 401 })
   }
 
+  // Don't set offline if user has an active or paused session (e.g. refresh while focusing)
+  const { data: session } = await supabase
+    .from('sessions')
+    .select('status')
+    .eq('user_id', user.id)
+    .in('status', ['active', 'paused'])
+    .maybeSingle()
+
+  if (session?.status === 'active' || session?.status === 'paused') {
+    return NextResponse.json({ ok: true })
+  }
+
   await supabase
     .from('profiles')
     .update({ current_status: 'offline', updated_at: new Date().toISOString() })
