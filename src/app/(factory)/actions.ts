@@ -58,7 +58,7 @@ export async function transitionSession(endedSessionId: string) {
     // 1. Get Ended Session Info to know what we just finished
     const { data: prevSession } = await supabase
         .from('sessions')
-        .select('mode, task_name')
+        .select('mode, task_name, part_of_pomo_cycle')
         .eq('id', endedSessionId)
         .single()
     
@@ -97,9 +97,14 @@ export async function transitionSession(endedSessionId: string) {
             nextTaskName = 'Short Break'
         }
     } else if (prevSession.mode === 'short-break' || prevSession.mode === 'long-break') {
-        // Continue the pomo cycle: auto-start the next focus session with same title as before break
-        nextMode = 'pomo'
-        nextTaskName = (profile?.last_pomo_task_name?.trim()) || 'Focus'
+        // Only auto-resume to pomo if this break was part of a pomo cycle (started by transition).
+        // Manually started breaks (user chose Break mode from idle) just end and return to idle.
+        if (prevSession.part_of_pomo_cycle) {
+            nextMode = 'pomo'
+            nextTaskName = (profile?.last_pomo_task_name?.trim()) || 'Focus'
+        } else {
+            return { success: true, stop: true }
+        }
     } else {
         // If it was stopwatch, just stop.
         return { success: true, stop: true }
@@ -142,6 +147,7 @@ export async function punchIn(formData: FormData) {
   const now = new Date().toISOString()
 
   // 1. Create new Session
+  const partOfPomoCycle = isAuto && (mode === 'short-break' || mode === 'long-break')
   const { data: sessionData, error: sessionError } = await supabase
     .from('sessions')
     .insert({
@@ -151,7 +157,8 @@ export async function punchIn(formData: FormData) {
       status: 'active',
       started_at: now,
       last_resumed_at: now,
-      accumulated_seconds: 0
+      accumulated_seconds: 0,
+      ...(partOfPomoCycle && { part_of_pomo_cycle: true }),
     })
     .select()
     .single()
