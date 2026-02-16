@@ -60,7 +60,7 @@ export function TaskList({ initialTodos }: TaskListProps) {
             // Optimistic update
             const tempId = Math.random().toString()
             const optimisticTodo = { id: tempId, task_name: newTask, is_completed: false, created_at: new Date().toISOString() }
-            setTodos([optimisticTodo, ...todos])
+            setTodos([...todos, optimisticTodo])
             setNewTask('')
 
             const res = await addTodo(optimisticTodo.task_name)

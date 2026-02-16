@@ -75,7 +75,7 @@ export async function getTodos() {
     .from('todos')
     .select('*')
     .order('is_completed', { ascending: true })
-    .order('created_at', { ascending: false })
+    .order('created_at', { ascending: true })
     
   if (error) {
     console.error('Error fetching todos:', error)
