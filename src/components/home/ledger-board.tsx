@@ -22,6 +22,8 @@ import {
   Medal,
   ChevronDown,
   ChevronUp,
+  ChevronLeft,
+  ChevronRight,
   Clock,
   HelpCircle,
   History,
@@ -461,6 +463,9 @@ function LeaderboardHistoryRow({
   )
 }
 
+const DAYS_PER_PAGE = 7
+const WEEKS_PER_PAGE = 3
+
 function TimelineStrip({
   timeline,
   formatDuration,
@@ -468,45 +473,134 @@ function TimelineStrip({
   timeline: TimelinePeriod[]
   formatDuration: (s: number) => string
 }) {
+  const [dayPage, setDayPage] = useState(0)
+  const [weekPage, setWeekPage] = useState(0)
+
+  const weeklyPeriods = timeline.filter((p) => p.period_type === 'weekly')
+  const dailyPeriods = timeline.filter((p) => p.period_type === 'daily')
+
+  const maxWeekPage = Math.max(0, Math.ceil(weeklyPeriods.length / WEEKS_PER_PAGE) - 1)
+  const maxDayPage = Math.max(0, Math.ceil(dailyPeriods.length / DAYS_PER_PAGE) - 1)
+
+  const visibleWeeks =
+    weekPage === 0
+      ? weeklyPeriods.slice(-WEEKS_PER_PAGE)
+      : weeklyPeriods.slice(
+          -WEEKS_PER_PAGE * (weekPage + 1),
+          -WEEKS_PER_PAGE * weekPage
+        )
+  const visibleDays =
+    dayPage === 0
+      ? dailyPeriods.slice(-DAYS_PER_PAGE)
+      : dailyPeriods.slice(
+          -DAYS_PER_PAGE * (dayPage + 1),
+          -DAYS_PER_PAGE * dayPage
+        )
+
+  const PeriodButton = ({ period }: { period: TimelinePeriod }) => (
+    <Dialog key={`${period.period_type}-${period.period_date}`}>
+      <DialogTrigger asChild>
+        <button
+          type="button"
+          className="rounded-lg border border-border bg-card/60 px-3 py-2 text-xs font-mono text-muted-foreground hover:text-foreground hover:bg-card/80 hover:border-border transition-colors text-left"
+        >
+          {period.period_label}
+        </button>
+      </DialogTrigger>
+      <DialogContent className="max-w-sm max-h-[70vh] overflow-hidden flex flex-col">
+        <DialogHeader>
+          <DialogTitle className="text-sm">
+            Standings — {period.period_label}
+          </DialogTitle>
+        </DialogHeader>
+        <div className="overflow-y-auto flex-1 space-y-1 pr-2">
+          {period.standings.length === 0 ? (
+            <p className="text-muted-foreground text-xs">No data for this period.</p>
+          ) : (
+            period.standings.map((s) => (
+              <div
+                key={s.user_id}
+                className="flex items-center justify-between gap-2 py-1.5 border-b border-border/50 text-xs"
+              >
+                <span className="font-mono text-muted-foreground w-6 shrink-0">#{s.rank}</span>
+                <span className="truncate font-medium text-foreground">{s.username || 'Anonymous'}</span>
+                <span className="font-mono text-muted-foreground shrink-0 tabular-nums">
+                  {formatDuration(s.total_seconds)}
+                </span>
+              </div>
+            ))
+          )}
+        </div>
+      </DialogContent>
+    </Dialog>
+  )
+
   return (
-    <div className="flex flex-wrap gap-2 mb-6">
-      {timeline.map((period, i) => (
-        <Dialog key={`${period.period_type}-${period.period_date}-${i}`}>
-          <DialogTrigger asChild>
+    <div className="space-y-4 mb-6">
+      {weeklyPeriods.length > 0 && (
+        <div>
+          <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-2">
+            By week
+          </p>
+          <div className="flex items-center gap-2">
             <button
               type="button"
-              className="rounded-lg border border-border bg-card/60 px-3 py-2 text-xs font-mono text-muted-foreground hover:text-foreground hover:bg-card/80 hover:border-border transition-colors text-left"
+              onClick={() => setWeekPage((p) => Math.min(p + 1, maxWeekPage))}
+              disabled={weekPage >= maxWeekPage}
+              className="rounded-lg border border-border p-2 text-muted-foreground hover:text-foreground hover:bg-card/80 disabled:opacity-40 disabled:pointer-events-none transition-colors"
+              aria-label="Older weeks"
             >
-              {period.period_label}
+              <ChevronLeft className="h-4 w-4" />
             </button>
-          </DialogTrigger>
-          <DialogContent className="max-w-sm max-h-[70vh] overflow-hidden flex flex-col">
-            <DialogHeader>
-              <DialogTitle className="text-sm">
-                Standings — {period.period_label}
-              </DialogTitle>
-            </DialogHeader>
-            <div className="overflow-y-auto flex-1 space-y-1 pr-2">
-              {period.standings.length === 0 ? (
-                <p className="text-muted-foreground text-xs">No data for this period.</p>
-              ) : (
-                period.standings.map((s, j) => (
-                  <div
-                    key={s.user_id}
-                    className="flex items-center justify-between gap-2 py-1.5 border-b border-border/50 text-xs"
-                  >
-                    <span className="font-mono text-muted-foreground w-6 shrink-0">#{s.rank}</span>
-                    <span className="truncate font-medium text-foreground">{s.username || 'Anonymous'}</span>
-                    <span className="font-mono text-muted-foreground shrink-0 tabular-nums">
-                      {formatDuration(s.total_seconds)}
-                    </span>
-                  </div>
-                ))
-              )}
+            <div className="flex flex-wrap gap-2 flex-1 min-w-0">
+              {visibleWeeks.map((period) => (
+                <PeriodButton key={`w-${period.period_date}`} period={period} />
+              ))}
             </div>
-          </DialogContent>
-        </Dialog>
-      ))}
+            <button
+              type="button"
+              onClick={() => setWeekPage((p) => Math.max(p - 1, 0))}
+              disabled={weekPage <= 0}
+              className="rounded-lg border border-border p-2 text-muted-foreground hover:text-foreground hover:bg-card/80 disabled:opacity-40 disabled:pointer-events-none transition-colors"
+              aria-label="Newer weeks"
+            >
+              <ChevronRight className="h-4 w-4" />
+            </button>
+          </div>
+        </div>
+      )}
+      {dailyPeriods.length > 0 && (
+        <div>
+          <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-2">
+            By day
+          </p>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setDayPage((p) => Math.min(p + 1, maxDayPage))}
+              disabled={dayPage >= maxDayPage}
+              className="rounded-lg border border-border p-2 text-muted-foreground hover:text-foreground hover:bg-card/80 disabled:opacity-40 disabled:pointer-events-none transition-colors"
+              aria-label="Older days"
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </button>
+            <div className="flex flex-wrap gap-2 flex-1 min-w-0">
+              {visibleDays.map((period) => (
+                <PeriodButton key={`d-${period.period_date}`} period={period} />
+              ))}
+            </div>
+            <button
+              type="button"
+              onClick={() => setDayPage((p) => Math.max(p - 1, 0))}
+              disabled={dayPage <= 0}
+              className="rounded-lg border border-border p-2 text-muted-foreground hover:text-foreground hover:bg-card/80 disabled:opacity-40 disabled:pointer-events-none transition-colors"
+              aria-label="Newer days"
+            >
+              <ChevronRight className="h-4 w-4" />
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
@@ -633,6 +727,7 @@ export function LedgerBoard({ initialData, initialHeatmaps }: LedgerBoardProps) 
             <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground mb-2">
                 Leaderboard
             </h1>
+            {period !== 'history' && (
             <div className="flex items-center gap-2 text-muted-foreground font-mono text-xs sm:text-sm">
                 <span className="relative flex h-2 w-2">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
@@ -640,6 +735,7 @@ export function LedgerBoard({ initialData, initialHeatmaps }: LedgerBoardProps) 
                 </span>
                 LIVE STATUS
             </div>
+            )}
         </div>
 
         <div className="flex flex-col items-start md:items-end gap-2 w-full md:w-auto">
