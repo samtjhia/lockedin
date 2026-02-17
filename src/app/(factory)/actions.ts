@@ -285,10 +285,12 @@ export async function punchOut(sessionId: string) {
   const now = new Date()
   let finalDuration = session.accumulated_seconds || 0
 
-  // If active, add the final segment
+  // If active, add the final segment (cap at 8h so leaving the tab open doesn't log days as study time)
   if (session.status === 'active' && session.last_resumed_at) {
     const lastResumed = new Date(session.last_resumed_at)
-    finalDuration += Math.max(0, differenceInSeconds(now, lastResumed))
+    const segmentSeconds = Math.max(0, differenceInSeconds(now, lastResumed))
+    const MAX_ACTIVE_SEGMENT = 8 * 3600
+    finalDuration += Math.min(segmentSeconds, MAX_ACTIVE_SEGMENT)
   }
 
   // 2. Close Session
