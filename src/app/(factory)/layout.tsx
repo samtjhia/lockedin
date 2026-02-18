@@ -5,7 +5,6 @@ import { LayoutDashboard, CalendarDays, Trophy } from 'lucide-react'
 import { SocialSidebar } from '@/components/social/social-sidebar'
 import { FeedbackModal } from '@/components/feedback/feedback-modal'
 import { SetOfflineOnLeave } from '@/components/layout/set-offline-on-leave'
-import { Button } from '@/components/ui/button'
 import { ProfileMenu } from '@/components/profile/profile-menu'
 import { MobileNav } from '@/components/layout/mobile-nav'
 

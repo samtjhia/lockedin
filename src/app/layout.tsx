@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme/theme-provider";
 import { ThemeToaster } from "@/components/theme/theme-toaster";
+import { PersistentYouTubeProvider } from "@/components/layout/persistent-youtube-provider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -38,8 +39,10 @@ export default function RootLayout({
         suppressHydrationWarning
       >
         <ThemeProvider>
-          {children}
-          <ThemeToaster />
+          <PersistentYouTubeProvider>
+            {children}
+            <ThemeToaster />
+          </PersistentYouTubeProvider>
         </ThemeProvider>
       </body>
     </html>

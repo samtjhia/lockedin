@@ -7,8 +7,6 @@ import { HeatMap } from '@/components/dashboard/stats/heat-map'
 import { Charts } from '@/components/dashboard/stats/charts'
 import { ShiftLog } from '@/components/dashboard/stats/shift-log'
 import { DashboardToolbar } from '@/components/dashboard/dashboard-toolbar'
-import { YouTubePlayer } from '@/components/dashboard/youtube-player'
-import { YouTubePlayerProvider } from '@/components/dashboard/youtube-player-context'
 import { DashboardGrid } from '@/components/dashboard/dashboard-grid'
 import { getDashboardData } from '@/app/actions/dashboard'
 import { 
@@ -33,7 +31,6 @@ export default async function Dashboard() {
   ])
 
   return (
-    <YouTubePlayerProvider>
       <div className="p-4 md:p-8 space-y-4 sm:space-y-6 max-w-[1600px] mx-auto min-h-screen">
         {/* Header */}
         <div className="border-b border-border pb-4">
@@ -65,10 +62,8 @@ export default async function Dashboard() {
               </div>
             </>
           }
-          youtubePlayer={<YouTubePlayer />}
           shiftLog={<ShiftLog initialLogs={dashboardData.shiftLog} />}
         />
       </div>
-    </YouTubePlayerProvider>
   )
 }

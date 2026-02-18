@@ -17,7 +17,9 @@ function getYouTubeVideoId(url: string): string | null {
     return null
 }
 
-export function YouTubePlayer() {
+type YouTubePlayerProps = { floating?: boolean }
+
+export function YouTubePlayer({ floating }: YouTubePlayerProps) {
     const { activeVideoId, activeVideoUrl, activeVideoTitle, stopVideo } = useYouTubePlayer()
 
     if (!activeVideoId || !activeVideoUrl) return null
@@ -26,20 +28,20 @@ export function YouTubePlayer() {
     if (!videoId) return null
 
     return (
-        <Card className="border-border bg-muted/50">
-            <CardContent className="p-3">
-                <div className="flex items-center justify-between mb-2">
+        <Card className={floating ? 'border-0 bg-transparent shadow-none flex-1 flex flex-col min-h-0' : 'border-border bg-muted/50'}>
+            <CardContent className={floating ? 'p-2 flex-1 flex flex-col min-h-0' : 'p-3'}>
+                <div className="flex items-center justify-between mb-2 shrink-0">
                     <span className="text-xs text-muted-foreground truncate flex-1">{activeVideoTitle}</span>
                     <Button
                         variant="ghost"
                         size="icon"
-                        className="h-5 w-5 text-muted-foreground hover:text-foreground/70"
+                        className="h-5 w-5 text-muted-foreground hover:text-foreground/70 shrink-0"
                         onClick={stopVideo}
                     >
                         <X className="h-3 w-3" />
                     </Button>
                 </div>
-                <div className="relative aspect-video w-full rounded-lg overflow-hidden bg-card">
+                <div className={floating ? 'relative flex-1 min-h-0 w-full rounded-lg overflow-hidden bg-card' : 'relative aspect-video w-full rounded-lg overflow-hidden bg-card'}>
                     <iframe
                         src={`https://www.youtube.com/embed/${videoId}?autoplay=1`}
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"

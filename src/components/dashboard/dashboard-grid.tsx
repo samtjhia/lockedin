@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button'
 type DashboardGridProps = {
   taskList: React.ReactNode
   centerContent: React.ReactNode
-  youtubePlayer: React.ReactNode
+  youtubePlayer?: React.ReactNode
   shiftLog: React.ReactNode
 }
 
@@ -98,7 +98,7 @@ export function DashboardGrid({ taskList, centerContent, youtubePlayer, shiftLog
           </button>
           {/* Content wrapper */}
           <div className="h-full pt-12 px-3 pb-3 xl:pt-0 xl:px-0 xl:pb-0 xl:absolute xl:inset-0 flex flex-col gap-4">
-            {youtubePlayer}
+            {youtubePlayer ?? null}
             <div className="flex-1 relative min-h-0">
               <div className="xl:absolute xl:inset-0 h-full">
                 {shiftLog}
