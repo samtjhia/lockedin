@@ -133,14 +133,20 @@ export function FocusController({ initialSession }: FocusControllerProps) {
   useEffect(() => {
     const handleVisibility = () => {
       if (document.visibilityState !== 'visible') return
-      if (!session?.id) return
       checkCurrentSession().then((s) => {
-        if (s?.id === session.id) setSession(s)
+        setSession(s ?? null)
       })
     }
     document.addEventListener('visibilitychange', handleVisibility)
     return () => document.removeEventListener('visibilitychange', handleVisibility)
-  }, [session?.id])
+  }, [])
+
+  // When a session is ended elsewhere (e.g. auto-end from layout), clear local state so timer resets
+  useEffect(() => {
+    const handleSessionCompleted = () => setSession(null)
+    window.addEventListener('session-completed', handleSessionCompleted)
+    return () => window.removeEventListener('session-completed', handleSessionCompleted)
+  }, [])
 
   // Function to request notification permission
   const requestNotifPermission = async () => {

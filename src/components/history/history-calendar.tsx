@@ -7,7 +7,8 @@ import { Card, CardContent } from '@/components/ui/card'
 import { getDayLogs, getHistoryStats } from '@/app/actions/history'
 import { deleteSession } from '@/app/actions/dashboard'
 import { formatDuration, calculateGrade } from '@/lib/utils'
-import { ChevronLeft, ChevronRight, Loader2, Calendar as CalendarIcon, Clock, CheckCircle2, TrendingUp, Trophy, Zap, Hourglass, BarChart3, Flame, HelpCircle, Trash2 } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Loader2, Calendar as CalendarIcon, Clock, CheckCircle2, TrendingUp, Trophy, Zap, Hourglass, BarChart3, Flame, HelpCircle, Trash2, Timer } from 'lucide-react'
+import { EditSessionEndTimeDialog, type SessionForEditEndTime } from '@/components/dashboard/edit-session-end-time-dialog'
 import { Button } from '@/components/ui/button'
 import {
   AlertDialog,
@@ -206,6 +207,7 @@ export function HistoryCalendar({ initialData, initialStats }: HistoryCalendarPr
   const [loadingStats, setLoadingStats] = useState(false)
   const [initialLoad, setInitialLoad] = useState(true)
   const [deletingLogId, setDeletingLogId] = useState<string | null>(null)
+  const [editingEndTimeSession, setEditingEndTimeSession] = useState<SessionForEditEndTime | null>(null)
 
   // Map dates to levels for quick lookup
   const dataMap = useMemo(() => {
@@ -599,17 +601,32 @@ export function HistoryCalendar({ initialData, initialStats }: HistoryCalendarPr
                                     )}
                                 </div>
                             </div>
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="icon"
-                              className="h-8 w-8 shrink-0 opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-all"
-                              onClick={() => setDeletingLogId(log.id)}
-                              title="Delete session"
-                              aria-label="Delete session"
-                            >
-                              <Trash2 className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                            </Button>
+                            <div className="flex items-center gap-0.5 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                              {log.ended_at != null && (
+                                <Button
+                                  type="button"
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-8 w-8 text-foreground/70 hover:text-foreground"
+                                  onClick={() => setEditingEndTimeSession({ id: log.id, started_at: log.started_at, ended_at: log.ended_at!, duration_seconds: log.duration_seconds, task_name: log.task_name })}
+                                  title="Edit end time"
+                                  aria-label="Edit end time"
+                                >
+                                  <Timer className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                                </Button>
+                              )}
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-all"
+                                onClick={() => setDeletingLogId(log.id)}
+                                title="Delete session"
+                                aria-label="Delete session"
+                              >
+                                <Trash2 className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                              </Button>
+                            </div>
                         </div>
                     ))
                 ) : (
@@ -621,6 +638,15 @@ export function HistoryCalendar({ initialData, initialStats }: HistoryCalendarPr
                     </div>
                 )}
             </div>
+
+            <EditSessionEndTimeDialog
+              session={editingEndTimeSession}
+              open={!!editingEndTimeSession}
+              onOpenChange={(open) => !open && setEditingEndTimeSession(null)}
+              onSuccess={() => {
+                if (selectedDate) loadDayData(selectedDate)
+              }}
+            />
 
             {/* Delete session confirmation */}
             <AlertDialog open={!!deletingLogId} onOpenChange={(open) => !open && setDeletingLogId(null)}>

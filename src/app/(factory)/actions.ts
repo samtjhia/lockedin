@@ -215,11 +215,13 @@ export async function pauseSession(sessionId: string) {
   const delta = Math.max(0, differenceInSeconds(now, lastResumed))
   const newAccumulated = (session.accumulated_seconds || 0) + delta
 
+  const nowIso = now.toISOString()
   const { data: updatedSession, error } = await supabase
     .from('sessions')
     .update({
         status: 'paused',
         last_resumed_at: null, // clear because it's not running
+        last_paused_at: nowIso,
         accumulated_seconds: newAccumulated
     })
     .eq('id', sessionId)

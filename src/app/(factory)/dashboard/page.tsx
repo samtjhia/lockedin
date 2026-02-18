@@ -41,6 +41,11 @@ export default async function Dashboard() {
               Ready to lock in?
             </p>
           </div>
+          <div className="rounded-lg border border-border bg-muted/40 px-3 py-2.5 mb-4 text-sm text-muted-foreground">
+            <p className="leading-snug">
+              If you accidentally left the timer running: on the same day you can correct the end time (to a shorter time) from <strong className="text-foreground/80">Session Log</strong> on this dashboard; for past days use the Session Log on the <strong className="text-foreground/80">History</strong> page for that day.
+            </p>
+          </div>
           {/* Full-width toolbar */}
           <DashboardToolbar 
             initialSounds={dashboardData.sounds}

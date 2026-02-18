@@ -5,7 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { getShiftLog, deleteSession, updateSessionName } from '@/app/actions/dashboard'
 import { formatDistanceToNow } from 'date-fns'
-import { CheckCircle2, Clock, Pencil, Trash2, X, Check } from 'lucide-react'
+import { CheckCircle2, Clock, Pencil, Trash2, X, Check, Timer } from 'lucide-react'
+import { EditSessionEndTimeDialog, type SessionForEditEndTime } from '@/components/dashboard/edit-session-end-time-dialog'
 import { formatDuration } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -30,6 +31,7 @@ export function ShiftLog({ initialLogs }: ShiftLogProps) {
     const [editingId, setEditingId] = useState<string | null>(null)
     const [editName, setEditName] = useState('')
     const [deletingId, setDeletingId] = useState<string | null>(null)
+    const [editingEndTimeSession, setEditingEndTimeSession] = useState<SessionForEditEndTime | null>(null)
 
     const loadLogs = () => {
         getShiftLog().then(data => setLogs(data || []))
@@ -137,6 +139,15 @@ export function ShiftLog({ initialLogs }: ShiftLogProps) {
                                                         <Button 
                                                             size="icon" 
                                                             variant="ghost" 
+                                                            className="h-6 w-6 text-foreground/70 hover:text-foreground" 
+                                                            onClick={() => setEditingEndTimeSession({ id: session.id, started_at: session.started_at, ended_at: session.ended_at, duration_seconds: session.duration_seconds, task_name: session.task_name })}
+                                                            title="Edit end time"
+                                                        >
+                                                            <Timer className="w-3 h-3" />
+                                                        </Button>
+                                                        <Button 
+                                                            size="icon" 
+                                                            variant="ghost" 
                                                             className="h-6 w-6 text-muted-foreground hover:text-foreground/70" 
                                                             onClick={() => handleEditStart(session)}
                                                             title="Rename"
@@ -163,6 +174,16 @@ export function ShiftLog({ initialLogs }: ShiftLogProps) {
                     </ScrollArea>
                 </CardContent>
             </Card>
+
+            <EditSessionEndTimeDialog
+                session={editingEndTimeSession}
+                open={!!editingEndTimeSession}
+                onOpenChange={(open) => !open && setEditingEndTimeSession(null)}
+                onSuccess={() => {
+                    loadLogs()
+                    window.dispatchEvent(new Event('session-completed'))
+                }}
+            />
 
             <AlertDialog open={!!deletingId} onOpenChange={(open) => !open && setDeletingId(null)}>
                 <AlertDialogContent className="bg-card border-border">

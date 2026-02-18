@@ -222,6 +222,63 @@ export async function updateSessionName(id: string, name: string) {
   return { success: true }
 }
 
+export async function updateSessionEndTime(sessionId: string, newEndedAt: string) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { success: false, error: 'Unauthorized' }
+
+  const { data: session, error: findError } = await supabase
+    .from('sessions')
+    .select('id, user_id, status, started_at, ended_at, duration_seconds')
+    .eq('id', sessionId)
+    .single()
+
+  if (findError || !session) {
+    return { success: false, error: 'Session not found' }
+  }
+  if (session.user_id !== user.id) {
+    return { success: false, error: 'Unauthorized' }
+  }
+  if (session.status !== 'completed') {
+    return { success: false, error: 'Only completed sessions can be edited' }
+  }
+  const started = new Date(session.started_at)
+  const ended = new Date(session.ended_at)
+  let newEnd: Date
+  try {
+    newEnd = new Date(newEndedAt)
+    if (Number.isNaN(newEnd.getTime())) throw new Error('Invalid date')
+  } catch {
+    return { success: false, error: 'Invalid end time' }
+  }
+  if (newEnd < started) {
+    return { success: false, error: 'End time cannot be earlier than the start time' }
+  }
+  if (newEnd > ended) {
+    return { success: false, error: 'End time cannot be later than the current end time' }
+  }
+
+  const newDurationSeconds = Math.floor((newEnd.getTime() - started.getTime()) / 1000)
+
+  const { error: updateError } = await supabase
+    .from('sessions')
+    .update({
+      ended_at: newEnd.toISOString(),
+      duration_seconds: newDurationSeconds,
+    })
+    .eq('id', sessionId)
+    .eq('user_id', user.id)
+
+  if (updateError) {
+    console.error('Error updating session end time:', updateError)
+    return { success: false, error: updateError.message }
+  }
+
+  revalidatePath('/dashboard')
+  revalidatePath('/history')
+  return { success: true }
+}
+
 // Quick Links Actions
 export type UserLink = {
   id: string
