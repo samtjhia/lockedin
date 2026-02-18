@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Slider } from '@/components/ui/slider'
@@ -11,6 +11,7 @@ import {
 } from 'lucide-react'
 import { getSounds, getUserLinks, addUserLink, deleteUserLink, updateUserLink, UserLink } from '@/app/actions/dashboard'
 import { useYouTubePlayer } from './youtube-player-context'
+import { useAmbientSound, type Sound } from './ambient-sound-context'
 
 const ICON_MAP: Record<string, any> = {
     rain: CloudRain,
@@ -19,13 +20,6 @@ const ICON_MAP: Record<string, any> = {
     ocean: Waves,
     storm: CloudLightning,
     white: Tv
-}
-
-type Sound = {
-    id: string
-    label: string
-    icon_key: string
-    file_url: string
 }
 
 function getYouTubeVideoId(url: string): string | null {
@@ -58,13 +52,8 @@ type DashboardToolbarProps = {
 export function DashboardToolbar({ initialSounds, initialQuickLinks, initialYoutubeLinks }: DashboardToolbarProps) {
     // YouTube context
     const { activeVideoId, playerMode, setPlayerMode, playVideo } = useYouTubePlayer()
-
-    // Sound state
-    const [sounds, setSounds] = useState<Sound[]>(initialSounds ?? [])
-    const [activeSound, setActiveSound] = useState<string | null>(null)
-    const [isPlaying, setIsPlaying] = useState(false)
-    const [volume, setVolume] = useState([0.2])
-    const audioRef = useRef<HTMLAudioElement | null>(null)
+    // Ambient sound context (persists across routes so fire/ocean etc. keep playing)
+    const { sounds, setSounds, activeSound, isPlaying, volume, setVolume, togglePlay } = useAmbientSound()
 
     // Quick links state
     const [quickLinks, setQuickLinks] = useState<UserLink[]>(initialQuickLinks ?? [])
@@ -83,44 +72,10 @@ export function DashboardToolbar({ initialSounds, initialQuickLinks, initialYout
     useEffect(() => {
         // Only fetch if no initial data provided
         if (!initialSounds) getSounds().then(data => { if (data && data.length > 0) setSounds(data) })
+        else if (initialSounds.length > 0) setSounds(initialSounds)
         if (!initialQuickLinks) getUserLinks('quick').then(data => setQuickLinks(data))
         if (!initialYoutubeLinks) getUserLinks('youtube').then(data => setYoutubeLinks(data))
-    }, [initialSounds, initialQuickLinks, initialYoutubeLinks])
-
-    // Sound effects
-    useEffect(() => {
-        if (audioRef.current) {
-            const sound = sounds.find(s => s.id === activeSound)
-            const volumeMultiplier = sound && (sound.icon_key === 'ocean' || sound.icon_key === 'white') ? 0.5 : 1
-            audioRef.current.volume = volume[0] * volumeMultiplier
-        }
-    }, [volume, activeSound, sounds])
-
-    useEffect(() => {
-        if (activeSound) {
-            const sound = sounds.find(s => s.id === activeSound)
-            if (sound && audioRef.current && audioRef.current.src !== sound.file_url) {
-                audioRef.current.src = sound.file_url
-            }
-        }
-    }, [activeSound, sounds])
-
-    useEffect(() => {
-        if (isPlaying && activeSound) {
-            audioRef.current?.play().catch(e => console.error(e))
-        } else {
-            audioRef.current?.pause()
-        }
-    }, [isPlaying, activeSound])
-
-    const togglePlay = (id: string) => {
-        if (activeSound === id) {
-            setIsPlaying(!isPlaying)
-        } else {
-            setActiveSound(id)
-            setIsPlaying(true)
-        }
-    }
+    }, [initialSounds, initialQuickLinks, initialYoutubeLinks, setSounds])
 
     // Quick Links handlers
     const handleAddQL = async () => {
@@ -353,8 +308,6 @@ export function DashboardToolbar({ initialSounds, initialQuickLinks, initialYout
                             <Slider value={volume} min={0} max={1} step={0.01} onValueChange={setVolume} className="w-full" />
                         </div>
                     </div>
-                    
-                    <audio ref={audioRef} loop />
                 </CardContent>
             </Card>
         </>

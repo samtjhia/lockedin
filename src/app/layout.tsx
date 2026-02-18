@@ -4,6 +4,7 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/theme/theme-provider";
 import { ThemeToaster } from "@/components/theme/theme-toaster";
 import { PersistentYouTubeProvider } from "@/components/layout/persistent-youtube-provider";
+import { AmbientSoundProvider } from "@/components/dashboard/ambient-sound-context";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -40,8 +41,10 @@ export default function RootLayout({
       >
         <ThemeProvider>
           <PersistentYouTubeProvider>
-            {children}
-            <ThemeToaster />
+            <AmbientSoundProvider>
+              {children}
+              <ThemeToaster />
+            </AmbientSoundProvider>
           </PersistentYouTubeProvider>
         </ThemeProvider>
       </body>
