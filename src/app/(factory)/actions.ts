@@ -4,6 +4,26 @@ import { createClient } from '@/utils/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { differenceInSeconds } from 'date-fns'
 
+const TORONTO_TZ = 'America/Toronto'
+
+/** Returns ISO string for midnight at the start of "today" in America/Toronto. */
+function getStartOfTodayTorontoISO(): string {
+  const now = new Date()
+  const todayStr = now.toLocaleDateString('en-CA', { timeZone: TORONTO_TZ })
+  const [y, month, day] = todayStr.split('-').map(Number)
+  for (let utcHour = 0; utcHour < 24; utcHour++) {
+    const d = new Date(Date.UTC(y, month - 1, day, utcHour, 0, 0, 0))
+    const inToronto = d.toLocaleString('en-CA', { timeZone: TORONTO_TZ, hour: '2-digit', hour12: false, minute: '2-digit' })
+    if (inToronto === '00:00') return d.toISOString()
+  }
+  return new Date(Date.UTC(y, month - 1, day, 5, 0, 0, 0)).toISOString()
+}
+
+/** Server action: returns midnight (start of today) in Toronto as ISO. */
+export async function getStartOfTodayTorontoISOAction(): Promise<string> {
+  return getStartOfTodayTorontoISO()
+}
+
 export async function checkCurrentSession() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -320,6 +340,74 @@ export async function punchOut(sessionId: string) {
 
   revalidatePath('/')
   revalidatePath('/dashboard')
-  
+
   return { success: true }
+}
+
+const MAX_ACTIVE_SEGMENT_SECONDS = 8 * 3600
+
+export async function endSessionAt(sessionId: string, endedAtISO: string) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Not authenticated' }
+
+  const endedAt = new Date(endedAtISO)
+  if (Number.isNaN(endedAt.getTime())) return { error: 'Invalid endedAtISO' }
+
+  const { data: session } = await supabase
+    .from('sessions')
+    .select('*')
+    .eq('id', sessionId)
+    .eq('user_id', user.id)
+    .in('status', ['active', 'paused'])
+    .single()
+
+  if (!session) return { error: 'Session not found or not endable' }
+
+  const startedAt = new Date(session.started_at)
+  if (endedAt < startedAt) return { error: 'endedAt must be >= started_at' }
+
+  const now = new Date()
+  if (endedAt > now) {
+    if (process.env.NODE_ENV === 'development') {
+      console.error('[endSessionAt] validation: endedAt > now', { endedAtISO, now: now.toISOString() })
+    }
+    return { error: 'endedAt must be <= now' }
+  }
+
+  let durationSeconds = session.accumulated_seconds ?? 0
+  if (session.status === 'active' && session.last_resumed_at) {
+    const lastResumed = new Date(session.last_resumed_at)
+    const segmentSeconds = Math.max(0, differenceInSeconds(endedAt, lastResumed))
+    durationSeconds += Math.min(segmentSeconds, MAX_ACTIVE_SEGMENT_SECONDS)
+  }
+
+  const { data: updatedSession, error } = await supabase
+    .from('sessions')
+    .update({
+      ended_at: endedAtISO,
+      duration_seconds: durationSeconds,
+      status: 'completed',
+      last_resumed_at: null,
+    })
+    .eq('id', sessionId)
+    .eq('user_id', user.id)
+    .select()
+    .single()
+
+  if (error) {
+    if (process.env.NODE_ENV === 'development') {
+      console.error('[endSessionAt] supabase error', { sessionId, endedAtISO, error: error.message })
+    }
+    return { error: 'Failed to end session' }
+  }
+
+  await supabase
+    .from('profiles')
+    .update({ current_status: 'online', current_task: null })
+    .eq('id', user.id)
+
+  revalidatePath('/')
+  revalidatePath('/dashboard')
+  return { success: true, session: updatedSession }
 }

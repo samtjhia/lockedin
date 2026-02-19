@@ -148,6 +148,15 @@ export function FocusController({ initialSession }: FocusControllerProps) {
     return () => window.removeEventListener('session-completed', handleSessionCompleted)
   }, [])
 
+  useEffect(() => {
+    const handleSessionRolledOver = (e: Event) => {
+      const { session: newSession } = (e as CustomEvent<{ session: unknown }>).detail
+      if (newSession) setSession(newSession)
+    }
+    window.addEventListener('session-rolled-over', handleSessionRolledOver)
+    return () => window.removeEventListener('session-rolled-over', handleSessionRolledOver)
+  }, [])
+
   // Function to request notification permission
   const requestNotifPermission = async () => {
     if (!('Notification' in window)) return

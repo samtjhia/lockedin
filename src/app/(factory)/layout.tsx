@@ -6,6 +6,7 @@ import { SocialSidebar } from '@/components/social/social-sidebar'
 import { FeedbackModal } from '@/components/feedback/feedback-modal'
 import { SetOfflineOnLeave } from '@/components/layout/set-offline-on-leave'
 import { AutoEndPausedSession } from '@/components/factory/auto-end-paused-session'
+import { MidnightSessionRollover } from '@/components/factory/midnight-session-rollover'
 import { ProfileMenu } from '@/components/profile/profile-menu'
 import { MobileNav } from '@/components/layout/mobile-nav'
 
@@ -47,6 +48,7 @@ export default async function FactoryLayout({
     <div className="flex min-h-screen flex-col bg-background text-foreground">
         <SetOfflineOnLeave />
         <AutoEndPausedSession />
+        <MidnightSessionRollover />
         <header className="border-b border-border px-3 sm:px-6 py-3 sticky top-0 bg-background/80 backdrop-blur-md z-50 flex items-center justify-between gap-2 sm:gap-6">
           <div className="flex items-center gap-2 sm:gap-6 min-w-0">
             {/* Mobile nav menu */}
