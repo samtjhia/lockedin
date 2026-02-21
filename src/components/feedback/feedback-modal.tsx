@@ -26,6 +26,7 @@ import {
 import {
     submitFeedback,
     getAllFeedback,
+    getPendingFeedbackCount,
     checkIsAdmin,
     updateFeedbackStatus,
     uploadFeedbackScreenshot,
@@ -64,6 +65,7 @@ export function FeedbackModal() {
     // Admin state
     const [allFeedback, setAllFeedback] = useState<Feedback[]>([])
     const [loadingFeedback, setLoadingFeedback] = useState(false)
+    const [pendingCount, setPendingCount] = useState(0)
 
     const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -73,9 +75,19 @@ export function FeedbackModal() {
 
     useEffect(() => {
         if (open) {
-            checkIsAdmin().then(setIsAdmin)
+            checkIsAdmin().then((admin) => {
+                setIsAdmin(admin)
+                if (admin) getPendingFeedbackCount().then(setPendingCount)
+            })
         }
     }, [open])
+
+    // When modal closes, refresh pending count so badge updates after admin actions
+    useEffect(() => {
+        if (!open && isAdmin) {
+            getPendingFeedbackCount().then(setPendingCount)
+        }
+    }, [open, isAdmin])
 
     useEffect(() => {
         if (open && isAdmin && activeTab === 'admin') {
@@ -83,10 +95,18 @@ export function FeedbackModal() {
         }
     }, [open, isAdmin, activeTab])
 
+    // On mount, if user is admin fetch pending count for the button badge
+    useEffect(() => {
+        checkIsAdmin().then((admin) => {
+            if (admin) getPendingFeedbackCount().then(setPendingCount)
+        })
+    }, [])
+
     async function loadAllFeedback() {
         setLoadingFeedback(true)
         const data = await getAllFeedback()
         setAllFeedback(data)
+        setPendingCount(data.filter((f) => f.status === 'pending').length)
         setLoadingFeedback(false)
     }
 
@@ -190,11 +210,19 @@ export function FeedbackModal() {
             <Button
                 variant="ghost"
                 size="icon"
-                className="text-muted-foreground hover:text-foreground hover:bg-muted"
+                className="relative text-muted-foreground hover:text-foreground hover:bg-muted"
                 onClick={() => setOpen(true)}
-                title="Send Feedback"
+                title={pendingCount > 0 ? `${pendingCount} pending feedback` : 'Send Feedback'}
             >
                 <MessageSquarePlus className="h-5 w-5" />
+                {pendingCount > 0 && (
+                    <span
+                        className="absolute -right-0.5 -top-0.5 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-amber-500 text-[10px] font-bold text-amber-950"
+                        aria-label={`${pendingCount} pending`}
+                    >
+                        {pendingCount > 9 ? '9+' : pendingCount}
+                    </span>
+                )}
             </Button>
 
             {isMounted && open && createPortal(
@@ -202,9 +230,9 @@ export function FeedbackModal() {
                     className="fixed inset-0 z-[40] flex items-center justify-center bg-background/60 backdrop-blur-md p-4"
                     onClick={() => setOpen(false)}
                 >
-                    {/* Modal Container */}
+                    {/* Modal Container - cap width to viewport so it never cuts off on small screens */}
                     <div
-                        className="relative bg-background border border-border rounded-xl shadow-2xl w-full max-w-lg max-h-[90vh] flex flex-col overflow-hidden animate-in zoom-in-95 fade-in duration-200"
+                        className="relative bg-background border border-border rounded-xl shadow-2xl w-full max-w-[min(32rem,calc(100vw-2rem))] max-h-[90vh] flex flex-col overflow-hidden animate-in zoom-in-95 fade-in duration-200"
                         onClick={e => e.stopPropagation()}
                     >
                         {/* Header */}
@@ -220,8 +248,8 @@ export function FeedbackModal() {
                             </Button>
                         </div>
 
-                        {/* Content - Added overflow-y-auto to handle long forms */}
-                        <div className="overflow-y-auto custom-scrollbar">
+                        {/* Content - overflow-auto so wide content (e.g. admin cards) can scroll and isn't cut off */}
+                        <div className="overflow-auto custom-scrollbar flex-1 min-h-0">
                             <Tabs value={activeTab} onValueChange={setActiveTab} className="flex flex-col">
                                 <TabsList className="mx-5 mt-4 h-10 rounded-lg border border-border bg-card/70 p-1">
                                     <TabsTrigger
@@ -409,7 +437,7 @@ export function FeedbackModal() {
                                                                         </a>
                                                                     )}
                                                                 </div>
-                                                                <div className="flex flex-col items-end gap-2">
+                                                                <div className="flex flex-col items-end gap-2 shrink-0">
                                                                     <select
                                                                         value={item.status}
                                                                         onChange={(e) => handleStatusChange(item.id, e.target.value as FeedbackStatus)}

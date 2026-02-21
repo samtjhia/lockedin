@@ -100,6 +100,14 @@ export async function getAllFeedback(): Promise<Feedback[]> {
     return data || []
 }
 
+/** Returns count of pending feedback. Only returns > 0 for admins; non-admins get 0. */
+export async function getPendingFeedbackCount(): Promise<number> {
+    const isAdmin = await checkIsAdmin()
+    if (!isAdmin) return 0
+    const all = await getAllFeedback()
+    return all.filter((f) => f.status === 'pending').length
+}
+
 export async function updateFeedbackStatus(
     feedbackId: string,
     status: FeedbackStatus,
