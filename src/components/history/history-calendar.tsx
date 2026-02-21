@@ -363,8 +363,8 @@ export function HistoryCalendar({ initialData, initialStats }: HistoryCalendarPr
           </div>
         </div>
 
-        {/* Right Col: Details Panel */}
-        <div className="flex-1 w-full min-h-[400px] h-[500px] sm:h-[600px] lg:h-[650px] bg-muted/30 rounded-xl border border-border/50 flex flex-col">
+        {/* Right Col: Details Panel - viewport-based on mobile so session list has room to scroll */}
+        <div className="flex-1 w-full min-h-[400px] h-[60vh] sm:h-[500px] md:h-[600px] lg:h-[650px] bg-muted/30 rounded-xl border border-border/50 flex flex-col">
             {/* Header */}
             <div className="p-3 sm:p-4 border-b border-border flex items-center justify-between bg-card/20 rounded-t-xl shrink-0">
                 <div className="flex items-center gap-3 sm:gap-4 min-w-0">
@@ -564,8 +564,8 @@ export function HistoryCalendar({ initialData, initialStats }: HistoryCalendarPr
               </div>
             )}
 
-            {/* Scrollable List */}
-            <div className="flex-1 overflow-y-auto px-3 sm:px-4 pb-3 sm:pb-4 space-y-1.5 sm:space-y-2 min-h-0">
+            {/* Scrollable List - min-height so on mobile the list isn't a tiny strip */}
+            <div className="flex-1 overflow-y-auto px-3 sm:px-4 pb-3 sm:pb-4 space-y-1.5 sm:space-y-2 min-h-[220px]">
                 {!selectedDate ? (
                  <div className="h-full flex flex-col items-center justify-center text-muted-foreground space-y-3">
                         <CalendarIcon className="h-8 w-8 sm:h-10 sm:w-10 opacity-20" />
@@ -601,7 +601,7 @@ export function HistoryCalendar({ initialData, initialStats }: HistoryCalendarPr
                                     )}
                                 </div>
                             </div>
-                            <div className="flex items-center gap-0.5 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <div className="flex items-center gap-0.5 shrink-0 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
                               {log.ended_at != null && (
                                 <Button
                                   type="button"
