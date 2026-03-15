@@ -65,6 +65,7 @@ export function HeatMap({ initialData }: HeatMapProps) {
                     <div className="w-full flex justify-center">
                         <ActivityCalendar
                             data={data}
+                            labels={{ totalCount: '{{count}} minutes in {{year}}' }}
                             style={{ color: theme === 'dark' ? '#71717a' : '#a1a1aa' }}
                             theme={{
                                 light: ['#e4e4e7', '#bbf7d0', '#4ade80', '#22c55e', '#15803d'],
