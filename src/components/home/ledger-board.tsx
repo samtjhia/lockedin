@@ -301,7 +301,14 @@ function LeaderboardRow({
     )
 }
 
-const HISTORY_WEEKS = 6
+const HISTORY_TIMELINE_WEEKS = 6
+const MEDAL_RANGE_OPTIONS = [
+  { value: 'all', label: 'All Time', weeksBack: null },
+  { value: '6w', label: '6W', weeksBack: 6 },
+  { value: '12w', label: '12W', weeksBack: 12 },
+  { value: '24w', label: '24W', weeksBack: 24 },
+] as const
+type MedalRangeValue = (typeof MEDAL_RANGE_OPTIONS)[number]['value']
 
 function LeaderboardHistoryRow({
   entry,
@@ -618,8 +625,8 @@ export function LedgerBoard({ initialData, initialHeatmaps }: LedgerBoardProps) 
   const [viewerVerified, setViewerVerified] = useState(false)
   const [medalData, setMedalData] = useState<MedalCountEntry[]>([])
   const [timelineData, setTimelineData] = useState<TimelinePeriod[]>([])
-  const [historyLoaded, setHistoryLoaded] = useState(false)
   const [loadingHistory, setLoadingHistory] = useState(false)
+  const [medalRange, setMedalRange] = useState<MedalRangeValue>('all')
   const [gradeOpen, setGradeOpen] = useState(false)
   const gradeRef = useRef<HTMLDivElement>(null)
 
@@ -680,24 +687,30 @@ export function LedgerBoard({ initialData, initialHeatmaps }: LedgerBoardProps) 
     }
   }, [period])
 
-  // 2b. Fetch history data when History tab is selected for the first time
+  // 2b. Fetch medal history data when History tab or medal range changes
   useEffect(() => {
-    if (period !== 'history' || historyLoaded) return
+    if (period !== 'history') return
     const load = async () => {
       setLoadingHistory(true)
-      const [medals, timeline] = await Promise.all([
-        getLeaderboardMedalCounts(HISTORY_WEEKS),
-        getLeaderboardTimeline(HISTORY_WEEKS),
-      ])
+      const selectedRange = MEDAL_RANGE_OPTIONS.find((o) => o.value === medalRange)
+      const medals = await getLeaderboardMedalCounts(selectedRange?.weeksBack ?? null)
       setMedalData(medals)
-      setTimelineData(timeline)
-      setHistoryLoaded(true)
       setLoadingHistory(false)
     }
     load()
-  }, [period, historyLoaded])
+  }, [period, medalRange])
 
-  // 2c. Refetch when tab becomes visible (daily/weekly only)
+  // 2c. Fetch timeline once when History tab is opened
+  useEffect(() => {
+    if (period !== 'history' || timelineData.length > 0) return
+    const loadTimeline = async () => {
+      const timeline = await getLeaderboardTimeline(HISTORY_TIMELINE_WEEKS)
+      setTimelineData(timeline)
+    }
+    loadTimeline()
+  }, [period, timelineData.length])
+
+  // 2d. Refetch when tab becomes visible (daily/weekly only)
   useEffect(() => {
     if (period === 'history') return
     const handleVisibility = () => {
@@ -734,6 +747,8 @@ export function LedgerBoard({ initialData, initialHeatmaps }: LedgerBoardProps) 
   }, [period])
 
   const totalSecondSum = data.reduce((acc, curr) => acc + (curr.total_seconds || 0), 0)
+  const medalRangeLabel =
+    MEDAL_RANGE_OPTIONS.find((o) => o.value === medalRange)?.label ?? 'Selected Range'
 
   return (
     <div className="w-full max-w-4xl mx-auto space-y-4 sm:space-y-6 md:space-y-8">
@@ -766,7 +781,7 @@ export function LedgerBoard({ initialData, initialHeatmaps }: LedgerBoardProps) 
 
       {/* Controls */}
       <div className="flex items-center justify-between gap-3">
-         <div className="flex items-center gap-2">
+         <div className="flex items-center gap-2 flex-wrap">
             <Tabs value={period} onValueChange={(v) => setPeriod(v as 'daily' | 'weekly' | 'history')} className="w-auto">
                <TabsList className="bg-card border border-border">
                    <TabsTrigger value="daily" className="data-[state=active]:bg-muted data-[state=active]:text-foreground text-muted-foreground text-xs sm:text-sm px-3 sm:px-4">
@@ -780,6 +795,25 @@ export function LedgerBoard({ initialData, initialHeatmaps }: LedgerBoardProps) 
                    </TabsTrigger>
                </TabsList>
             </Tabs>
+            {period === 'history' && (
+              <Tabs
+                value={medalRange}
+                onValueChange={(v) => setMedalRange(v as MedalRangeValue)}
+                className="w-auto"
+              >
+                <TabsList className="bg-card border border-border">
+                  {MEDAL_RANGE_OPTIONS.map((option) => (
+                    <TabsTrigger
+                      key={option.value}
+                      value={option.value}
+                      className="data-[state=active]:bg-muted data-[state=active]:text-foreground text-muted-foreground text-xs px-2.5"
+                    >
+                      {option.label}
+                    </TabsTrigger>
+                  ))}
+                </TabsList>
+              </Tabs>
+            )}
             {/* Grading scheme tooltip — only for daily/weekly; click to open on mobile */}
             {period !== 'history' && (
             <div ref={gradeRef} className="relative group/grade">
@@ -861,7 +895,7 @@ export function LedgerBoard({ initialData, initialHeatmaps }: LedgerBoardProps) 
              </div>
            ) : medalData.length === 0 ? (
              <div className="text-center py-12 sm:py-20 text-muted-foreground font-mono text-xs sm:text-sm border border-dashed border-border rounded-lg">
-               NO MEDAL DATA FOR THE PAST {HISTORY_WEEKS} WEEKS
+               NO MEDAL DATA FOR {medalRangeLabel.toUpperCase()}
              </div>
            ) : (
              medalData.map((entry, index) => (

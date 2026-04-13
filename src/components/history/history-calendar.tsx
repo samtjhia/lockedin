@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useEffect } from 'react'
 import { DayPicker } from 'react-day-picker'
-import { format, isFuture, isSameDay, startOfMonth } from 'date-fns'
+import { format, getDaysInMonth, isFuture, isSameDay, startOfMonth } from 'date-fns'
 import { Card, CardContent } from '@/components/ui/card'
 import { getDayLogs, getHistoryStats } from '@/app/actions/history'
 import { deleteSession } from '@/app/actions/dashboard'
@@ -287,6 +287,13 @@ export function HistoryCalendar({ initialData, initialStats }: HistoryCalendarPr
     level4: 'rdp-day_level4',
   }
 
+  const monthlyWeeklyAverageSeconds = useMemo(() => {
+    if (!stats || selectedDate) return 0
+    const weeksInMonth = getDaysInMonth(currentMonth) / 7
+    if (weeksInMonth <= 0) return 0
+    return Math.round(stats.monthly.total_seconds / weeksInMonth)
+  }, [stats, selectedDate, currentMonth])
+
   return (
     <>
       <style>{rdpStyles}</style>
@@ -484,7 +491,7 @@ export function HistoryCalendar({ initialData, initialStats }: HistoryCalendarPr
             )}
 
                 {stats && !selectedDate && (
-                  <div className="grid grid-cols-2 gap-2 sm:gap-3 px-3 sm:px-4 pt-3 sm:pt-4 animate-in slide-in-from-top-2 shrink-0">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3 px-3 sm:px-4 pt-3 sm:pt-4 animate-in slide-in-from-top-2 shrink-0">
                     <div className="bg-card/40 p-2.5 sm:p-3 rounded-xl border border-border/50 flex flex-col gap-1">
                       <div className="text-[10px] uppercase font-bold text-muted-foreground flex items-center gap-1.5">
                         <BarChart3 className="h-3 w-3 sm:h-3.5 sm:w-3.5" /> Month
@@ -504,6 +511,14 @@ export function HistoryCalendar({ initialData, initialStats }: HistoryCalendarPr
                           const displayH = h % 12 || 12
                           return `${displayH}${ampm}`
                         })() : '--'}
+                      </div>
+                    </div>
+                    <div className="bg-card/40 p-2.5 sm:p-3 rounded-xl border border-border/50 flex flex-col gap-1">
+                      <div className="text-[10px] uppercase font-bold text-muted-foreground flex items-center gap-1.5">
+                        <TrendingUp className="h-3 w-3 sm:h-3.5 sm:w-3.5" /> Weekly Avg
+                      </div>
+                      <div className="text-base sm:text-lg font-bold text-foreground mt-0.5">
+                        {monthlyWeeklyAverageSeconds > 0 ? formatDuration(monthlyWeeklyAverageSeconds) : '--'}
                       </div>
                     </div>
                   </div>

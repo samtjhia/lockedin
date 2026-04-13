@@ -115,7 +115,9 @@ export type MedalCountEntry = {
   bronze_weekly: number
 }
 
-export async function getLeaderboardMedalCounts(weeksBack: number = 6): Promise<MedalCountEntry[]> {
+export async function getLeaderboardMedalCounts(
+  weeksBack: number | null = null
+): Promise<MedalCountEntry[]> {
   const supabase = await createClient()
   const { data, error } = await supabase.rpc('get_leaderboard_medal_counts', {
     weeks_back: weeksBack,
