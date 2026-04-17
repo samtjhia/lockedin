@@ -21,6 +21,7 @@ import {
   LogIn,
   Crown,
   Medal,
+  BellRing,
   ChevronDown,
   ChevronUp,
   ChevronLeft,
@@ -879,21 +880,78 @@ export function LedgerBoard({ initialData, initialHeatmaps }: LedgerBoardProps) 
          </div>
 
          <Link href={user ? "/dashboard" : "/login"}>
-             <Button variant="outline" className="border-border bg-transparent hover:bg-card hover:text-foreground transition-colors text-xs sm:text-sm">
-                {user ? (
-                    <>
-                        <LayoutDashboard className="mr-1.5 sm:mr-2 h-4 w-4 text-muted-foreground" />
-                        <span className="hidden sm:inline">Open Dashboard</span>
-                        <span className="sm:hidden">Dashboard</span>
-                    </>
-                ) : (
-                    <>
-                        <LogIn className="mr-1.5 sm:mr-2 h-4 w-4 text-muted-foreground" />
-                        Log In
-                    </>
-                )}
-             </Button>
-         </Link>
+          <div className="flex items-center gap-2">
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button
+                  variant="outline"
+                  className="border-border bg-transparent hover:bg-card hover:text-foreground transition-colors text-xs sm:text-sm"
+                >
+                  <BellRing className="mr-1.5 sm:mr-2 h-4 w-4 text-muted-foreground" />
+                  <span className="hidden sm:inline">Updates</span>
+                  <span className="sm:hidden">News</span>
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-lg">
+                <DialogHeader>
+                  <DialogTitle>Latest Changes — Health + Strava</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4 text-sm text-foreground/90">
+                  <div>
+                    <p className="font-semibold mb-1">Health mode now lives across the app</p>
+                    <p className="text-muted-foreground">
+                      Sessions now support Study and Health domains. Use the All / Study / Health toggles to switch your lens.
+                    </p>
+                  </div>
+
+                  <div>
+                    <p className="font-semibold mb-1">Strava integration is now on your profile Health view</p>
+                    <p className="text-muted-foreground">
+                      Connect, sync, and manage Strava from your own profile in Health view (not edit profile). New Strava connects now redirect there automatically.
+                    </p>
+                  </div>
+
+                  <div>
+                    <p className="font-semibold mb-1">Richer health insights</p>
+                    <p className="text-muted-foreground">
+                      Added activity lists, per-activity stats, trend views, PR/best-effort details, timeframe + activity filters, and links to Strava activities.
+                    </p>
+                  </div>
+
+                  <div>
+                    <p className="font-semibold mb-1">Medal logic update</p>
+                    <p className="text-muted-foreground">
+                      Overall medal counts now exclude Health sessions to prevent skew. Health medals are counted in Health view.
+                    </p>
+                  </div>
+
+                  <div>
+                    <p className="font-semibold mb-1">Where to find everything</p>
+                    <p className="text-muted-foreground">
+                      Leaderboard: switch to History + Health for health-only medals. Profile: open your profile and switch to Health for Strava tools and insights. Dashboard: use view toggle for All / Study / Health analytics.
+                    </p>
+                  </div>
+                </div>
+              </DialogContent>
+            </Dialog>
+
+            <Link href={user ? "/dashboard" : "/login"}>
+              <Button variant="outline" className="border-border bg-transparent hover:bg-card hover:text-foreground transition-colors text-xs sm:text-sm">
+                  {user ? (
+                      <>
+                          <LayoutDashboard className="mr-1.5 sm:mr-2 h-4 w-4 text-muted-foreground" />
+                          <span className="hidden sm:inline">Open Dashboard</span>
+                          <span className="sm:hidden">Dashboard</span>
+                      </>
+                  ) : (
+                      <>
+                          <LogIn className="mr-1.5 sm:mr-2 h-4 w-4 text-muted-foreground" />
+                          Log In
+                      </>
+                  )}
+              </Button>
+            </Link>
+          </div>
       </div>
 
       {period === 'history' && viewMode === 'all' && (
