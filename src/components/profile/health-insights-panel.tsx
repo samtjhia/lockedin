@@ -159,6 +159,7 @@ export function HealthInsightsPanel({ insights }: HealthInsightsPanelProps) {
         return {
           activityType,
           totalActivities: groupSessions.length,
+          totalMinutes: groupSessions.reduce((sum, session) => sum + session.durationMinutes, 0),
           totalDistanceKm: groupSessions.reduce((sum, session) => sum + session.distanceKm, 0),
           averagePaceMinPerKm:
             paceValues.length > 0 ? paceValues.reduce((a, b) => a + b, 0) / paceValues.length : null,
