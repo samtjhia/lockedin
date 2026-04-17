@@ -6,23 +6,25 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pi
 import { getDailyMetrics } from '@/app/actions/dashboard'
 import { formatDuration } from '@/lib/utils'
 import { useTheme } from '@/components/theme/theme-provider'
+import { type ViewMode } from '@/lib/view-mode'
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8']
 
 type ChartsProps = {
     initialMetrics?: any
+    viewMode?: ViewMode
 }
 
 const CHART_HEIGHT = 250
 const CHART_MIN_WIDTH = 280
 
-export function Charts({ initialMetrics }: ChartsProps) {
+export function Charts({ initialMetrics, viewMode = 'all' }: ChartsProps) {
     const [metrics, setMetrics] = useState<any>(initialMetrics ?? null)
     const [mounted, setMounted] = useState(false)
     const [canRenderCharts, setCanRenderCharts] = useState(false)
 
     const loadMetrics = () => {
-        getDailyMetrics().then(data => setMetrics(data))
+        getDailyMetrics(undefined, viewMode).then(data => setMetrics(data))
     }
 
     useEffect(() => {
@@ -40,7 +42,7 @@ export function Charts({ initialMetrics }: ChartsProps) {
         // Listen for session completion to refresh
         window.addEventListener('session-completed', loadMetrics)
         return () => window.removeEventListener('session-completed', loadMetrics)
-    }, [initialMetrics])
+    }, [initialMetrics, viewMode])
 
     const { theme } = useTheme()
 

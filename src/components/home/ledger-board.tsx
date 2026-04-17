@@ -12,6 +12,7 @@ import {
   type TimelinePeriod,
 } from '@/app/actions'
 import { calculateGrade, formatDuration, cn } from '@/lib/utils'
+import { type ViewMode } from '@/lib/view-mode'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -627,6 +628,7 @@ export function LedgerBoard({ initialData, initialHeatmaps }: LedgerBoardProps) 
   const [timelineData, setTimelineData] = useState<TimelinePeriod[]>([])
   const [loadingHistory, setLoadingHistory] = useState(false)
   const [medalRange, setMedalRange] = useState<MedalRangeValue>('all')
+  const [viewMode, setViewMode] = useState<ViewMode>('all')
   const [gradeOpen, setGradeOpen] = useState(false)
   const gradeRef = useRef<HTMLDivElement>(null)
 
@@ -663,14 +665,14 @@ export function LedgerBoard({ initialData, initialHeatmaps }: LedgerBoardProps) 
   }, [])
 
   const fetchData = async () => {
-    const newData = await getLeaderboardData(period as 'daily' | 'weekly')
+    const newData = await getLeaderboardData(period as 'daily' | 'weekly', viewMode)
     const formattedData = (newData || []).map((entry: any) => ({
         ...entry,
         total_seconds: Number(entry.total_seconds)
     }))
     setData(formattedData)
     const userIds = formattedData.map((e: LeaderboardEntry) => e.user_id)
-    const newHeatmaps = await getLeaderboardHeatmaps(userIds)
+    const newHeatmaps = await getLeaderboardHeatmaps(userIds, viewMode)
     setHeatmaps(newHeatmaps)
   }
 
@@ -685,7 +687,7 @@ export function LedgerBoard({ initialData, initialHeatmaps }: LedgerBoardProps) 
     if (period !== 'daily' || data !== initialData) {
         run()
     }
-  }, [period])
+  }, [period, viewMode])
 
   // 2b. Fetch medal history data when History tab or medal range changes
   useEffect(() => {
@@ -693,22 +695,22 @@ export function LedgerBoard({ initialData, initialHeatmaps }: LedgerBoardProps) 
     const load = async () => {
       setLoadingHistory(true)
       const selectedRange = MEDAL_RANGE_OPTIONS.find((o) => o.value === medalRange)
-      const medals = await getLeaderboardMedalCounts(selectedRange?.weeksBack ?? null)
+      const medals = await getLeaderboardMedalCounts(selectedRange?.weeksBack ?? null, viewMode)
       setMedalData(medals)
       setLoadingHistory(false)
     }
     load()
-  }, [period, medalRange])
+  }, [period, medalRange, viewMode])
 
   // 2c. Fetch timeline once when History tab is opened
   useEffect(() => {
-    if (period !== 'history' || timelineData.length > 0) return
+    if (period !== 'history') return
     const loadTimeline = async () => {
-      const timeline = await getLeaderboardTimeline(HISTORY_TIMELINE_WEEKS)
+      const timeline = await getLeaderboardTimeline(HISTORY_TIMELINE_WEEKS, viewMode)
       setTimelineData(timeline)
     }
     loadTimeline()
-  }, [period, timelineData.length])
+  }, [period, viewMode])
 
   // 2d. Refetch when tab becomes visible (daily/weekly only)
   useEffect(() => {
@@ -794,6 +796,19 @@ export function LedgerBoard({ initialData, initialHeatmaps }: LedgerBoardProps) 
                        History
                    </TabsTrigger>
                </TabsList>
+            </Tabs>
+            <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as ViewMode)} className="w-auto">
+              <TabsList className="bg-card border border-border">
+                <TabsTrigger value="all" className="data-[state=active]:bg-muted data-[state=active]:text-foreground text-muted-foreground text-xs px-2.5">
+                  All
+                </TabsTrigger>
+                <TabsTrigger value="study" className="data-[state=active]:bg-muted data-[state=active]:text-foreground text-muted-foreground text-xs px-2.5">
+                  Study
+                </TabsTrigger>
+                <TabsTrigger value="health" className="data-[state=active]:bg-muted data-[state=active]:text-foreground text-muted-foreground text-xs px-2.5">
+                  Health
+                </TabsTrigger>
+              </TabsList>
             </Tabs>
             {period === 'history' && (
               <Tabs

@@ -2,8 +2,9 @@
 
 import { createClient } from '@/utils/supabase/server'
 import { revalidatePath } from 'next/cache'
+import { type ViewMode } from '@/lib/view-mode'
 
-export async function getHeatmapData() {
+export async function getHeatmapData(viewMode: ViewMode = 'all') {
   const supabase = await createClient()
   
   // Get data for the last 365 days
@@ -12,7 +13,8 @@ export async function getHeatmapData() {
   oneYearAgo.setFullYear(today.getFullYear() - 1)
   
   const { data, error } = await supabase.rpc('get_heatmap_data', {
-    start_date: oneYearAgo.toISOString()
+    start_date: oneYearAgo.toISOString(),
+    view_mode: viewMode,
   })
   
   if (error) {
@@ -28,7 +30,7 @@ export async function getHeatmapData() {
   }))
 }
 
-export async function getDailyMetrics(date?: Date) {
+export async function getDailyMetrics(date?: Date, viewMode: ViewMode = 'all') {
   const supabase = await createClient()
   
   // Fix: Ensure we use Toronto time to determine "Today"
@@ -38,7 +40,8 @@ export async function getDailyMetrics(date?: Date) {
     : new Date().toLocaleDateString('en-CA', { timeZone: 'America/Toronto' })
   
   const { data, error } = await supabase.rpc('get_daily_metrics', {
-    target_date: targetDate
+    target_date: targetDate,
+    view_mode: viewMode,
   })
   
   if (error) {
@@ -49,7 +52,7 @@ export async function getDailyMetrics(date?: Date) {
   return data
 }
 
-export async function getShiftLog(date?: Date) {
+export async function getShiftLog(date?: Date, viewMode: ViewMode = 'all') {
   const supabase = await createClient()
 
   // Use Toronto time for "today" so session log matches daily metrics, heatmap, and history
@@ -58,7 +61,8 @@ export async function getShiftLog(date?: Date) {
     : new Date().toLocaleDateString('en-CA', { timeZone: 'America/Toronto' })
 
   const { data, error } = await supabase.rpc('get_day_metrics_log', {
-    target_date: targetDateStr
+    target_date: targetDateStr,
+    view_mode: viewMode,
   })
 
   if (error) {
@@ -387,7 +391,7 @@ export async function deleteUserLink(id: string) {
 }
 
 // Combined dashboard data fetch - runs all queries in parallel
-export async function getDashboardData() {
+export async function getDashboardData(viewMode: ViewMode = 'all') {
   const [
     heatmapData,
     dailyMetrics,
@@ -397,9 +401,9 @@ export async function getDashboardData() {
     quickLinks,
     youtubeLinks
   ] = await Promise.all([
-    getHeatmapData(),
-    getDailyMetrics(),
-    getShiftLog(),
+    getHeatmapData(viewMode),
+    getDailyMetrics(undefined, viewMode),
+    getShiftLog(undefined, viewMode),
     getTodos(),
     getSounds(),
     getUserLinks('quick'),

@@ -165,6 +165,8 @@ export async function punchIn(formData: FormData) {
   const taskName = (formData.get('taskName') as string)?.trim()
   const mode = formData.get('mode') as string || 'stopwatch'
   const isAuto = formData.get('isAuto') === 'true'
+  const requestedDomain = (formData.get('domain') as string | null)?.toLowerCase() ?? 'study'
+  const domain = requestedDomain === 'health' ? 'health' : 'study'
 
   if (!taskName) {
      return { error: 'Task name is required' }
@@ -189,6 +191,7 @@ export async function punchIn(formData: FormData) {
       user_id: user.id,
       task_name: taskName,
       mode: mode,
+      domain,
       status: 'active',
       started_at: now,
       last_resumed_at: now,

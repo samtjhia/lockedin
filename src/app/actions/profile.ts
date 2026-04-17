@@ -3,6 +3,7 @@
 import { createClient } from '@/utils/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { calculateGrade } from '@/lib/utils'
+import { type ViewMode } from '@/lib/view-mode'
 
 export type ProfileSummary = {
   id: string
@@ -59,7 +60,7 @@ export type UserProfileData = {
   }[]
 }
 
-export async function getUserProfileData(slug: string): Promise<UserProfileData | null> {
+export async function getUserProfileData(slug: string, viewMode: ViewMode = 'all'): Promise<UserProfileData | null> {
   const supabase = await createClient()
 
   const {
@@ -120,18 +121,22 @@ export async function getUserProfileData(slug: string): Promise<UserProfileData 
     supabase.rpc('get_user_history_stats', {
       target_user_id: targetUserId,
       target_date: todayStr,
+      view_mode: viewMode,
     }),
     supabase.rpc('get_user_heatmap_data', {
       target_user_id: targetUserId,
       start_date: oneYearAgo.toISOString(),
+      view_mode: viewMode,
     }),
     supabase.rpc('get_user_top_tasks', {
       target_user_id: targetUserId,
       period: 'daily',
+      view_mode: viewMode,
     }),
     supabase.rpc('get_user_top_tasks', {
       target_user_id: targetUserId,
       period: 'weekly',
+      view_mode: viewMode,
     }),
     supabase.rpc('get_user_friends', { target_user_id: targetUserId }),
     supabase.rpc('get_friends'),
@@ -147,6 +152,7 @@ export async function getUserProfileData(slug: string): Promise<UserProfileData 
     supabase.rpc('get_user_medal_history', {
       target_user_id: targetUserId,
       weeks_back: 6,
+      view_mode: viewMode,
     }),
   ])
 

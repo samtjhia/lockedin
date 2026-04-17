@@ -17,8 +17,18 @@ import {
   ToolbarSkeleton 
 } from '@/components/dashboard/skeletons'
 import { ChartsErrorBoundary } from '@/components/dashboard/stats/charts-error-boundary'
+import { ViewModeQueryTabs } from '@/components/shared/view-mode-query-tabs'
+import { normalizeViewMode } from '@/lib/view-mode'
 
-export default async function Dashboard() {
+type DashboardPageProps = {
+  searchParams: Promise<{
+    view?: string
+  }>
+}
+
+export default async function Dashboard({ searchParams }: DashboardPageProps) {
+  const resolvedSearchParams = await searchParams
+  const viewMode = normalizeViewMode(resolvedSearchParams.view)
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return null
@@ -27,7 +37,7 @@ export default async function Dashboard() {
   const [profile, currentSession, dashboardData] = await Promise.all([
     supabase.from('profiles').select('username').eq('id', user.id).single().then(r => r.data),
     checkCurrentSession(),
-    getDashboardData()
+    getDashboardData(viewMode)
   ])
 
   return (
@@ -46,6 +56,9 @@ export default async function Dashboard() {
               If you accidentally left the timer running: on the same day you can correct the end time (to a shorter time) from <strong className="text-foreground/80">Session Log</strong> on this dashboard; for past days use the Session Log on the <strong className="text-foreground/80">History</strong> page for that day.
             </p>
           </div>
+          <div className="mb-4">
+            <ViewModeQueryTabs value={viewMode} />
+          </div>
           {/* Full-width toolbar */}
           <DashboardToolbar 
             initialSounds={dashboardData.sounds}
@@ -61,13 +74,13 @@ export default async function Dashboard() {
               <FocusController initialSession={currentSession} />
               <div className="grid grid-cols-1 gap-6">
                 <ChartsErrorBoundary>
-                  <Charts initialMetrics={dashboardData.dailyMetrics} />
+                  <Charts key={`charts-${viewMode}`} initialMetrics={dashboardData.dailyMetrics} viewMode={viewMode} />
                 </ChartsErrorBoundary>
-                <HeatMap initialData={dashboardData.heatmapData} />
+                <HeatMap key={`heatmap-${viewMode}`} initialData={dashboardData.heatmapData} viewMode={viewMode} />
               </div>
             </>
           }
-          shiftLog={<ShiftLog initialLogs={dashboardData.shiftLog} />}
+          shiftLog={<ShiftLog key={`shiftlog-${viewMode}`} initialLogs={dashboardData.shiftLog} viewMode={viewMode} />}
         />
       </div>
   )

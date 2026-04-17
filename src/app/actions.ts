@@ -1,10 +1,11 @@
 'use server'
 
 import { createClient } from '@/utils/supabase/server'
+import { type ViewMode } from '@/lib/view-mode'
 
-export async function getLeaderboardData(period: 'daily' | 'weekly') {
+export async function getLeaderboardData(period: 'daily' | 'weekly', viewMode: ViewMode = 'all') {
   const supabase = await createClient()
-  const { data, error } = await supabase.rpc('get_leaderboard', { period })
+  const { data, error } = await supabase.rpc('get_leaderboard', { period, view_mode: viewMode })
   
   if (error) {
     console.error('Leaderboard fetch error:', error)
@@ -14,11 +15,12 @@ export async function getLeaderboardData(period: 'daily' | 'weekly') {
   return data
 }
 
-export async function getUserTopTasks(userId: string, period: 'daily' | 'weekly') {
+export async function getUserTopTasks(userId: string, period: 'daily' | 'weekly', viewMode: ViewMode = 'all') {
     const supabase = await createClient()
     const { data, error } = await supabase.rpc('get_user_top_tasks', { 
         target_user_id: userId, 
-        period 
+        period,
+        view_mode: viewMode,
     })
 
     if (error) {
@@ -28,7 +30,7 @@ export async function getUserTopTasks(userId: string, period: 'daily' | 'weekly'
     return data
 }
 
-export async function getUserHeatmapData(userId: string) {
+export async function getUserHeatmapData(userId: string, viewMode: ViewMode = 'all') {
     const supabase = await createClient()
     
     // Get last 365 days for full year
@@ -37,7 +39,8 @@ export async function getUserHeatmapData(userId: string) {
     
     const { data, error } = await supabase.rpc('get_user_heatmap_data', {
         target_user_id: userId,
-        start_date: oneYearAgo.toISOString()
+        start_date: oneYearAgo.toISOString(),
+        view_mode: viewMode,
     })
     
     if (error) {
@@ -48,7 +51,7 @@ export async function getUserHeatmapData(userId: string) {
     return data || []
 }
 
-export async function getLeaderboardHeatmaps(userIds: string[]) {
+export async function getLeaderboardHeatmaps(userIds: string[], viewMode: ViewMode = 'all') {
     const supabase = await createClient()
     
     // Get last 365 days for full year heatmap
@@ -60,7 +63,8 @@ export async function getLeaderboardHeatmaps(userIds: string[]) {
         userIds.map(async (userId) => {
             const { data, error } = await supabase.rpc('get_user_heatmap_data', {
                 target_user_id: userId,
-                start_date: oneYearAgo.toISOString()
+                start_date: oneYearAgo.toISOString(),
+                view_mode: viewMode,
             })
             return { userId, data: data || [], error }
         })
@@ -79,10 +83,11 @@ export async function getLeaderboardHeatmaps(userIds: string[]) {
 
 // --- Leaderboard history and medals ---
 
-export async function getLeaderboardForDate(targetDate: string) {
+export async function getLeaderboardForDate(targetDate: string, viewMode: ViewMode = 'all') {
   const supabase = await createClient()
   const { data, error } = await supabase.rpc('get_leaderboard_for_date', {
     target_date: targetDate,
+    view_mode: viewMode,
   })
   if (error) {
     console.error('Leaderboard for date error:', error)
@@ -91,10 +96,11 @@ export async function getLeaderboardForDate(targetDate: string) {
   return data || []
 }
 
-export async function getLeaderboardForWeek(weekStart: string) {
+export async function getLeaderboardForWeek(weekStart: string, viewMode: ViewMode = 'all') {
   const supabase = await createClient()
   const { data, error } = await supabase.rpc('get_leaderboard_for_week', {
     week_start: weekStart,
+    view_mode: viewMode,
   })
   if (error) {
     console.error('Leaderboard for week error:', error)
@@ -116,11 +122,13 @@ export type MedalCountEntry = {
 }
 
 export async function getLeaderboardMedalCounts(
-  weeksBack: number | null = null
+  weeksBack: number | null = null,
+  viewMode: ViewMode = 'all'
 ): Promise<MedalCountEntry[]> {
   const supabase = await createClient()
   const { data, error } = await supabase.rpc('get_leaderboard_medal_counts', {
     weeks_back: weeksBack,
+    view_mode: viewMode,
   })
   if (error) {
     console.error('Leaderboard medal counts error:', error)
@@ -146,10 +154,11 @@ export type TimelinePeriod = {
   standings: { rank: number; user_id: string; username: string | null; total_seconds: number }[]
 }
 
-export async function getLeaderboardTimeline(weeksBack: number = 6): Promise<TimelinePeriod[]> {
+export async function getLeaderboardTimeline(weeksBack: number = 6, viewMode: ViewMode = 'all'): Promise<TimelinePeriod[]> {
   const supabase = await createClient()
   const { data, error } = await supabase.rpc('get_leaderboard_timeline', {
     weeks_back: weeksBack,
+    view_mode: viewMode,
   })
   if (error) {
     console.error('Leaderboard timeline error:', error)

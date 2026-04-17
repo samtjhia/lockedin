@@ -15,7 +15,7 @@ import {
   DialogFooter,
   DialogDescription,
 } from '@/components/ui/dialog'
-import { StopCircle, Play, Timer, Clock, Pause, Coffee, Bell, BellOff, Volume2, VolumeX, Maximize2, Minimize2, Settings2 } from 'lucide-react'
+import { StopCircle, Play, Timer, Clock, Pause, Coffee, Bell, BellOff, Volume2, VolumeX, Maximize2, Minimize2, Settings2, BookOpen, Dumbbell } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 
 const POMO_STORAGE_KEY = 'lockedin-pomo-settings'
@@ -57,6 +57,7 @@ export function FocusController({ initialSession }: FocusControllerProps) {
   const [pomoConfig, setPomoConfig] = useState<PomoConfig>(DEFAULT_POMO)
   const [pomoSettingsOpen, setPomoSettingsOpen] = useState(false)
   const [taskName, setTaskName] = useState('')
+  const [sessionDomain, setSessionDomain] = useState<'study' | 'health'>('study')
 
   useEffect(() => {
      const handlePlayTask = (e: CustomEvent) => {
@@ -219,6 +220,7 @@ export function FocusController({ initialSession }: FocusControllerProps) {
     setLoading(true)
     setError(null)
     formData.append('mode', mode)
+    formData.append('domain', sessionDomain)
     
     try {
       const result = await punchIn(formData)
@@ -450,6 +452,20 @@ export function FocusController({ initialSession }: FocusControllerProps) {
                         <Coffee className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
                         Break
                     </ToggleGroupItem>
+                </ToggleGroup>
+                <ToggleGroup
+                  type="single"
+                  value={sessionDomain}
+                  onValueChange={(v) => v && setSessionDomain(v as 'study' | 'health')}
+                >
+                  <ToggleGroupItem value="study" aria-label="Study domain" className="text-xs sm:text-sm px-2 sm:px-3">
+                    <BookOpen className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+                    Study
+                  </ToggleGroupItem>
+                  <ToggleGroupItem value="health" aria-label="Health domain" className="text-xs sm:text-sm px-2 sm:px-3">
+                    <Dumbbell className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+                    Health
+                  </ToggleGroupItem>
                 </ToggleGroup>
                 {mode === 'pomo' && (
                   <Button

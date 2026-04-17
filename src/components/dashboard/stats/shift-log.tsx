@@ -21,12 +21,14 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
 import { toast } from 'sonner'
+import { type ViewMode } from '@/lib/view-mode'
 
 type ShiftLogProps = {
     initialLogs?: any[]
+    viewMode?: ViewMode
 }
 
-export function ShiftLog({ initialLogs }: ShiftLogProps) {
+export function ShiftLog({ initialLogs, viewMode = 'all' }: ShiftLogProps) {
     const [logs, setLogs] = useState<any[]>(initialLogs ?? [])
     const [editingId, setEditingId] = useState<string | null>(null)
     const [editName, setEditName] = useState('')
@@ -34,7 +36,7 @@ export function ShiftLog({ initialLogs }: ShiftLogProps) {
     const [editingEndTimeSession, setEditingEndTimeSession] = useState<SessionForEditEndTime | null>(null)
 
     const loadLogs = () => {
-        getShiftLog().then(data => setLogs(data || []))
+        getShiftLog(undefined, viewMode).then(data => setLogs(data || []))
     }
 
     useEffect(() => {
@@ -43,7 +45,7 @@ export function ShiftLog({ initialLogs }: ShiftLogProps) {
         // Listen for session completion
         window.addEventListener('session-completed', loadLogs)
         return () => window.removeEventListener('session-completed', loadLogs)
-    }, [initialLogs])
+    }, [initialLogs, viewMode])
 
     const handleEditStart = (session: any) => {
         setEditingId(session.id)

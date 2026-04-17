@@ -9,16 +9,23 @@ import { HeatMap } from '@/components/dashboard/stats/heat-map'
 import { Target, HelpCircle, Medal } from 'lucide-react'
 import { PokeButton } from '@/components/profile/poke-button'
 import { AddFriendButton } from '@/components/profile/add-friend-button'
+import { ViewModeQueryTabs } from '@/components/shared/view-mode-query-tabs'
+import { normalizeViewMode } from '@/lib/view-mode'
 
 type ProfilePageProps = {
   params: Promise<{
     slug: string
   }>
+  searchParams: Promise<{
+    view?: string
+  }>
 }
 
-export default async function ProfilePage({ params }: ProfilePageProps) {
+export default async function ProfilePage({ params, searchParams }: ProfilePageProps) {
   const { slug } = await params
-  const data = await getUserProfileData(slug)
+  const resolvedSearchParams = await searchParams
+  const viewMode = normalizeViewMode(resolvedSearchParams.view)
+  const data = await getUserProfileData(slug, viewMode)
 
   if (!data) {
     notFound()
@@ -158,6 +165,8 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
           )}
         </CardContent>
       </Card>
+
+      <ViewModeQueryTabs value={viewMode} />
 
       {/* Grades — single compact card */}
       <Card className="bg-muted/60 border-border">
@@ -314,15 +323,24 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
       </Card>
 
       {/* Heatmap */}
-      <HeatMap initialData={heatmap} />
+      <HeatMap
+        key={`profile-heatmap-${profile.id}-${viewMode}`}
+        initialData={heatmap}
+        viewMode={viewMode}
+        autoRefresh={false}
+      />
 
       {/* Top subjects — side by side */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <Card className="bg-muted/60 border-border">
           <CardContent className="p-4">
-            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-3">Today</p>
+            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-3">
+              {viewMode === 'health' ? 'Today Workouts' : 'Today'}
+            </p>
             {topTasksDaily.length === 0 ? (
-              <p className="text-xs text-muted-foreground">No sessions today.</p>
+              <p className="text-xs text-muted-foreground">
+                {viewMode === 'health' ? 'No health sessions today.' : 'No sessions today.'}
+              </p>
             ) : (
               <div className="space-y-2">
                 {topTasksDaily.slice(0, 5).map((task, i) => (
@@ -343,9 +361,13 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
 
         <Card className="bg-muted/60 border-border">
           <CardContent className="p-4">
-            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-3">This week</p>
+            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-3">
+              {viewMode === 'health' ? 'This Week Workouts' : 'This week'}
+            </p>
             {topTasksWeekly.length === 0 ? (
-              <p className="text-xs text-muted-foreground">No sessions this week.</p>
+              <p className="text-xs text-muted-foreground">
+                {viewMode === 'health' ? 'No health sessions this week.' : 'No sessions this week.'}
+              </p>
             ) : (
               <div className="space-y-2">
                 {topTasksWeekly.slice(0, 5).map((task, i) => (

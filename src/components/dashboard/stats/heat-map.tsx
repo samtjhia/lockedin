@@ -6,10 +6,13 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { getHeatmapData } from '@/app/actions/dashboard'
 import { Tooltip as ReactTooltip } from 'react-tooltip'
 import { useTheme } from '@/components/theme/theme-provider'
+import { type ViewMode } from '@/lib/view-mode'
 import 'react-tooltip/dist/react-tooltip.css'
 
 type HeatMapProps = {
     initialData?: any[]
+    viewMode?: ViewMode
+    autoRefresh?: boolean
 }
 
 function formatMinutes(mins: number): string {
@@ -26,25 +29,26 @@ function formatTotalTime(mins: number): string {
     return `${hours}h ${remaining}m`
 }
 
-export function HeatMap({ initialData }: HeatMapProps) {
+export function HeatMap({ initialData, viewMode = 'all', autoRefresh = true }: HeatMapProps) {
     const { theme } = useTheme()
     const [data, setData] = useState<any[]>(() => initialData ? fillDateGaps(initialData) : [])
 
-    useEffect(() => {
-        // Only fetch if no initial data
-        if (!initialData) loadData()
-        window.addEventListener('session-completed', loadData)
-        return () => window.removeEventListener('session-completed', loadData)
-    }, [initialData])
-
-    async function loadData() {
+    const loadData = async () => {
         try {
-            const res = await getHeatmapData()
+            const res = await getHeatmapData(viewMode)
             setData(fillDateGaps(res))
         } catch (e) {
             console.error(e)
         }
     }
+
+    useEffect(() => {
+        if (!autoRefresh) return
+        // Only fetch if no initial data
+        if (!initialData) loadData()
+        window.addEventListener('session-completed', loadData)
+        return () => window.removeEventListener('session-completed', loadData)
+    }, [initialData, viewMode, autoRefresh])
 
     if (data.length === 0) return <div className="h-[200px] w-full animate-pulse bg-card rounded-xl" />
 
