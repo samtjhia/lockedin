@@ -883,12 +883,13 @@ export function LedgerBoard({ initialData, initialHeatmaps }: LedgerBoardProps) 
            <Dialog>
              <DialogTrigger asChild>
                <Button
+                 type="button"
                  variant="outline"
-                 className="border-border bg-transparent hover:bg-card hover:text-foreground transition-colors text-xs sm:text-sm"
+                 size="icon-sm"
+                 className="border-border bg-transparent hover:bg-card hover:text-foreground shrink-0"
+                 aria-label="Release notes and latest changes"
                >
-                 <BellRing className="mr-1.5 sm:mr-2 h-4 w-4 text-muted-foreground" />
-                 <span className="hidden sm:inline">Updates</span>
-                 <span className="sm:hidden">News</span>
+                 <BellRing className="text-muted-foreground" />
                </Button>
              </DialogTrigger>
              <DialogContent className="max-w-lg">
