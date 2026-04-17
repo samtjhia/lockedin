@@ -896,6 +896,12 @@ export function LedgerBoard({ initialData, initialHeatmaps }: LedgerBoardProps) 
          </Link>
       </div>
 
+      {period === 'history' && viewMode === 'all' && (
+        <p className="text-xs text-muted-foreground">
+          Overall medal counts exclude health sessions. Health medals are only counted in the Health view.
+        </p>
+      )}
+
       {/* Timeline (History tab only) */}
       {period === 'history' && timelineData.length > 0 && (
         <TimelineStrip timeline={timelineData} formatDuration={formatDuration} />

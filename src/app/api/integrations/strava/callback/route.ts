@@ -71,10 +71,16 @@ export async function GET(request: NextRequest) {
       reason: 'connect',
       lookbackSeconds: 90 * 24 * 60 * 60,
     })
+    const { data: profile } = await admin
+      .from('profiles')
+      .select('username')
+      .eq('id', user.id)
+      .maybeSingle()
 
-    return NextResponse.redirect(appUrl('/profile/edit?strava=connected'))
+    const slug = profile?.username || user.id
+    return NextResponse.redirect(appUrl(`/profile/${encodeURIComponent(slug)}?view=health&strava=connected`))
   } catch (error) {
     console.error('Strava callback failed:', error)
-    return NextResponse.redirect(appUrl('/profile/edit?strava=connect_error'))
+    return NextResponse.redirect(appUrl('/profile?view=health&strava=connect_error'))
   }
 }
