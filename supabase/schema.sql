@@ -1,3 +1,6 @@
+-- Legacy bootstrap file.
+-- Prefer `supabase/bootstrap.sql` for fresh project setup.
+
 -- 1. Create PROFILES table
 create table public.profiles (
   id uuid references auth.users on delete cascade not null primary key,

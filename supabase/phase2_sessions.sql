@@ -1,3 +1,6 @@
+-- Legacy bootstrap file.
+-- Prefer `supabase/bootstrap.sql` for fresh project setup.
+
 -- 1. Create SESSIONS table
 create table public.sessions (
   id uuid default gen_random_uuid() primary key,
