@@ -9,6 +9,8 @@ import { HeatMap } from '@/components/dashboard/stats/heat-map'
 import { Target, HelpCircle, Medal } from 'lucide-react'
 import { PokeButton } from '@/components/profile/poke-button'
 import { AddFriendButton } from '@/components/profile/add-friend-button'
+import { StravaHealthPanel } from '@/components/profile/strava-health-panel'
+import { HealthInsightsPanel } from '@/components/profile/health-insights-panel'
 import { ViewModeQueryTabs } from '@/components/shared/view-mode-query-tabs'
 import { normalizeViewMode } from '@/lib/view-mode'
 
@@ -43,6 +45,10 @@ export default async function ProfilePage({ params, searchParams }: ProfilePageP
     historyStats,
     medalHistory,
     friendsPreview,
+    stravaConnection,
+    stravaSyncState,
+    healthInsights,
+    stravaPublicProfile,
   } = data!
 
   const initials =
@@ -167,6 +173,17 @@ export default async function ProfilePage({ params, searchParams }: ProfilePageP
       </Card>
 
       <ViewModeQueryTabs value={viewMode} />
+
+      {isSelf && viewMode === 'health' && (
+        <StravaHealthPanel
+          stravaConnection={stravaConnection}
+          stravaSyncState={stravaSyncState}
+        />
+      )}
+
+      {viewMode === 'health' && (
+        <HealthInsightsPanel insights={healthInsights} />
+      )}
 
       {/* Grades — single compact card */}
       <Card className="bg-muted/60 border-border">

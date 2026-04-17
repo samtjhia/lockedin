@@ -64,9 +64,14 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
 export function useTheme() {
   const ctx = useContext(ThemeContext)
-  if (!ctx) {
-    throw new Error('useTheme must be used within ThemeProvider')
+  if (ctx) return ctx
+
+  // Fallback for unexpected render paths outside provider.
+  // Keeps UI functional instead of crashing the page.
+  return {
+    theme: 'dark' as Theme,
+    setTheme: () => {},
+    toggleTheme: () => {},
   }
-  return ctx
 }
 
