@@ -4,24 +4,27 @@ import { createAdminClient } from '@/utils/supabase/admin'
 import { exchangeStravaCode, syncStravaForUser } from '@/lib/strava'
 
 export async function GET(request: NextRequest) {
+  const appBaseUrl = process.env.APP_BASE_URL?.trim() || request.nextUrl.origin
+  const appUrl = (path: string) => new URL(path, appBaseUrl)
+
   const supabase = await createClient()
   const {
     data: { user },
   } = await supabase.auth.getUser()
 
   if (!user) {
-    return NextResponse.redirect(new URL('/login?next=/profile/edit', request.url))
+    return NextResponse.redirect(appUrl('/login?next=/profile/edit'))
   }
 
   const code = request.nextUrl.searchParams.get('code')
   if (!code) {
-    return NextResponse.redirect(new URL('/profile/edit?strava=missing_code', request.url))
+    return NextResponse.redirect(appUrl('/profile/edit?strava=missing_code'))
   }
 
   const clientId = process.env.STRAVA_CLIENT_ID
   const clientSecret = process.env.STRAVA_CLIENT_SECRET
   if (!clientId || !clientSecret) {
-    return NextResponse.redirect(new URL('/profile/edit?strava=config_error', request.url))
+    return NextResponse.redirect(appUrl('/profile/edit?strava=config_error'))
   }
 
   try {
@@ -69,9 +72,9 @@ export async function GET(request: NextRequest) {
       lookbackSeconds: 90 * 24 * 60 * 60,
     })
 
-    return NextResponse.redirect(new URL('/profile/edit?strava=connected', request.url))
+    return NextResponse.redirect(appUrl('/profile/edit?strava=connected'))
   } catch (error) {
     console.error('Strava callback failed:', error)
-    return NextResponse.redirect(new URL('/profile/edit?strava=connect_error', request.url))
+    return NextResponse.redirect(appUrl('/profile/edit?strava=connect_error'))
   }
 }
