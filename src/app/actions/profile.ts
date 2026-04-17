@@ -548,6 +548,14 @@ export async function getUserProfileData(slug: string, viewMode: ViewMode = 'all
           elevationM: number
           paceMinPerKm: number | null
           speedKph: number | null
+          movingTimeMinutes: number
+          elapsedTimeMinutes: number
+          calories: number | null
+          topResults: {
+            label: string
+            elapsedSeconds: number
+            prRank: number | null
+          }[]
           stravaActivityId: string | null
           stravaActivityUrl: string | null
         }[]
