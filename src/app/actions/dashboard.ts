@@ -23,7 +23,7 @@ export async function getHeatmapData(viewMode: ViewMode = 'all') {
   }
   
   // Format for react-activity-calendar
-  return (data || []).map((entry: any) => ({
+  return (data || []).map((entry: { date: string; count: number | string; level?: number }) => ({
     date: entry.date,
     count: Number(entry.count),
     level: entry.level
@@ -276,6 +276,52 @@ export async function updateSessionEndTime(sessionId: string, newEndedAt: string
   if (updateError) {
     console.error('Error updating session end time:', updateError)
     return { success: false, error: updateError.message }
+  }
+
+  revalidatePath('/dashboard')
+  revalidatePath('/history')
+  return { success: true }
+}
+
+export type SessionCorrectionSegment = {
+  taskName: string
+  /** ISO 8601 end time for this segment (inclusive wall end; contiguous with next segment). */
+  endedAt: string
+}
+
+/** Atomically trim end time and/or split a completed session into contiguous segments (RPC). */
+export async function applyCompletedSessionCorrections(
+  sessionId: string,
+  finalEndedAt: string,
+  segments: SessionCorrectionSegment[]
+) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { success: false, error: 'Unauthorized' }
+
+  if (!Array.isArray(segments) || segments.length < 1) {
+    return { success: false, error: 'At least one segment is required' }
+  }
+
+  const payload = segments.map((s) => ({
+    task_name: s.taskName.trim(),
+    ended_at: s.endedAt,
+  }))
+
+  const { data, error } = await supabase.rpc('apply_completed_session_corrections', {
+    p_session_id: sessionId,
+    p_final_ended_at: finalEndedAt,
+    p_segments: payload,
+  })
+
+  if (error) {
+    console.error('apply_completed_session_corrections:', error)
+    return { success: false, error: error.message }
+  }
+
+  const row = data as { success?: boolean; error?: string } | null
+  if (!row || row.success !== true) {
+    return { success: false, error: row?.error ?? 'Failed to update session' }
   }
 
   revalidatePath('/dashboard')
